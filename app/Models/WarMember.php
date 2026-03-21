@@ -26,7 +26,7 @@ class WarMember extends Model
     protected $casts = [
         'level' => 'integer',
         'war_score' => 'integer',
-        'ff_score' => 'integer',
+        'ff_score' => 'decimal:2',
         'data' => 'array',
     ];
 
