@@ -24,6 +24,14 @@
                         @if(auth()->user()->is_admin)
                             <a href="/admin" class="px-3 py-2 rounded-md text-purple-300 hover:text-white hover:bg-gray-700">Admin</a>
                         @endif
+                        <form action="/logout" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="px-3 py-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-700">
+                                Logout
+                            </button>
+                        </form>
+                    @else
+                        <a href="/login" class="px-3 py-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-700">Login</a>
                     @endauth
                 </div>
             </div>

@@ -15,6 +15,7 @@ class User extends Authenticatable
         'email',
         'password',
         'torn_player_id',
+        'torn_api_key',
         'is_admin',
     ];
 

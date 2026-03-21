@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+
+class SettingsController extends Controller
+{
+    public function index()
+    {
+        return view('settings.index');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        auth()->user()->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return back()->with('status', 'Password updated successfully.');
+    }
+
+    public function updateApiKey(Request $request)
+    {
+        $request->validate([
+            'torn_api_key' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $user = auth()->user();
+        $user->torn_api_key = $request->torn_api_key;
+        $user->save();
+
+        return back()->with('status', 'API key updated successfully.');
+    }
+}
