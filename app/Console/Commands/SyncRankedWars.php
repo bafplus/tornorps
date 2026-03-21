@@ -94,6 +94,7 @@ class SyncRankedWars extends Command
                         $ffData = $ffIndex[$playerId] ?? null;
                         $ffScore = $ffData['fair_fight'] ?? null;
                         $estimatedStats = $ffData['bs_estimate_human'] ?? null;
+                        $ffUpdatedAt = isset($ffData['last_updated']) ? now()->createFromTimestamp($ffData['last_updated']) : null;
                         
                         WarMember::updateOrCreate(
                             [
@@ -112,6 +113,7 @@ class SyncRankedWars extends Command
                                 'war_score' => $warScore,
                                 'ff_score' => $ffScore,
                                 'estimated_stats' => $estimatedStats,
+                                'ff_updated_at' => $ffUpdatedAt,
                                 'data' => $member,
                             ]
                         );

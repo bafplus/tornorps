@@ -81,7 +81,12 @@
                                 <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                             </td>
                             <td class="p-3">{{ $member->level }}</td>
-                            <td class="p-3 text-right font-mono text-green-400">{{ $member->ff_score ?? '-' }}</td>
+                            <td class="p-3 text-right">
+                                <span class="font-mono text-green-400">{{ $member->ff_score ?? '-' }}</span>
+                                @if($member->ff_updated_at)
+                                    <span class="block text-xs text-gray-500">{{ $member->ff_updated_at->diffForHumans() }}</span>
+                                @endif
+                            </td>
                             <td class="p-3 text-right font-mono text-gray-400 text-sm">{{ $member->estimated_stats ?? '-' }}</td>
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full 
@@ -126,7 +131,12 @@
                                 <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                             </td>
                             <td class="p-3">{{ $member->level }}</td>
-                            <td class="p-3 text-right font-mono text-red-400">{{ $member->ff_score ?? '-' }}</td>
+                            <td class="p-3 text-right">
+                                <span class="font-mono text-red-400">{{ $member->ff_score ?? '-' }}</span>
+                                @if($member->ff_updated_at)
+                                    <span class="block text-xs text-gray-500">{{ $member->ff_updated_at->diffForHumans() }}</span>
+                                @endif
+                            </td>
                             <td class="p-3 text-right font-mono text-gray-400 text-sm">{{ $member->estimated_stats ?? '-' }}</td>
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full 

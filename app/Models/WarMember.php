@@ -20,6 +20,7 @@ class WarMember extends Model
         'war_score',
         'ff_score',
         'estimated_stats',
+        'ff_updated_at',
         'data',
     ];
 
@@ -27,6 +28,7 @@ class WarMember extends Model
         'level' => 'integer',
         'war_score' => 'integer',
         'ff_score' => 'decimal:2',
+        'ff_updated_at' => 'datetime',
         'data' => 'array',
     ];
 
