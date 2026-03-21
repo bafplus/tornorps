@@ -312,3 +312,5 @@
 [2026-03-21 12:56:29] local.ERROR: Torn API Error {"endpoint":"faction/55742","error":{"code":23,"error":"This selection is only available in API v2"}} 
 [2026-03-21 12:56:34] local.INFO: Torn API Call {"endpoint":"faction/55742","params":{"selections":"members"}} 
 [2026-03-21 12:56:34] local.ERROR: Torn API Error {"endpoint":"faction/55742","error":{"code":23,"error":"This selection is only available in API v2"}} 
+[2026-03-21 13:02:41] local.INFO: Torn API Call {"endpoint":"faction/55742","params":[]} 
+[2026-03-21 13:02:59] local.INFO: Torn API Call {"endpoint":"faction/55742","params":[]} 

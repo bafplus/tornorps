@@ -71,12 +71,20 @@ class TornApiService
 
     public function getFactionMembers(int $factionId): ?array
     {
-        return $this->get("faction/{$factionId}", ['selections' => 'members']);
+        $data = $this->get("faction/{$factionId}");
+        if ($data && isset($data['members'])) {
+            return ['members' => $data['members']];
+        }
+        return $data;
     }
 
     public function getRankedWars(int $factionId): ?array
     {
-        return $this->get("faction/{$factionId}", ['selections' => 'rankedwars']);
+        $data = $this->get("faction/{$factionId}");
+        if ($data && isset($data['ranked_wars'])) {
+            return ['rankedwars' => $data['ranked_wars']];
+        }
+        return $data;
     }
 
     public function getRankedWarReport(int $factionId, int $warId): ?array
