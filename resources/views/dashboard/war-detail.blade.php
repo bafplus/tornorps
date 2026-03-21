@@ -155,7 +155,13 @@
                             </td>
                             <td class="p-3 text-right font-mono text-gray-400 text-sm">{{ $member->estimated_stats ?? '-' }}</td>
                             <td class="p-3">
-                                <span class="text-xs text-gray-400">{{ ucfirst($member->online_status) }}</span>
+                                <span class="inline-block w-2 h-2 rounded-full 
+                                    @if($member->status_color === 'green') bg-green-500
+                                    @elseif($member->status_color === 'blue') bg-blue-500
+                                    @elseif($member->status_color === 'red') bg-red-500
+                                    @else bg-gray-500
+                                    @endif"></span>
+                                <span class="text-xs text-gray-400 ml-1">{{ $member->status_description ?? 'Offline' }}</span>
                             </td>
                         </tr>
                         @empty
