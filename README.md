@@ -41,12 +41,12 @@ cd tornorps
 cp .env.example .env
 ```
 
-Edit `.env` with your settings:
+Edit `.env` with your API keys:
 ```env
-APP_KEY=your-generated-key
 TORN_API_KEY=your-torn-api-key
-DB_HOST=127.0.0.1
 ```
+
+> **Note:** `APP_KEY` wordt automatisch gegenereerd in stap 4.
 
 ### 3. Start Docker Container
 
