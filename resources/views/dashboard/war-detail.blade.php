@@ -21,39 +21,39 @@
         </div>
     </div>
 
-    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <div class="text-center">
-            <p class="text-gray-400 text-sm uppercase tracking-wide mb-2" id="timer-label">Time</p>
-            <p class="text-4xl md:text-5xl font-bold font-mono text-blue-400" id="timer-display">--:--:--</p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 md:col-span-2">
-            <h3 class="text-gray-400 text-sm uppercase tracking-wide mb-4">Final Score</h3>
-            <div class="text-center">
-                <div class="flex items-center justify-center space-x-8">
-                    <div>
-                        <p class="text-5xl font-bold text-green-400">{{ $war->score_ours ?? 0 }}</p>
-                        <p class="text-gray-400 mt-2">Our Faction</p>
-                    </div>
-                    <div class="text-3xl text-gray-500">-</div>
-                    <div>
-                        <p class="text-5xl font-bold text-red-400">{{ $war->score_them ?? 0 }}</p>
-                        <p class="text-gray-400 mt-2">{{ $war->opponent_faction_name ?? 'Opponent' }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <h3 class="text-gray-400 text-sm uppercase tracking-wide mb-2">Start Date (UTC)</h3>
             <p class="text-xl font-mono">{{ $war->start_date ? $war->start_date->format('d M Y H:i') : 'Unknown' }}</p>
+            <p class="text-2xl font-bold font-mono mt-2" id="timer-display"></p>
+            <p class="text-gray-400 text-sm" id="timer-label"></p>
         </div>
 
         <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <h3 class="text-gray-400 text-sm uppercase tracking-wide mb-2">End Date (UTC)</h3>
             <p class="text-xl font-mono">{{ $war->end_date ? $war->end_date->format('d M Y H:i') : 'Ongoing' }}</p>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <h3 class="text-gray-400 text-sm uppercase tracking-wide mb-2">War Duration</h3>
+            <p class="text-2xl font-bold font-mono" id="duration-display"></p>
+        </div>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h3 class="text-gray-400 text-sm uppercase tracking-wide mb-4">Final Score</h3>
+        <div class="text-center">
+            <div class="flex items-center justify-center space-x-8">
+                <div>
+                    <p class="text-5xl font-bold text-green-400">{{ $war->score_ours ?? 0 }}</p>
+                    <p class="text-gray-400 mt-2">Our Faction</p>
+                </div>
+                <div class="text-3xl text-gray-500">-</div>
+                <div>
+                    <p class="text-5xl font-bold text-red-400">{{ $war->score_them ?? 0 }}</p>
+                    <p class="text-gray-400 mt-2">{{ $war->opponent_faction_name ?? 'Opponent' }}</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -131,34 +131,34 @@
         const now = Math.floor(Date.now() / 1000);
         const label = document.getElementById('timer-label');
         const display = document.getElementById('timer-display');
+        const durationDisplay = document.getElementById('duration-display');
         
         if (status === 'pending') {
             const diff = startTimestamp - now;
             if (diff > 0) {
                 label.textContent = 'Starts in';
                 display.textContent = formatDuration(diff);
-                display.className = 'text-4xl md:text-5xl font-bold font-mono text-yellow-400';
+                display.className = 'text-2xl font-bold font-mono mt-2 text-yellow-400';
             } else {
                 label.textContent = 'Started';
-                display.textContent = formatDuration(Math.abs(diff));
-                display.className = 'text-4xl md:text-5xl font-bold font-mono text-green-400';
+                display.textContent = formatDuration(Math.abs(diff)) + ' ago';
+                display.className = 'text-2xl font-bold font-mono mt-2 text-green-400';
             }
         } else if (status === 'in progress') {
             const diff = now - startTimestamp;
             label.textContent = 'In progress for';
             display.textContent = formatDuration(diff);
-            display.className = 'text-4xl md:text-5xl font-bold font-mono text-green-400';
+            display.className = 'text-2xl font-bold font-mono mt-2 text-green-400';
         } else if (status === 'won' || status === 'lost') {
-            if (endTimestamp > 0 && startTimestamp > 0) {
-                const duration = endTimestamp - startTimestamp;
-                label.textContent = 'War duration';
-                display.textContent = formatDuration(duration);
-                display.className = 'text-4xl md:text-5xl font-bold font-mono text-gray-400';
-            } else {
-                label.textContent = 'Finished';
-                display.textContent = '--';
-                display.className = 'text-4xl md:text-5xl font-bold font-mono text-gray-400';
-            }
+            display.textContent = '';
+            label.textContent = '';
+        }
+        
+        if ((status === 'won' || status === 'lost') && endTimestamp > 0 && startTimestamp > 0) {
+            const duration = endTimestamp - startTimestamp;
+            durationDisplay.textContent = formatDuration(duration);
+        } else {
+            durationDisplay.textContent = '--';
         }
     }
     
