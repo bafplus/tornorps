@@ -21,6 +21,8 @@ class WarMember extends Model
         'ff_score',
         'estimated_stats',
         'ff_updated_at',
+        'online_status',
+        'online_description',
         'data',
     ];
 

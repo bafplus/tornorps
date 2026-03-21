@@ -100,6 +100,26 @@ class TornApiService
         return $this->get("user/{$playerId}", ['selections' => $selections], $apiKey);
     }
 
+    public function getPlayersOnlineStatus(array $playerIds): array
+    {
+        $results = [];
+        foreach ($playerIds as $playerId) {
+            $data = $this->get("user/{$playerId}", ['selections' => 'profile']);
+            if ($data && isset($data['status'])) {
+                $results[$playerId] = [
+                    'online_status' => $data['status']['indicator'] ?? 'offline',
+                    'online_description' => $data['status']['description'] ?? null,
+                ];
+            } else {
+                $results[$playerId] = [
+                    'online_status' => 'offline',
+                    'online_description' => null,
+                ];
+            }
+        }
+        return $results;
+    }
+
     public function getWars(int $factionId): ?array
     {
         return $this->get("faction/{$factionId}", ['selections' => 'wars']);

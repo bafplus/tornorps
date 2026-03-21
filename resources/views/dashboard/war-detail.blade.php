@@ -78,9 +78,8 @@
                         <tr class="hover:bg-gray-700/30">
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full mr-2
-                                    @if($member->status_color === 'green') bg-green-500
-                                    @elseif($member->status_color === 'blue') bg-blue-500
-                                    @elseif($member->status_color === 'red') bg-red-500
+                                    @if($member->online_status === 'Online') bg-green-500
+                                    @elseif($member->online_status === 'Idle') bg-yellow-500
                                     @else bg-gray-500
                                     @endif"></span>
                                 <span class="font-medium">{{ $member->name }}</span>
@@ -134,9 +133,8 @@
                         <tr class="hover:bg-gray-700/30">
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full mr-2
-                                    @if($member->status_color === 'green') bg-green-500
-                                    @elseif($member->status_color === 'blue') bg-blue-500
-                                    @elseif($member->status_color === 'red') bg-red-500
+                                    @if($member->online_status === 'Online') bg-green-500
+                                    @elseif($member->online_status === 'Idle') bg-yellow-500
                                     @else bg-gray-500
                                     @endif"></span>
                                 <span class="font-medium">{{ $member->name }}</span>
@@ -151,13 +149,7 @@
                             </td>
                             <td class="p-3 text-right font-mono text-gray-400 text-sm">{{ $member->estimated_stats ?? '-' }}</td>
                             <td class="p-3">
-                                <span class="inline-block w-2 h-2 rounded-full 
-                                    @if($member->status_color === 'green') bg-green-500
-                                    @elseif($member->status_color === 'blue') bg-blue-500
-                                    @elseif($member->status_color === 'red') bg-red-500
-                                    @else bg-gray-500
-                                    @endif"></span>
-                                <span class="text-xs text-gray-400 ml-1">{{ $member->status_description ?? 'Offline' }}</span>
+                                <span class="text-xs text-gray-400">{{ ucfirst($member->online_status) }}</span>
                             </td>
                         </tr>
                         @empty
