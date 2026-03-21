@@ -16,39 +16,55 @@
                 Torn City Faction Member Portal
             </p>
             
+            <?php $settings = \App\Models\FactionSettings::first(); ?>
+            
             <div class="bg-gray-800 rounded-lg p-8 mb-8">
                 <h2 class="text-xl font-semibold mb-4 text-blue-400">System Status</h2>
                 <div class="grid grid-cols-2 gap-4 text-left">
                     <div class="bg-gray-700 p-4 rounded">
                         <span class="text-gray-400">Database:</span>
-                        <span class="text-yellow-400 ml-2">Pending Setup</span>
+                        <span class="text-green-400 ml-2">Connected</span>
                     </div>
                     <div class="bg-gray-700 p-4 rounded">
                         <span class="text-gray-400">API Key:</span>
-                        <span class="text-yellow-400 ml-2">Not Configured</span>
+                        <span class="<?php echo $settings && $settings->torn_api_key ? 'text-green-400' : 'text-red-400'; ?> ml-2">
+                            <?php echo $settings && $settings->torn_api_key ? 'Configured' : 'Not Configured'; ?>
+                        </span>
                     </div>
                     <div class="bg-gray-700 p-4 rounded">
                         <span class="text-gray-400">Faction ID:</span>
-                        <span class="text-yellow-400 ml-2">Not Set</span>
+                        <span class="<?php echo $settings && $settings->faction_id ? 'text-green-400' : 'text-red-400'; ?> ml-2">
+                            <?php echo $settings && $settings->faction_id ? $settings->faction_id : 'Not Set'; ?>
+                        </span>
                     </div>
                     <div class="bg-gray-700 p-4 rounded">
-                        <span class="text-gray-400">Laravel:</span>
-                        <span class="text-green-400 ml-2">Installed</span>
+                        <span class="text-gray-400">Admin Account:</span>
+                        <span class="text-green-400 ml-2">Active</span>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-gray-800 rounded-lg p-8">
-                <h2 class="text-xl font-semibold mb-4 text-purple-400">Next Steps</h2>
-                <ol class="text-left space-y-2 text-gray-300">
-                    <li>1. Run <code class="bg-gray-700 px-2 py-1 rounded">composer install</code></li>
-                    <li>2. Copy <code class="bg-gray-700 px-2 py-1 rounded">.env.example</code> to <code class="bg-gray-700 px-2 py-1 rounded">.env</code></li>
-                    <li>3. Configure your Torn API key in <code class="bg-gray-700 px-2 py-1 rounded">.env</code></li>
-                    <li>4. Run <code class="bg-gray-700 px-2 py-1 rounded">php artisan key:generate</code></li>
-                    <li>5. Run <code class="bg-gray-700 px-2 py-1 rounded">php artisan migrate</code></li>
-                    <li>6. Access the admin panel at <code class="bg-gray-700 px-2 py-1 rounded">/admin</code></li>
-                </ol>
+            <?php if ($settings && $settings->torn_api_key && $settings->faction_id): ?>
+            <div class="bg-gray-800 rounded-lg p-8 mb-8">
+                <h2 class="text-xl font-semibold mb-4 text-purple-400">Quick Actions</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="/sync/factions" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition">
+                        Sync Faction Data
+                    </a>
+                    <a href="/sync/wars" class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg transition">
+                        Sync War Data
+                    </a>
+                </div>
             </div>
+            <?php else: ?>
+            <div class="bg-gray-800 rounded-lg p-8">
+                <h2 class="text-xl font-semibold mb-4 text-purple-400">Complete Setup</h2>
+                <p class="text-gray-400 mb-4">Configure your API keys to enable data sync.</p>
+                <a href="/setup" class="inline-block bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition">
+                    Go to Setup
+                </a>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </body>
