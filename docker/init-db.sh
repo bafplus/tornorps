@@ -28,6 +28,7 @@ CREATE USER IF NOT EXISTS 'tornops'@'localhost' IDENTIFIED BY 'tornops123';
 CREATE USER IF NOT EXISTS 'tornops'@'127.0.0.1' IDENTIFIED BY 'tornops123';
 GRANT ALL PRIVILEGES ON tornops.* TO 'tornops'@'localhost';
 GRANT ALL PRIVILEGES ON tornops.* TO 'tornops'@'127.0.0.1';
+SET GLOBAL time_zone = '+00:00';
 FLUSH PRIVILEGES;
 EOF
     
