@@ -27,7 +27,7 @@ class RankedWar extends Model
 
     public function attacks()
     {
-        return $this->hasMany(WarAttack::class, 'war_id', 'war_id');
+        return $this->hasMany(WarAttack::class, 'war_id', 'war_id')->orderByDesc('timestamp');
     }
 
     public function members()

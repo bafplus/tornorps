@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\WarApiController;
 
 Route::get('/setup', [SetupController::class, 'index'])->name('setup');
 Route::post('/setup', [SetupController::class, 'store']);
@@ -14,29 +15,34 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/', function () {
-    $settings = \App\Models\FactionSettings::first();
-    $hasAdmin = \App\Models\User::where('is_admin', true)->exists();
+Route::middleware(['auth'])->group(function () {
 
-    if (!$settings || !$hasAdmin) {
-        return redirect('/setup');
-    }
+    Route::get('/', function () {
+        $settings = \App\Models\FactionSettings::first();
+        $hasAdmin = \App\Models\User::where('is_admin', true)->exists();
 
-    return redirect('/dashboard');
-});
+        if (!$settings || !$hasAdmin) {
+            return redirect('/setup');
+        }
 
-Route::prefix('dashboard')->group(function () {
-    Route::get('/', [DashboardController::class, 'index']);
+        return redirect('/dashboard');
+    });
+
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/', [DashboardController::class, 'index']);
+        Route::get('/members', [DashboardController::class, 'members']);
+        Route::get('/wars', [DashboardController::class, 'wars']);
+        Route::get('/wars/{warId}', [DashboardController::class, 'warDetail']);
+    });
+
     Route::get('/members', [DashboardController::class, 'members']);
     Route::get('/wars', [DashboardController::class, 'wars']);
     Route::get('/wars/{warId}', [DashboardController::class, 'warDetail']);
-});
 
-Route::get('/members', [DashboardController::class, 'members']);
-Route::get('/wars', [DashboardController::class, 'wars']);
-Route::get('/wars/{warId}', [DashboardController::class, 'warDetail']);
+    Route::get('/api/wars/{warId}/live', [WarApiController::class, 'liveData']);
+    Route::get('/api/wars/{warId}/attacks', [WarApiController::class, 'attacks']);
+    Route::get('/api/wars/{warId}/stats', [DashboardController::class, 'warStats']);
 
-Route::middleware(['auth'])->group(function () {
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::put('/settings/password', [SettingsController::class, 'updatePassword']);
     Route::put('/settings/api-key', [SettingsController::class, 'updateApiKey']);

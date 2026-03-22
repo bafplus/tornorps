@@ -24,6 +24,8 @@ class WarMember extends Model
         'online_status',
         'online_description',
         'data',
+        'last_synced_at',
+        'status_changed_at',
     ];
 
     protected $casts = [
@@ -32,6 +34,8 @@ class WarMember extends Model
         'ff_score' => 'decimal:2',
         'ff_updated_at' => 'datetime',
         'data' => 'array',
+        'last_synced_at' => 'datetime',
+        'status_changed_at' => 'datetime',
     ];
 
     public function war()

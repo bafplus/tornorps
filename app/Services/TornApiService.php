@@ -78,12 +78,43 @@ class TornApiService
         return $data;
     }
 
-    public function getRankedWars(int $factionId): ?array
+    public function getRankedWars(int $factionId, bool $noCache = false): ?array
     {
-        $data = $this->get("faction/{$factionId}");
+        $data = $noCache ? $this->getNoCache("faction/{$factionId}") : $this->get("faction/{$factionId}");
         if ($data && isset($data['ranked_wars'])) {
             return ['rankedwars' => $data['ranked_wars']];
         }
+        return $data;
+    }
+    
+    public function getNoCache(string $endpoint, array $params = [], ?string $apiKey = null): ?array
+    {
+        $key = $apiKey ?? $this->apiKey;
+        
+        $response = Http::timeout(10)
+            ->get("{$this->baseUrl}/{$endpoint}", array_merge($params, [
+                'key' => $key
+            ]));
+
+        if ($response->failed()) {
+            Log::error('Torn API Error (no cache)', [
+                'endpoint' => $endpoint,
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            return null;
+        }
+
+        $data = $response->json();
+
+        if (isset($data['error'])) {
+            Log::error('Torn API Error (no cache)', [
+                'endpoint' => $endpoint,
+                'error' => $data['error']
+            ]);
+            return null;
+        }
+
         return $data;
     }
 
@@ -104,7 +135,7 @@ class TornApiService
     {
         $results = [];
         foreach ($playerIds as $playerId) {
-            $data = $this->get("user/{$playerId}", ['selections' => 'profile']);
+            $data = $this->getFresh("user/{$playerId}", ['selections' => 'profile']);
             if ($data && isset($data['last_action']['status'])) {
                 $results[$playerId] = [
                     'online_status' => $data['last_action']['status'] ?? 'Offline',
@@ -120,15 +151,90 @@ class TornApiService
         return $results;
     }
 
+    public function getFresh(string $endpoint, array $params = [], ?string $apiKey = null): ?array
+    {
+        $key = $apiKey ?? $this->apiKey;
+
+        $this->logApiCall($endpoint, $params);
+
+        $response = Http::timeout(10)
+            ->get("{$this->baseUrl}/{$endpoint}", array_merge($params, [
+                'key' => $key
+            ]));
+
+        if ($response->failed()) {
+            Log::error('Torn API Error', [
+                'endpoint' => $endpoint,
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            return null;
+        }
+
+        $data = $response->json();
+
+        if (isset($data['error'])) {
+            Log::error('Torn API Error', [
+                'endpoint' => $endpoint,
+                'error' => $data['error']
+            ]);
+            return null;
+        }
+
+        return $data;
+    }
+
     public function getWars(int $factionId): ?array
     {
         return $this->get("faction/{$factionId}", ['selections' => 'wars']);
     }
 
-    public function getWarfare(int $factionId): ?array
-    {
-        return $this->get("faction/{$factionId}", ['selections' => 'warfare']);
-    }
+public function getWarfare(int $factionId): ?array
+{
+return $this->get("faction/{$factionId}", ['selections' => 'warfare']);
+}
+
+public function getFactionAttacks(int $factionId, ?string $apiKey = null, ?int $from = null, ?int $to = null): ?array
+{
+$params = ['selections' => 'attacks'];
+if ($from) {
+$params['from'] = $from;
+}
+if ($to) {
+$params['to'] = $to;
+}
+return $this->get("faction/{$factionId}", $params, $apiKey);
+}
+
+public function getUserAttacksFull(string $apiKey, int $limit = 1000): ?array
+{
+$response = Http::timeout(10)
+->get("{$this->baseUrl}/v2/user/attacksfull", [
+'key' => $apiKey,
+'limit' => $limit
+]);
+
+if ($response->failed()) {
+Log::error('Torn V2 API Error', [
+'endpoint' => "v2/user/attacksfull",
+'status' => $response->status(),
+'body' => $response->body()
+]);
+return null;
+}
+
+$data = $response->json();
+
+if (isset($data['error'])) {
+Log::error('Torn V2 API Error', [
+'endpoint' => "v2/user/attacksfull",
+'error' => $data['error']
+]);
+return null;
+}
+
+return $data;
+}
 
     public function getAllRankedWars(): ?array
     {

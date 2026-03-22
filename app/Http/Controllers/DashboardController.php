@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FactionSettings;
 use App\Models\FactionMember;
 use App\Models\RankedWar;
+use App\Models\WarAttack;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -67,6 +68,49 @@ class DashboardController extends Controller
             ->orderBy('war_score', 'desc')
             ->get();
 
-        return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers'));
+        $attackStats = WarAttack::where('war_id', $warId)
+            ->selectRaw('attacker_id, 
+                         COUNT(*) as total_attacks,
+                         SUM(CASE WHEN result = "Attacked" OR result = "Hospitalized" THEN 1 ELSE 0 END) as successful,
+                         SUM(CASE WHEN result = "Lost" OR result = "Stalemate" THEN 1 ELSE 0 END) as failed,
+                         SUM(CASE WHEN result = "Interrupted" THEN 1 ELSE 0 END) as interrupted,
+                         SUM(respect_gain) as total_score')
+            ->groupBy('attacker_id')
+            ->get()
+            ->keyBy('attacker_id');
+
+        return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats'));
+    }
+
+    public function warStats(int $warId)
+    {
+        $settings = FactionSettings::first();
+        
+        $attackStats = WarAttack::where('war_id', $warId)
+            ->selectRaw('attacker_id, 
+                         COUNT(*) as total_attacks,
+                         SUM(CASE WHEN result = "Attacked" OR result = "Hospitalized" THEN 1 ELSE 0 END) as successful,
+                         SUM(CASE WHEN result = "Lost" OR result = "Stalemate" THEN 1 ELSE 0 END) as failed,
+                         SUM(CASE WHEN result = "Interrupted" THEN 1 ELSE 0 END) as interrupted,
+                         SUM(respect_gain) as total_score')
+            ->groupBy('attacker_id')
+            ->get()
+            ->keyBy('attacker_id');
+
+        $stats = [];
+        foreach ($attackStats as $playerId => $stat) {
+            $stats[$playerId] = [
+                'hits' => (int) $stat->total_attacks,
+                'successful' => (int) $stat->successful,
+                'failed' => (int) $stat->failed,
+                'interrupted' => (int) $stat->interrupted,
+                'score' => round($stat->total_score, 2)
+            ];
+        }
+
+        return response()->json([
+            'stats' => $stats,
+            'synced_at' => now()->toIso8601String()
+        ]);
     }
 }

@@ -25,8 +25,15 @@ class WarAttack extends Model
         'data' => 'array',
     ];
 
+    protected $appends = ['score_change'];
+
     public function war()
     {
         return $this->belongsTo(RankedWar::class, 'war_id', 'war_id');
+    }
+
+    public function getScoreChangeAttribute()
+    {
+        return $this->respect_gain;
     }
 }
