@@ -45,6 +45,7 @@ class SyncWarChains extends Command
         $now = now();
         $currentChain = $chain['current'] ?? 0;
         $timeout = $chain['timeout'] ?? 0;
+        $modifier = $chain['modifier'] ?? 1;
 
         $expiresAt = null;
         if ($currentChain > 0 && $timeout > 0) {
@@ -63,6 +64,9 @@ class SyncWarChains extends Command
             [
                 'current_chain' => $currentChain,
                 'max_chain' => $maxChain,
+                'chain_hits' => $currentChain,
+                'chain_respect' => 0,
+                'modifier' => $modifier,
                 'last_hit_at' => ($chain['end'] ?? 0) > 0 ? $now->createFromTimestamp($chain['end']) : null,
                 'expires_at' => $expiresAt,
             ]

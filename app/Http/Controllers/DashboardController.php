@@ -118,7 +118,8 @@ $ourFactionId = $settings->faction_id;
         })
         ->filter(fn($r) => !$r['retaliated']);
 
-$ourChain = WarChain::where('war_id', $warId)->where('faction_id', $ourFactionId)->first();
+    $ourChain = WarChain::where('war_id', $warId)->where('faction_id', $ourFactionId)->first();
+    $oppChain = WarChain::where('war_id', $warId)->where('faction_id', $oppFactionId)->first();
     $chainStats = [
         'chain_hits' => $ourChain?->chain_hits ?? 0,
         'max_chain' => $ourChain?->max_chain ?? 0,
@@ -131,10 +132,28 @@ $ourChain = WarChain::where('war_id', $warId)->where('faction_id', $ourFactionId
         $activeChain = [
             'level' => $ourChain->current_chain,
             'expires_at' => $ourChain->expires_at,
+            'chain_hits' => $ourChain->chain_hits ?? 0,
+            'max_chain' => $ourChain->max_chain ?? 0,
+            'chain_respect' => $ourChain->chain_respect ?? 0,
+            'avg_bonus' => 1.0,
+            'faction_name' => $settings->faction_name ?? 'Our Faction',
         ];
     }
 
-    return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain'));
+    $oppActiveChain = null;
+    if ($oppChain && $oppChain->expires_at && $oppChain->expires_at > now()) {
+        $oppActiveChain = [
+            'level' => $oppChain->current_chain,
+            'expires_at' => $oppChain->expires_at,
+            'chain_hits' => $oppChain->chain_hits ?? 0,
+            'max_chain' => $oppChain->max_chain ?? 0,
+            'chain_respect' => $oppChain->chain_respect ?? 0,
+            'avg_bonus' => 1.0,
+            'faction_name' => $war->opponent_faction_name ?? 'Opponent',
+        ];
+    }
+
+    return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain', 'oppActiveChain'));
     }
 
     public function warStats(int $warId)

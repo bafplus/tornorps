@@ -51,7 +51,7 @@
                 <div class="flex items-center justify-center space-x-6">
                     <div>
                         <p class="text-4xl font-bold text-green-400" id="score-ours">{{ $ours }}</p>
-                        <p class="text-gray-400 mt-1 text-sm">Our Faction</p>
+                        <p class="text-gray-400 mt-1 text-sm">{{ $settings->faction_name ?? 'Our Faction' }}</p>
                     </div>
                     <div class="text-2xl text-gray-500">-</div>
                     <div>
@@ -110,23 +110,60 @@
         </div>
 
         <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-            <h3 class="text-sm uppercase tracking-wide mb-1 flex items-center gap-2 text-purple-400">
+            <h3 class="text-sm uppercase tracking-wide mb-2 flex items-center gap-2 text-purple-400">
                 Chaining
             </h3>
-            @if($activeChain)
-            <div class="bg-green-900/30 rounded p-3 mb-3 border border-green-700/50" data-chain-expires="{{ $activeChain['expires_at']->timestamp }}">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <span class="text-green-400 font-bold text-lg">Chain {{ $activeChain['level'] }}+</span>
-                        <span class="text-gray-400 text-sm ml-2">active</span>
-                    </div>
-                    <div class="font-mono text-green-300 text-lg chain-timer"></div>
+            @php
+            $checkpoints = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
+            function renderChain($chainData, $color, $borderColor, $textColor, $checkpoints) {
+                if (!$chainData) return '<div class="bg-gray-700/30 rounded p-2 mb-2 text-center text-gray-500 text-sm">No active chain</div>';
+                $level = $chainData['level'];
+                $segmentCount = 10;
+                $nextCheckpoint = 10;
+                foreach ($checkpoints as $cp) {
+                    if ($level <= $cp) { $segmentCount = $cp; break; }
+                    $segmentCount = $cp;
+                }
+                foreach ($checkpoints as $cp) {
+                    if ($level < $cp) { $nextCheckpoint = $cp; break; }
+                    $nextCheckpoint = $cp;
+                }
+                $filled = min($level, $segmentCount);
+                $nextText = $level >= 100000 ? 'MAX CHAIN' : 'Next: ' . $nextCheckpoint . ' (' . ($nextCheckpoint - $level) . ' to go)';
+                $html = '<div class="bg-' . $borderColor . '/30 rounded p-3 mb-2 border border-' . $borderColor . '/50" data-chain-expires="' . $chainData['expires_at']->timestamp . '">';
+                $html .= '<div class="text-xs ' . $textColor . ' mb-1">' . e($chainData['faction_name']) . '</div>';
+                $html .= '<div class="flex items-center justify-between mb-1">';
+                $html .= '<div class="flex items-center gap-1">';
+                $html .= '<div class="flex gap-0.5">';
+                for ($i = 1; $i <= $segmentCount; $i++) {
+                    $html .= '<div class="w-3 h-3 rounded-sm ' . ($i <= $filled ? 'bg-' . $color . '-400' : 'bg-gray-600') . '"></div>';
+                }
+                $html .= '</div>';
+                $html .= '<span class="text-' . $color . '-400 font-bold text-lg">' . $level . '</span>';
+                $html .= '<span class="text-' . $color . '-300 text-lg">/<span class="text-xs">' . $segmentCount . '</span></span>';
+                $html .= '</div>';
+                $html .= '<div class="font-mono text-' . $color . '-300 text-lg chain-timer"></div>';
+                $html .= '</div>';
+                $html .= '<div class="flex justify-between text-xs text-gray-400">';
+                $html .= '<div class="flex gap-3">';
+                $html .= '<span>H: ' . $chainData['level'] . '</span>';
+                $html .= '<span>Max: ' . $chainData['max_chain'] . '</span>';
+                $html .= '</div>';
+                $html .= '<span>' . $nextText . '</span>';
+                $html .= '</div>';
+                $html .= '</div>';
+                return $html;
+            }
+            @endphp
+            @if($activeChain || $oppActiveChain)
+                <div class="space-y-1">
+                    {!! renderChain($activeChain, 'green', 'green', 'text-green-400', $checkpoints) !!}
+                    {!! renderChain($oppActiveChain, 'red', 'red', 'text-red-400', $checkpoints) !!}
                 </div>
-            </div>
             @else
-            <div class="bg-gray-700/30 rounded p-2 mb-3 text-center text-gray-500 text-sm">
-                No active chain
-            </div>
+                <div class="bg-gray-700/30 rounded p-2 text-center text-gray-500 text-sm">
+                    No active chains
+                </div>
             @endif
         </div>
     </div>
@@ -134,7 +171,7 @@
     <div class="grid gap-6 two-cols" style="display: grid; grid-template-columns: 1fr 1fr;">
         <div class="bg-gray-800 rounded-lg border border-gray-700">
             <div class="p-4 border-b border-gray-700">
-                <h2 class="text-xl font-semibold text-green-400" id="header-our">Our Faction (<span id="pts-our">{{ $war->score_ours ?? 0 }}</span> pts)</h2>
+                <h2 class="text-xl font-semibold text-green-400" id="header-our">{{ $settings->faction_name ?? 'Our Faction' }} (<span id="pts-our">{{ $war->score_ours ?? 0 }}</span> pts)</h2>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -526,21 +563,20 @@ function updateRetaliationTimers() {
 
 function updateChainTimer() {
     var now = Math.floor(Date.now() / 1000);
-    var chainRow = document.querySelector('[data-chain-expires]');
-    if (!chainRow) return;
-    var expires = parseInt(chainRow.getAttribute('data-chain-expires'));
-    var timerEl = chainRow.querySelector('.chain-timer');
-    if (!timerEl) return;
-    var remaining = expires - now;
-    if (remaining > 0) {
-        var m = Math.floor(remaining / 60);
-        var s = remaining % 60;
-        timerEl.textContent = m + ':' + s.toString().padStart(2, '0');
-    } else {
-        timerEl.textContent = 'EXPIRED';
-        chainRow.classList.remove('bg-green-900/30', 'border-green-700/50');
-        chainRow.classList.add('bg-gray-700/30', 'opacity-50');
-    }
+    var chains = document.querySelectorAll('[data-chain-expires]');
+    chains.forEach(function(chainRow) {
+        var expires = parseInt(chainRow.getAttribute('data-chain-expires'));
+        var timerEl = chainRow.querySelector('.chain-timer');
+        if (!timerEl) return;
+        var remaining = expires - now;
+        if (remaining > 0) {
+            var m = Math.floor(remaining / 60);
+            var s = remaining % 60;
+            timerEl.textContent = m + ':' + s.toString().padStart(2, '0');
+        } else {
+            timerEl.textContent = 'EXPIRED';
+        }
+    });
 }
 
 function parseStats(str) {
