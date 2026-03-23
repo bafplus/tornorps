@@ -118,31 +118,41 @@
             function renderChain($chainData, $color, $borderColor, $textColor, $checkpoints) {
                 if (!$chainData) return '<div class="bg-gray-700/30 rounded p-2 mb-2 text-center text-gray-500 text-sm">No active chain</div>';
                 $level = $chainData['level'];
-                $segmentCount = 10;
+                $maxSegments = 25;
                 $nextCheckpoint = 10;
-                foreach ($checkpoints as $cp) {
-                    if ($level <= $cp) { $segmentCount = $cp; break; }
-                    $segmentCount = $cp;
-                }
                 foreach ($checkpoints as $cp) {
                     if ($level < $cp) { $nextCheckpoint = $cp; break; }
                     $nextCheckpoint = $cp;
                 }
-                $filled = min($level, $segmentCount);
+                $denominator = 10;
+                foreach ($checkpoints as $cp) {
+                    if ($level <= $cp) { $denominator = $cp; break; }
+                    $denominator = $cp;
+                }
+                $prevCheckpoint = 0;
+                foreach ($checkpoints as $cp) {
+                    if ($level <= $cp) break;
+                    $prevCheckpoint = $cp;
+                }
+                $filled = min($level - $prevCheckpoint, 25);
+                if ($filled <= 0) $filled = $level;
+                $prefix = $prevCheckpoint > 0 ? ($prevCheckpoint . '+ ') : '';
                 $nextText = $level >= 100000 ? 'MAX CHAIN' : 'Next: ' . $nextCheckpoint . ' (' . ($nextCheckpoint - $level) . ' to go)';
-                $html = '<div class="bg-' . $borderColor . '/30 rounded p-3 mb-2 border border-' . $borderColor . '/50" data-chain-expires="' . $chainData['expires_at']->timestamp . '">';
+                $bgClass = $color === 'green' ? 'from-green-900/40 to-green-800/20' : 'from-red-900/40 to-red-800/20';
+                $borderClass = 'border-' . $color . '-500';
+                $html = '<div class="bg-gradient-to-r ' . $bgClass . ' rounded p-3 mb-2 ' . $borderClass . '" data-chain-expires="' . $chainData['expires_at']->timestamp . '">';
                 $html .= '<div class="text-xs ' . $textColor . ' mb-1">' . e($chainData['faction_name']) . '</div>';
-                $html .= '<div class="flex items-center justify-between mb-1">';
-                $html .= '<div class="flex items-center gap-1">';
-                $html .= '<div class="flex gap-0.5">';
-                for ($i = 1; $i <= $segmentCount; $i++) {
+                $html .= '<div class="flex items-center mb-1">';
+                $html .= '<span class="text-' . $color . '-400 font-bold text-sm mr-2">' . $prefix . '</span>';
+                $html .= '<div class="flex gap-0.5" style="min-width: ' . ($maxSegments * 14) . 'px;">';
+                for ($i = 1; $i <= $maxSegments; $i++) {
                     $html .= '<div class="w-3 h-3 rounded-sm ' . ($i <= $filled ? 'bg-' . $color . '-400' : 'bg-gray-600') . '"></div>';
                 }
                 $html .= '</div>';
-                $html .= '<span class="text-' . $color . '-400 font-bold text-lg">' . $level . '</span>';
-                $html .= '<span class="text-' . $color . '-300 text-lg">/<span class="text-xs">' . $segmentCount . '</span></span>';
-                $html .= '</div>';
-                $html .= '<div class="font-mono text-' . $color . '-300 text-lg chain-timer"></div>';
+                $html .= '<span class="text-' . $color . '-400 font-bold text-lg ml-2">' . $level . '</span>';
+                $html .= '<span class="text-' . $color . '-400 font-bold text-sm">/' . $denominator . '</span>';
+                $html .= '<div class="flex-1"></div>';
+                $html .= '<div class="font-mono text-' . $color . '-300 text-lg ml-2 chain-timer"></div>';
                 $html .= '</div>';
                 $html .= '<div class="flex justify-between text-xs text-gray-400">';
                 $html .= '<div class="flex gap-3">';
