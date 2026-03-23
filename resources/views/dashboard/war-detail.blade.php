@@ -174,9 +174,28 @@
                             </td>
                             <td class="p-3 text-right font-mono text-purple-400">{{ $warScore > 0 ? number_format($warScore, 2) : '-' }}</td>
                             <td class="p-3">
-                                @php $statusData = is_array($member->data) ? $member->data : json_decode($member->data, true); @endphp
-                                @if($member->status_color === 'red' && isset($statusData['status']['until']))
-                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium hospital-timer" data-until="{{ $statusData['status']['until'] }}">{{ $member->status_description ?? 'Hospital' }}</span>
+                                @if($member->status_color === 'red')
+                                    @php 
+                                    $data = $member->data;
+                                    $statusData = $data['status'] ?? [];
+                                    $until = $statusData['until'] ?? 0;
+                                    $remaining = $until > 0 ? max(0, $until - time()) : 0;
+                                    $h = floor($remaining / 3600);
+                                    $m = floor(($remaining % 3600) / 60);
+                                    $s = $remaining % 60;
+                                    $timeStr = $remaining > 0 ? ($h > 0 ? "{$h}h {$m}m" : ($m > 0 ? "{$m}m {$s}s" : "{$s}s")) : '';
+                                    $statusDesc = $statusData['description'] ?? $member->status_description ?? 'Hospital';
+                                    if (stripos($statusDesc, 'In hospital for') === 0) {
+                                        $statusDesc = 'In Hospital';
+                                    }
+                                    @endphp
+                                    @if($until > 0 && $remaining > 0)
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium hospital-timer" data-until="{{ $until }}"><span class="hospital-time">{{ $statusDesc }} ({{ $timeStr }})</span></span>
+                                    @elseif($until > 0 && $remaining <= 0)
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-medium">Released</span>
+                                    @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium">{{ $statusDesc }}</span>
+                                    @endif
                                 @elseif($member->status_color === 'blue')
                                     <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->status_changed_at?->timestamp }}" data-travel-time="60">
                                         <span class="torn-icon" style="display:none;width:12px;height:12px;border:1px solid currentColor;border-radius:50%;text-align:center;line-height:10px;font-size:8px;">T</span>
@@ -241,9 +260,28 @@
                                 <span class="block text-xs text-gray-500">S:{{ $successful }} F:{{ $failed }} I:{{ $interrupted }}</span>
                             </td>
                             <td class="p-3">
-                                @php $statusData = is_array($member->data) ? $member->data : json_decode($member->data, true); @endphp
-                                @if($member->status_color === 'red' && isset($statusData['status']['until']))
-                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium hospital-timer" data-until="{{ $statusData['status']['until'] }}">{{ $member->status_description ?? 'Hospital' }}</span>
+                                @if($member->status_color === 'red')
+                                    @php 
+                                    $data = $member->data;
+                                    $statusData = $data['status'] ?? [];
+                                    $until = $statusData['until'] ?? 0;
+                                    $remaining = $until > 0 ? max(0, $until - time()) : 0;
+                                    $h = floor($remaining / 3600);
+                                    $m = floor(($remaining % 3600) / 60);
+                                    $s = $remaining % 60;
+                                    $timeStr = $remaining > 0 ? ($h > 0 ? "{$h}h {$m}m" : ($m > 0 ? "{$m}m {$s}s" : "{$s}s")) : '';
+                                    $statusDesc = $statusData['description'] ?? $member->status_description ?? 'Hospital';
+                                    if (stripos($statusDesc, 'In hospital for') === 0) {
+                                        $statusDesc = 'In Hospital';
+                                    }
+                                    @endphp
+                                    @if($until > 0 && $remaining > 0)
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium hospital-timer" data-until="{{ $until }}"><span class="hospital-time">{{ $statusDesc }} ({{ $timeStr }})</span></span>
+                                    @elseif($until > 0 && $remaining <= 0)
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-medium">Released</span>
+                                    @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium">{{ $statusDesc }}</span>
+                                    @endif
                                 @elseif($member->status_color === 'blue')
                                     <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->status_changed_at?->timestamp }}" data-travel-time="60">
                                         <span class="torn-icon" style="display:none;width:12px;height:12px;border:1px solid currentColor;border-radius:50%;text-align:center;line-height:10px;font-size:8px;">T</span>
@@ -403,30 +441,33 @@ return null;
 }
 
 function updateHospitalTimers() {
-var now = Math.floor(Date.now() / 1000);
-var elements = document.querySelectorAll('.hospital-timer');
-for (var i = 0; i < elements.length; i++) {
-var el = elements[i];
-var until = parseInt(el.getAttribute('data-until'));
-if (isNaN(until)) continue;
+    var now = Math.floor(Date.now() / 1000);
+    var elements = document.querySelectorAll('.hospital-timer');
+    for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        var until = parseInt(el.getAttribute('data-until'));
+        if (isNaN(until) || until <= 0) continue;
 
-var desc = el.querySelector('.hospital-desc');
-var pulse = el.querySelector('.animate-pulse');
-var title = el.getAttribute('title') || '';
-var country = getHospitalCountry(title);
+        var timeEl = el.querySelector('.hospital-time');
+        if (!timeEl) continue;
 
-if (now < until) {
-var remaining = until - now;
-var prefix = country ? 'Hospital in ' + country : 'Hospital';
-if (desc) desc.textContent = prefix + ' (' + formatTime(remaining) + ')';
-if (pulse) pulse.style.display = 'inline-block';
-} else {
-if (desc) desc.textContent = 'Released';
-if (pulse) pulse.style.display = 'none';
-el.classList.remove('bg-red-900/50', 'text-red-400');
-el.classList.add('bg-green-900/50', 'text-green-400');
-}
-}
+        var remaining = until - now;
+            if (remaining > 0) {
+            var h = Math.floor(remaining / 3600);
+            var m = Math.floor((remaining % 3600) / 60);
+            var s = remaining % 60;
+            var timeStr = h > 0 ? (h + 'h ' + m + 'm') : (m > 0 ? (m + 'm ' + s + 's') : (s + 's'));
+            var currentText = timeEl.textContent.replace(/\s*\([^)]*\)\s*$/, '').trim();
+            if (currentText.toLowerCase().startsWith('in hospital for')) {
+                currentText = 'In Hospital';
+            }
+            timeEl.textContent = currentText + ' (' + timeStr + ')';
+        } else {
+            timeEl.textContent = 'Released';
+            el.classList.remove('bg-red-900/50', 'text-red-400');
+            el.classList.add('bg-green-900/50', 'text-green-400');
+        }
+    }
 }
 
 function updateTravelTimers() {
