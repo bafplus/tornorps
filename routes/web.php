@@ -7,6 +7,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WarApiController;
+use App\Http\Controllers\GymAssistantController;
 
 Route::get('/setup', [SetupController::class, 'index'])->name('setup');
 Route::post('/setup', [SetupController::class, 'store']);
@@ -46,6 +47,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::put('/settings/password', [SettingsController::class, 'updatePassword']);
     Route::put('/settings/api-key', [SettingsController::class, 'updateApiKey']);
+    
+    Route::get('/gym', [GymAssistantController::class, 'index']);
+    Route::post('/gym/update', [GymAssistantController::class, 'update']);
+    Route::post('/gym/program', [GymAssistantController::class, 'selectProgram']);
     
     Route::middleware(['admin'])->group(function () {
         Route::get('/admin', [AdminController::class, 'index']);
