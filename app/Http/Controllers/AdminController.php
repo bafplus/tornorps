@@ -164,8 +164,6 @@ class AdminController extends Controller
             exec($gitPullCmd, $output, $returnCode);
             
             if ($returnCode === 0) {
-            
-            if ($returnCode === 0) {
                 $configPath = base_path('config/tornops.php');
                 $configContent = file_get_contents($configPath);
                 $newContent = preg_replace(
