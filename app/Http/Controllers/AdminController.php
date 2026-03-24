@@ -160,7 +160,7 @@ class AdminController extends Controller
             $output = [];
             $returnCode = 0;
             
-            $gitPullCmd = '/usr/bin/git config --global --add safe.directory /var/www/html 2>&1; /usr/bin/git -C /var/www/html pull 2>&1';
+            $gitPullCmd = 'HOME=/root /usr/bin/git config --global --add safe.directory /var/www/html 2>&1; HOME=/root /usr/bin/git -C /var/www/html remote set-url origin https://github.com/bafplus/tornorps.git 2>&1; HOME=/root /usr/bin/git -C /var/www/html pull 2>&1';
             exec($gitPullCmd, $output, $returnCode);
             
             if ($returnCode === 0) {
