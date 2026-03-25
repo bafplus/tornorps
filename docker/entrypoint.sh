@@ -6,6 +6,9 @@ echo "=== TornOps Container Starting ==="
 DATA_DIR="${DATA_DIR:-/data}"
 APP_DIR="${DATA_DIR}/app"
 
+git config --global --add safe.directory /data/app
+git config --global --add safe.directory /var/www/html
+
 # If no /data mounted, use /var/www/html directly
 if [ ! -d "$APP_DIR/.git" ]; then
     if [ -d "/data/app/.git" ]; then
@@ -36,15 +39,24 @@ fi
 # Always work in /var/www/html for the web app
 cd /var/www/html
 
+# Create storage directories that are gitignored
+mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+
 # Fix permissions for Apache - ensure all files are readable and executable
 find . -type f -exec chmod 644 {} \;
 find . -type d -exec chmod 755 {} \;
 chmod -R 775 storage storage/framework storage/logs bootstrap/cache
 chown -R 33:33 .
 
-mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views
 chmod -R 775 storage/framework
 chown -R www-data:www-data storage/framework
+
+# Fix permissions on /data first if it exists (for TrueNAS mounted volumes)
+if [ -d "$DATA_DIR" ]; then
+    echo "Fixing /data permissions..."
+    chown -R 33:33 "$DATA_DIR"
+    chmod -R 777 "$DATA_DIR"
+fi
 
 # Use /data/.env if mounted, or use environment variables passed to container
 if [ -f "${DATA_DIR}/.env" ] && [ -d "$DATA_DIR" ]; then
@@ -56,10 +68,6 @@ if [ -f "${DATA_DIR}/.env" ] && [ -d "$DATA_DIR" ]; then
     
     grep -q "^SESSION_DRIVER=" .env || echo "SESSION_DRIVER=file" >> .env
     grep -q "^CACHE_STORE=" .env || echo "CACHE_STORE=file" >> .env
-    
-    # Fix ownership and permissions FIRST before creating database
-    chown -R 33:33 "$DATA_DIR"
-    chmod -R 777 "$DATA_DIR"
     
     DB_PATH="/data/database.sqlite"
 else
