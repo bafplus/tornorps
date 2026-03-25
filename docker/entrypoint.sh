@@ -62,6 +62,8 @@ if [ ! -f "/data/database.sqlite" ]; then
     touch /data/database.sqlite
 fi
 
+chmod 666 /data/database.sqlite
+
 php artisan key:generate --force 2>/dev/null || true
 php artisan migrate --force
 
