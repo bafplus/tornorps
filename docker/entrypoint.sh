@@ -46,7 +46,7 @@ mkdir -p storage/framework/cache storage/framework/sessions storage/framework/vi
 chmod -R 775 storage/framework
 chown -R www-data:www-data storage/framework
 
-# Use /data/.env if mounted, otherwise use app directory
+# Use /data/.env if mounted, or use environment variables passed to container
 if [ -f "${DATA_DIR}/.env" ] && [ -d "$DATA_DIR" ]; then
     echo "Using .env from data directory..."
     cp "${DATA_DIR}/.env" .env
@@ -57,20 +57,21 @@ if [ -f "${DATA_DIR}/.env" ] && [ -d "$DATA_DIR" ]; then
     DB_PATH="/data/database.sqlite"
     chown -R www-data:www-data "$DATA_DIR"
 else
-    echo "Creating default .env..."
-    cat > .env << 'ENVEOF'
-APP_NAME="TornOps"
-APP_ENV=production
+    echo "Using environment variables..."
+    # Use env vars passed to container
+    cat > .env << ENVEOF
+APP_NAME="${APP_NAME:-TornOps}"
+APP_ENV="${APP_ENV:-production}"
 APP_KEY=
-APP_DEBUG=false
-APP_URL=http://localhost:8080
+APP_DEBUG="${APP_DEBUG:-false}"
+APP_URL="${APP_URL:-http://localhost:8080}"
 LOG_CHANNEL=stack
 LOG_LEVEL=warning
 DB_CONNECTION=sqlite
 DB_DATABASE=/var/www/html/database.sqlite
 SESSION_DRIVER=file
 CACHE_STORE=file
-TORN_API_KEY=dummy
+TORN_API_KEY=${TORN_API_KEY:-dummy}
 ENVEOF
     DB_PATH="/var/www/html/database.sqlite"
 fi
