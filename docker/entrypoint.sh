@@ -55,7 +55,9 @@ if [ -f "${DATA_DIR}/.env" ] && [ -d "$DATA_DIR" ]; then
     grep -q "^CACHE_STORE=" .env || echo "CACHE_STORE=file" >> .env
     
     DB_PATH="/data/database.sqlite"
+    # Fix ownership and permissions of mounted volume
     chown -R www-data:www-data "$DATA_DIR"
+    chmod -R 777 "$DATA_DIR"
 else
     echo "Using environment variables..."
     # Use env vars passed to container
@@ -87,6 +89,7 @@ if [ ! -f "$DB_PATH" ]; then
 fi
 
 chmod 666 "$DB_PATH"
+chown www-data:www-data "$DB_PATH"
 
 php artisan key:generate --force 2>/dev/null || true
 php artisan migrate --force
