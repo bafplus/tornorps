@@ -3,6 +3,18 @@ set -e
 
 echo "=== TornOps Container Starting ==="
 
+# Allow overriding UID/GID for the web server user
+PUID="${PUID:-1000}"
+PGID="${PGID:-1000}"
+
+# Create group and user if they don't exist
+if ! getent group $PGID > /dev/null 2>&1; then
+    groupadd -g $PGID appgroup 2>/dev/null || true
+fi
+if ! id -u $PUID > /dev/null 2>&1; then
+    useradd -u $PUID -g $PGID -m appuser 2>/dev/null || true
+fi
+
 DATA_DIR="${DATA_DIR:-/data}"
 APP_DIR="${DATA_DIR}/app"
 
@@ -40,7 +52,7 @@ cd /var/www/html
 find . -type f -exec chmod 644 {} \;
 find . -type d -exec chmod 755 {} \;
 chmod -R 775 storage storage/framework storage/logs bootstrap/cache
-chown -R www-data:www-data .
+chown -R $PUID:$PGID .
 
 mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views
 chmod -R 775 storage/framework
@@ -55,8 +67,8 @@ if [ -f "${DATA_DIR}/.env" ] && [ -d "$DATA_DIR" ]; then
     grep -q "^CACHE_STORE=" .env || echo "CACHE_STORE=file" >> .env
     
     DB_PATH="/data/database.sqlite"
-    # Fix ownership and permissions of mounted volume
-    chown -R www-data:www-data "$DATA_DIR"
+    # Fix ownership and permissions of mounted volume to match PUID/PGID
+    chown -R $PUID:$PGID "$DATA_DIR"
     chmod -R 777 "$DATA_DIR"
 else
     echo "Using environment variables..."
@@ -89,7 +101,11 @@ if [ ! -f "$DB_PATH" ]; then
 fi
 
 chmod 666 "$DB_PATH"
-chown www-data:www-data "$DB_PATH"
+chown $PUID:$PGID "$DB_PATH"
+
+# Set Apache to run as the configured user
+export APACHE_RUN_USER=appuser
+export APACHE_RUN_GROUP=appgroup
 
 php artisan key:generate --force 2>/dev/null || true
 php artisan migrate --force
