@@ -15,9 +15,18 @@ class TornApiService
 
     public function __construct()
     {
-        $settings = FactionSettings::first();
-        if ($settings) {
-            $this->apiKey = $settings->torn_api_key;
+        // Skip loading API key if tables don't exist yet (during setup)
+        if (!\Schema::hasTable('faction_settings')) {
+            return;
+        }
+
+        try {
+            $settings = FactionSettings::first();
+            if ($settings && $settings->torn_api_key) {
+                $this->apiKey = $settings->torn_api_key;
+            }
+        } catch (\Exception $e) {
+            $this->apiKey = null;
         }
     }
 
