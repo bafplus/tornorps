@@ -51,13 +51,17 @@ if [ -f "${DATA_DIR}/.env" ] && [ -d "$DATA_DIR" ]; then
     echo "Using .env from data directory..."
     cp "${DATA_DIR}/.env" .env
     
+    # Force correct database path for /data volume
+    sed -i 's|DB_DATABASE=.*|DB_DATABASE=/data/database.sqlite|' .env
+    
     grep -q "^SESSION_DRIVER=" .env || echo "SESSION_DRIVER=file" >> .env
     grep -q "^CACHE_STORE=" .env || echo "CACHE_STORE=file" >> .env
     
-    DB_PATH="/data/database.sqlite"
-    # Fix ownership and permissions of mounted volume for www-data
+    # Fix ownership and permissions FIRST before creating database
     chown -R 33:33 "$DATA_DIR"
     chmod -R 777 "$DATA_DIR"
+    
+    DB_PATH="/data/database.sqlite"
 else
     echo "Using environment variables..."
     # Use env vars passed to container
@@ -83,8 +87,11 @@ if [ ! -f "vendor/autoload.php" ]; then
     composer install --no-interaction --no-dev
 fi
 
+# Ensure database directory exists
+mkdir -p "$(dirname "$DB_PATH")"
+
 if [ ! -f "$DB_PATH" ]; then
-    echo "Creating database..."
+    echo "Creating database at $DB_PATH..."
     touch "$DB_PATH"
 fi
 
