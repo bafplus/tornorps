@@ -41,7 +41,14 @@ class SyncFactionMembers extends Command
                     'name' => $member['name'] ?? null,
                     'level' => $member['level'] ?? 1,
                     'rank' => $member['rank'] ?? null,
+                    'position' => $member['position'] ?? null,
                     'days_in_faction' => $member['days_in_faction'] ?? null,
+                    'status_description' => $member['status']['description'] ?? null,
+                    'status_color' => $member['status']['color'] ?? null,
+                    'online_status' => $member['last_action']['status'] ?? null,
+                    'status_changed_at' => isset($member['status']['until']) && $member['status']['until'] > 0 
+                        ? \Carbon\Carbon::createFromTimestamp($member['status']['until']) 
+                        : null,
                     'data' => $member,
                     'last_synced_at' => now(),
                 ]
