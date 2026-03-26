@@ -98,9 +98,11 @@ class TornApiService
 
     public function getRankedWars(int $factionId, bool $noCache = false): ?array
     {
-        $data = $noCache ? $this->getNoCache("faction/{$factionId}") : $this->get("faction/{$factionId}");
-        if ($data && isset($data['ranked_wars'])) {
-            return ['rankedwars' => $data['ranked_wars']];
+        $data = $noCache 
+            ? $this->getNoCache("faction/{$factionId}", ['selections' => 'rankedwars'])
+            : $this->get("faction/{$factionId}", ['selections' => 'rankedwars']);
+        if ($data && isset($data['rankedwars'])) {
+            return ['rankedwars' => $data['rankedwars']];
         }
         return $data;
     }
@@ -110,9 +112,7 @@ class TornApiService
         $key = $apiKey ?? $this->apiKey;
         
         $response = Http::timeout(10)
-            ->get("{$this->baseUrl}/{$endpoint}", array_merge($params, [
-                'key' => $key
-            ]));
+            ->get("{$this->baseUrl}/{$endpoint}", array_merge(['key' => $key], $params));
 
         if ($response->failed()) {
             Log::error('Torn API Error (no cache)', [
