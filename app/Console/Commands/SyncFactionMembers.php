@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\FactionSettings;
 use App\Models\FactionMember;
+use App\Models\DataRefreshLog;
 use App\Services\TornApiService;
 use App\Services\FFScouterService;
 use Illuminate\Console\Command;
@@ -23,6 +24,7 @@ class SyncFactionMembers extends Command
         }
 
         $this->info("Syncing members for faction {$factionId}...");
+        $log = DataRefreshLog::logStart('faction_members');
 
         $data = $tornApi->getFactionMembers($factionId);
 
@@ -98,6 +100,8 @@ class SyncFactionMembers extends Command
         $skipped = count($missingIds);
         $reused = $count - $skipped;
         $this->info("Synced {$count} members ({$reused} from cache, {$skipped} from FF Scouter).");
+        
+        $log->markComplete($count);
         return Command::SUCCESS;
     }
 }

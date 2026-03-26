@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\FactionSettings;
 use App\Models\RankedWar;
 use App\Models\WarMember;
+use App\Models\DataRefreshLog;
 use App\Services\TornApiService;
 use App\Services\FFScouterService;
 use Illuminate\Console\Command;
@@ -24,6 +25,7 @@ class SyncRankedWars extends Command
         }
 
         $this->info("Syncing ranked wars for faction {$factionId}...");
+        $log = DataRefreshLog::logStart('ranked_wars');
 
         $data = $tornApi->getRankedWars($factionId);
 
@@ -133,6 +135,8 @@ class SyncRankedWars extends Command
         }
 
         $this->info("Synced {$warCount} ranked wars with {$memberCount} member records.");
+        
+        $log->markComplete($memberCount);
         return Command::SUCCESS;
     }
 }
