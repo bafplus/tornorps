@@ -207,5 +207,90 @@
             </form>
         </div>
     </div>
+
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4 text-yellow-400">API Schedule</h2>
+        <p class="text-gray-400 text-sm mb-4">All scheduled API calls and their current status</p>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="text-left text-gray-400 bg-gray-700/50">
+                        <th class="p-3">Command</th>
+                        <th class="p-3">Schedule</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">API Calls</th>
+                        <th class="p-3">Description</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-blue-400">torn:sync-faction</td>
+                        <td class="p-3">Every 5 min</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
+                        <td class="p-3 text-gray-400">1-2 calls</td>
+                        <td class="p-3 text-gray-400">Runs sync-members and sync-wars</td>
+                    </tr>
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-blue-400">torn:sync-members</td>
+                        <td class="p-3">Every 5 min</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
+                        <td class="p-3 text-gray-400">1-5 calls</td>
+                        <td class="p-3 text-gray-400">Syncs your faction members. Uses FF Scouter for new members (reuses data from war cache when possible)</td>
+                    </tr>
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-blue-400">torn:sync-wars</td>
+                        <td class="p-3">Every 5 min</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
+                        <td class="p-3 text-gray-400">5-20 calls</td>
+                        <td class="p-3 text-gray-400">Syncs ranked wars, members, and war data. Calls war report for each active war</td>
+                    </tr>
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-blue-400">faction/{id}</td>
+                        <td class="p-3">Every 5 min</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
+                        <td class="p-3 text-gray-400">1 call</td>
+                        <td class="p-3 text-gray-400">Fetches faction info and member list</td>
+                    </tr>
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-blue-400">faction/{id}/rankedwars</td>
+                        <td class="p-3">Every 5 min</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
+                        <td class="p-3 text-gray-400">1 call</td>
+                        <td class="p-3 text-gray-400">Fetches ranked war history</td>
+                    </tr>
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-blue-400">faction/{id}/rankedwarsreport</td>
+                        <td class="p-3">Every 5 min</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
+                        <td class="p-3 text-gray-400">1 per war</td>
+                        <td class="p-3 text-gray-400">Fetches detailed war data (attacks, members, scores)</td>
+                    </tr>
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-blue-400">FF Scouter API</td>
+                        <td class="p-3">Every 5 min</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
+                        <td class="p-3 text-gray-400">1 batch call</td>
+                        <td class="p-3 text-gray-400">Fetches Fair Fight scores and estimated stats for members. Reuses cached data when possible</td>
+                    </tr>
+                    <tr class="hover:bg-gray-700/30">
+                        <td class="p-3 font-mono text-blue-400">user/{id}</td>
+                        <td class="p-3">On setup only</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-blue-900 text-blue-400">Setup</span></td>
+                        <td class="p-3 text-gray-400">1 call</td>
+                        <td class="p-3 text-gray-400">Verifies admin player belongs to configured faction</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-4 p-4 bg-gray-900/50 rounded border border-gray-700">
+            <p class="text-gray-400 text-sm">
+                <span class="text-yellow-400 font-semibold">Note:</span> 
+                Torn API limits to 100 requests per minute. This system uses caching and smart reuse to stay well under that limit.
+                War syncs may be delayed if rate limited.
+            </p>
+        </div>
+    </div>
 </div>
 @endsection
