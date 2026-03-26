@@ -84,7 +84,8 @@ class SetupController extends Controller
         }
 
         $tornApi = new TornApiService();
-        $playerData = $tornApi->getPlayer($request->input('torn_player_id'), 'profile');
+        // Pass API key directly to ensure we use the latest
+        $playerData = $tornApi->getPlayer($request->input('torn_player_id'), 'profile', $settings->torn_api_key);
 
         if (!$playerData || !isset($playerData['faction'])) {
             return back()->withErrors(['torn_player_id' => 'Player not found or has no faction.'])->with('step', 2);

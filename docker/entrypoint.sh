@@ -98,8 +98,10 @@ export APACHE_RUN_GROUP=www-data
 
 php artisan key:generate --force 2>/dev/null || true
 php artisan migrate --force
+php artisan cache:clear
 
-# Setup cron - run sync every 5 minutes
+# Setup cron - run sync every 5 minutes (with small delay to ensure DB is ready)
+sleep 5
 echo "*/5 * * * * root /usr/local/bin/php /var/www/html/artisan torn:sync-faction >> /dev/null 2>&1" > /etc/cron.d/tornops-sync
 chmod 644 /etc/cron.d/tornops-sync
 service cron reload
