@@ -267,6 +267,14 @@
                         <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
                         <td class="p-3 text-gray-400">1 batch call</td>
                         <td class="p-3 text-gray-400">Fetches Fair Fight scores and estimated stats. Reuses war cache when possible</td>
+                        <td class="p-3">
+                            <form action="/admin/sync/ffscouter" method="POST">
+                                @csrf
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-white text-xs">
+                                    Run Now
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 </tbody>
             </table>

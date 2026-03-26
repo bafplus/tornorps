@@ -92,6 +92,11 @@ Route::middleware(['auth'])->group(function () {
             return back()->with('status', 'War sync completed.');
         });
 
+        Route::post('/admin/sync/ffscouter', function () {
+            \Illuminate\Support\Facades\Artisan::call('torn:sync-members');
+            return back()->with('status', 'FF Scouter sync completed.');
+        });
+
         Route::post('/admin/check-updates', [AdminController::class, 'checkForUpdates']);
         Route::post('/admin/upgrade', [AdminController::class, 'upgrade']);
     });
