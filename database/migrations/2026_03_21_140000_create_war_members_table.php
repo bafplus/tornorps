@@ -22,6 +22,13 @@ return new class extends Migration
             $table->string('status_description')->nullable();
             $table->integer('war_score')->default(0);
             $table->integer('ff_score')->nullable();
+            $table->json('estimated_stats')->nullable();
+            $table->timestamp('ff_updated_at')->nullable();
+            $table->string('online_status', 20)->default('offline');
+            $table->string('online_description')->nullable();
+            $table->integer('personal_war_score')->default(0);
+            $table->timestamp('last_synced_at')->nullable();
+            $table->timestamp('status_changed_at')->nullable();
             $table->json('data')->nullable();
             $table->timestamps();
             
