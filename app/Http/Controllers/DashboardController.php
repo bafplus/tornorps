@@ -16,7 +16,8 @@ class DashboardController extends Controller
         $settings = FactionSettings::first();
         $totalMembers = FactionMember::where('faction_id', $settings->faction_id ?? 0)->count();
         $activeWars = RankedWar::where('faction_id', $settings->faction_id ?? 0)
-            ->whereIn('status', ['pending', 'accepted', 'in progress'])
+            ->whereNull('winner')
+            ->orWhere('winner', 0)
             ->count();
         $recentWars = RankedWar::where('faction_id', $settings->faction_id ?? 0)
             ->orderBy('start_date', 'desc')
@@ -40,11 +41,14 @@ class DashboardController extends Controller
     {
         $settings = FactionSettings::first();
         $activeWars = RankedWar::where('faction_id', $settings->faction_id ?? 0)
-            ->whereIn('status', ['pending', 'accepted', 'in progress'])
+            ->where(function($q) {
+                $q->whereNull('winner')->orWhere('winner', 0);
+            })
             ->orderBy('start_date', 'desc')
             ->get();
         $pastWars = RankedWar::where('faction_id', $settings->faction_id ?? 0)
-            ->whereNotIn('status', ['pending', 'accepted', 'in progress'])
+            ->whereNotNull('winner')
+            ->where('winner', '>', 0)
             ->orderBy('start_date', 'desc')
             ->limit(20)
             ->get();
