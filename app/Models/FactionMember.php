@@ -12,7 +12,14 @@ class FactionMember extends Model
         'name',
         'level',
         'rank',
+        'position',
         'days_in_faction',
+        'status_description',
+        'status_color',
+        'online_status',
+        'ff_score',
+        'estimated_stats',
+        'status_changed_at',
         'data',
         'last_synced_at',
     ];
@@ -20,6 +27,7 @@ class FactionMember extends Model
     protected $casts = [
         'data' => 'array',
         'last_synced_at' => 'datetime',
+        'status_changed_at' => 'datetime',
     ];
 
     public function player()
