@@ -218,36 +218,27 @@
                     <tr class="text-left text-gray-400 bg-gray-700/50">
                         <th class="p-3">Command</th>
                         <th class="p-3">Schedule</th>
+                        <th class="p-3">Last Run</th>
                         <th class="p-3">Status</th>
                         <th class="p-3">API Calls</th>
                         <th class="p-3">Description</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-700">
+                    @foreach($apiSchedule as $item)
                     <tr class="hover:bg-gray-700/30">
-                        <td class="p-3 font-mono text-blue-400">torn:sync-faction</td>
-                        <td class="p-3">Every 5 min</td>
+                        <td class="p-3 font-mono text-blue-400">{{ $item['name'] }}</td>
+                        <td class="p-3">{{ $item['schedule'] }}</td>
+                        <td class="p-3 text-gray-300">{{ $item['last_run'] }}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
-                        <td class="p-3 text-gray-400">1-2 calls</td>
-                        <td class="p-3 text-gray-400">Runs sync-members and sync-wars</td>
+                        <td class="p-3 text-gray-400">{{ $item['api_calls'] }}</td>
+                        <td class="p-3 text-gray-400">{{ $item['description'] }}</td>
                     </tr>
-                    <tr class="hover:bg-gray-700/30">
-                        <td class="p-3 font-mono text-blue-400">torn:sync-members</td>
-                        <td class="p-3">Every 5 min</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
-                        <td class="p-3 text-gray-400">1-5 calls</td>
-                        <td class="p-3 text-gray-400">Syncs your faction members. Uses FF Scouter for new members (reuses data from war cache when possible)</td>
-                    </tr>
-                    <tr class="hover:bg-gray-700/30">
-                        <td class="p-3 font-mono text-blue-400">torn:sync-wars</td>
-                        <td class="p-3">Every 5 min</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
-                        <td class="p-3 text-gray-400">5-20 calls</td>
-                        <td class="p-3 text-gray-400">Syncs ranked wars, members, and war data. Calls war report for each active war</td>
-                    </tr>
+                    @endforeach
                     <tr class="hover:bg-gray-700/30">
                         <td class="p-3 font-mono text-blue-400">faction/{id}</td>
                         <td class="p-3">Every 5 min</td>
+                        <td class="p-3 text-gray-300">{{ $settings->updated_at?->diffForHumans() ?? 'Never' }}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
                         <td class="p-3 text-gray-400">1 call</td>
                         <td class="p-3 text-gray-400">Fetches faction info and member list</td>
@@ -255,30 +246,26 @@
                     <tr class="hover:bg-gray-700/30">
                         <td class="p-3 font-mono text-blue-400">faction/{id}/rankedwars</td>
                         <td class="p-3">Every 5 min</td>
+                        <td class="p-3 text-gray-300">{{ $settings->updated_at?->diffForHumans() ?? 'Never' }}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
                         <td class="p-3 text-gray-400">1 call</td>
                         <td class="p-3 text-gray-400">Fetches ranked war history</td>
                     </tr>
                     <tr class="hover:bg-gray-700/30">
-                        <td class="p-3 font-mono text-blue-400">faction/{id}/rankedwarsreport</td>
-                        <td class="p-3">Every 5 min</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
-                        <td class="p-3 text-gray-400">1 per war</td>
-                        <td class="p-3 text-gray-400">Fetches detailed war data (attacks, members, scores)</td>
-                    </tr>
-                    <tr class="hover:bg-gray-700/30">
                         <td class="p-3 font-mono text-blue-400">FF Scouter API</td>
                         <td class="p-3">Every 5 min</td>
+                        <td class="p-3 text-gray-300">{{ $settings->updated_at?->diffForHumans() ?? 'Never' }}</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
                         <td class="p-3 text-gray-400">1 batch call</td>
-                        <td class="p-3 text-gray-400">Fetches Fair Fight scores and estimated stats for members. Reuses cached data when possible</td>
+                        <td class="p-3 text-gray-400">Fetches Fair Fight scores and estimated stats. Reuses war cache when possible</td>
                     </tr>
                     <tr class="hover:bg-gray-700/30">
                         <td class="p-3 font-mono text-blue-400">user/{id}</td>
                         <td class="p-3">On setup only</td>
+                        <td class="p-3 text-gray-300">-</td>
                         <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-blue-900 text-blue-400">Setup</span></td>
                         <td class="p-3 text-gray-400">1 call</td>
-                        <td class="p-3 text-gray-400">Verifies admin player belongs to configured faction</td>
+                        <td class="p-3 text-gray-400">Verifies admin player belongs to faction</td>
                     </tr>
                 </tbody>
             </table>

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\FactionSettings;
 use App\Models\FactionMember;
 use App\Models\RankedWar;
+use App\Models\DataRefreshLog;
 use App\Services\TornApiService;
 use Illuminate\Console\Command;
 
@@ -23,6 +24,7 @@ class SyncFaction extends Command
         }
 
         $this->info("Syncing full data for faction {$factionId}...");
+        $log = DataRefreshLog::logStart('faction_sync');
 
         $this->call('torn:sync-members', ['faction_id' => $factionId]);
         $this->call('torn:sync-wars', ['faction_id' => $factionId]);
@@ -30,6 +32,7 @@ class SyncFaction extends Command
         // Update settings timestamp to show last sync time
         FactionSettings::where('faction_id', $factionId)->update(['updated_at' => now()]);
 
+        $log->markComplete();
         $this->info("Full sync completed.");
         return Command::SUCCESS;
     }

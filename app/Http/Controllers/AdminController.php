@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FactionSettings;
 use App\Models\User;
+use App\Models\DataRefreshLog;
 use App\Services\TornApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,53 @@ class AdminController extends Controller
         $settings = FactionSettings::first();
         $users = User::orderBy('is_admin', 'desc')->orderBy('name')->get();
         
-        return view('admin.index', compact('settings', 'users'));
+        // Get last run times for each API endpoint
+        $apiSchedule = $this->getApiSchedule();
+        
+        return view('admin.index', compact('settings', 'users', 'apiSchedule'));
+    }
+
+    private function getApiSchedule(): array
+    {
+        $schedule = [
+            'faction_sync' => [
+                'name' => 'torn:sync-faction',
+                'schedule' => 'Every 5 min',
+                'description' => 'Runs sync-members and sync-wars',
+                'api_calls' => '1-2 calls',
+            ],
+            'faction_members' => [
+                'name' => 'torn:sync-members',
+                'schedule' => 'Every 5 min',
+                'description' => 'Syncs faction members, FF scores and stats',
+                'api_calls' => '1-5 calls',
+            ],
+            'ranked_wars' => [
+                'name' => 'torn:sync-wars',
+                'schedule' => 'Every 5 min',
+                'description' => 'Syncs ranked wars, members, and war data',
+                'api_calls' => '5-20 calls',
+            ],
+        ];
+
+        // Get last run times
+        foreach ($schedule as $key => &$item) {
+            $lastRun = DataRefreshLog::where('data_type', $key)
+                ->where('status', 'completed')
+                ->latest('completed_at')
+                ->first();
+            
+            $item['last_run'] = $lastRun?->completed_at?->diffForHumans() ?? 'Never';
+            $item['last_run_at'] = $lastRun?->completed_at;
+        }
+
+        // Sort by next run (last run + 5 minutes)
+        uassoc($schedule, function ($item) {
+            if (!$item['last_run_at']) return 0;
+            return $item['last_run_at']->addMinutes(5)->timestamp;
+        });
+
+        return $schedule;
     }
 
     public function updateFactionSettings(Request $request)
