@@ -93,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         Route::post('/admin/sync/active', function () {
-            \Illuminate\Support\Facades\Artisan::call('torn:sync-active');
+            \Illuminate\Support\Facades\Artisan::call('torn:sync-active', ['--force' => true]);
             return back()->with('status', 'Active wars sync completed.');
         });
 
