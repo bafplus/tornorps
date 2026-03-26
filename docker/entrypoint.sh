@@ -25,8 +25,9 @@ fi
 # Always work in /var/www/html for the web app
 cd /var/www/html
 
-# Create storage directories that are gitignored
+# Create storage directories that are gitignored (with subdirectories)
 mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views
 
 # Fix permissions for Apache - ensure all files are readable and executable
 find . -type f -exec chmod 644 {} \;
