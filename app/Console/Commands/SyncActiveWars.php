@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 class SyncActiveWars extends Command
 {
-    protected $signature = 'torn:sync-active';
+    protected $signature = 'torn:sync-active {--force : Run even if no active wars}';
     protected $description = 'Sync active ranked wars - runs every minute for near real-time updates';
 
     public function handle(TornApiService $tornApi, FFScouterService $ffscouter): int
@@ -23,13 +23,18 @@ class SyncActiveWars extends Command
             return Command::FAILURE;
         }
 
-        $activeWars = RankedWar::whereIn('status', ['in progress', 'pending'])->get();
-
         $log = DataRefreshLog::logStart('active_wars');
 
-        if ($activeWars->isEmpty()) {
+        $activeWars = RankedWar::whereIn('status', ['in progress', 'pending'])->get();
+
+        if ($activeWars->isEmpty() && !$this->option('force')) {
             $log->update(['status' => 'skipped', 'completed_at' => now()]);
             return Command::SUCCESS;
+        }
+
+        // If force flag, get recent wars (last 24 hours)
+        if ($activeWars->isEmpty() && $this->option('force')) {
+            $activeWars = RankedWar::where('start_date', '>', now()->subDay())->get();
         }
 
         $log = DataRefreshLog::logStart('active_wars');
