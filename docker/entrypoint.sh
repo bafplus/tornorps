@@ -58,7 +58,7 @@ if [ -d "$DATA_DIR" ]; then
     else
         echo "Using environment variables with /data volume..."
         # Create .env from environment variables but use /data for database
-        cat > .env << ENVEOF
+        cat > .env << EOF
 APP_NAME="${APP_NAME:-TornOps}"
 APP_ENV="${APP_ENV:-production}"
 APP_KEY=
@@ -79,7 +79,7 @@ EOF
 else
     echo "Using environment variables..."
     # Use env vars passed to container
-    cat > .env << ENVEOF
+    cat > .env << EOF
 APP_NAME="${APP_NAME:-TornOps}"
 APP_ENV="${APP_ENV:-production}"
 APP_KEY=
