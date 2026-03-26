@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\FactionSettings;
 use App\Models\FactionMember;
 use App\Services\TornApiService;
+use App\Services\FFScouterService;
 use Illuminate\Console\Command;
 
 class SyncFactionMembers extends Command
@@ -12,7 +13,7 @@ class SyncFactionMembers extends Command
     protected $signature = 'torn:sync-members {faction_id?}';
     protected $description = 'Sync faction members from Torn API';
 
-    public function handle(TornApiService $tornApi): int
+    public function handle(TornApiService $tornApi, FFScouterService $ffscouter): int
     {
         $factionId = $this->argument('faction_id') ?? FactionSettings::value('faction_id');
 
@@ -30,8 +31,18 @@ class SyncFactionMembers extends Command
             return Command::FAILURE;
         }
 
+        // Get FF scores for all members
+        $playerIds = array_keys($data['members']);
+        $ffResults = $ffscouter->getStats($playerIds);
+        $ffIndex = [];
+        foreach ($ffResults as $ff) {
+            $ffIndex[$ff['player_id']] = $ff;
+        }
+
         $count = 0;
         foreach ($data['members'] as $playerId => $member) {
+            $ffData = $ffIndex[$playerId] ?? null;
+            
             FactionMember::updateOrCreate(
                 [
                     'faction_id' => $factionId,
@@ -49,6 +60,8 @@ class SyncFactionMembers extends Command
                     'status_changed_at' => isset($member['status']['until']) && $member['status']['until'] > 0 
                         ? \Carbon\Carbon::createFromTimestamp($member['status']['until']) 
                         : null,
+                    'ff_score' => $ffData['fair_fight'] ?? null,
+                    'estimated_stats' => $ffData['bs_estimate_human'] ?? null,
                     'data' => $member,
                     'last_synced_at' => now(),
                 ]
