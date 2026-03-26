@@ -27,6 +27,9 @@ class SyncFaction extends Command
         $this->call('torn:sync-members', ['faction_id' => $factionId]);
         $this->call('torn:sync-wars', ['faction_id' => $factionId]);
 
+        // Update settings timestamp to show last sync time
+        FactionSettings::where('faction_id', $factionId)->update(['updated_at' => now()]);
+
         $this->info("Full sync completed.");
         return Command::SUCCESS;
     }
