@@ -48,7 +48,7 @@ class AdminController extends Controller
             'active_wars' => [
                 'name' => 'torn:sync-active',
                 'schedule' => 'Every 1 min',
-                'description' => 'Quick sync of active wars (scores, online status)',
+                'description' => 'Real-time war updates (only syncs when war is active)',
                 'api_calls' => '3-10 calls',
             ],
         ];
