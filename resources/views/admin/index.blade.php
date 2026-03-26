@@ -268,14 +268,6 @@
                         <td class="p-3 text-gray-400">1 batch call</td>
                         <td class="p-3 text-gray-400">Fetches Fair Fight scores and estimated stats. Reuses war cache when possible</td>
                     </tr>
-                    <tr class="hover:bg-gray-700/30">
-                        <td class="p-3 font-mono text-blue-400">user/{id}</td>
-                        <td class="p-3">On setup only</td>
-                        <td class="p-3 text-gray-300">-</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-blue-900 text-blue-400">Setup</span></td>
-                        <td class="p-3 text-gray-400">1 call</td>
-                        <td class="p-3 text-gray-400">Verifies admin player belongs to faction</td>
-                    </tr>
                 </tbody>
             </table>
         </div>
