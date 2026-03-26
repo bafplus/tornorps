@@ -25,6 +25,11 @@ if [ ! -d "$APP_DIR/.git" ]; then
     fi
 else
     echo "Repository already exists at $APP_DIR"
+    if [ -d "$APP_DIR/.git" ]; then
+        echo "Updating repository..."
+        cd "$APP_DIR"
+        git pull origin main || true
+    fi
 fi
 
 if [ "$APP_DIR" != "/var/www/html" ]; then
