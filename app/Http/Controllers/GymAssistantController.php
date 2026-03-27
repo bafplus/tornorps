@@ -88,7 +88,8 @@ class GymAssistantController extends Controller
             $data = $response->json();
 
             if (isset($data['error'])) {
-                return 'API Error: ' . $data['error'];
+                $errorMsg = is_array($data['error']) ? ($data['error']['error'] ?? json_encode($data['error'])) : $data['error'];
+                return 'API Error: ' . $errorMsg;
             }
 
             $strength = $data['strength'] ?? 0;
