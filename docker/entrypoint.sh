@@ -121,11 +121,14 @@ php artisan key:generate --force 2>/dev/null || true
 php artisan migrate --force
 php artisan cache:clear
 
-# Setup cron - run sync every 5 minutes and active war sync every minute
+# Setup cron - staggered to avoid API spikes
+# sync-faction: every 10 min at :00 (members + wars)
+# sync-active: every 5 min at :02 (war updates only)
+# sync-attacks: every 10 min at :05 (attack data)
 sleep 5
-echo "*/5 * * * * root /usr/local/bin/php /var/www/html/artisan torn:sync-faction >> /dev/null 2>&1" > /etc/cron.d/tornops-sync
-echo "* * * * * root /usr/local/bin/php /var/www/html/artisan torn:sync-active >> /dev/null 2>&1" >> /etc/cron.d/tornops-sync
-echo "*/5 * * * * root /usr/local/bin/php /var/www/html/artisan torn:sync-attacks --force >> /dev/null 2>&1" >> /etc/cron.d/tornops-sync
+echo "*/10 * * * * root /usr/local/bin/php /var/www/html/artisan torn:sync-faction >> /dev/null 2>&1" > /etc/cron.d/tornops-sync
+echo "*/5 * * * * root /usr/local/bin/php /var/www/html/artisan torn:sync-active >> /dev/null 2>&1" >> /etc/cron.d/tornops-sync
+echo "*/10 * * * * root /usr/local/bin/php /var/www/html/artisan torn:sync-attacks --force >> /dev/null 2>&1" >> /etc/cron.d/tornops-sync
 chmod 644 /etc/cron.d/tornops-sync
 service cron reload
 

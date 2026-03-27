@@ -29,31 +29,31 @@ class AdminController extends Controller
         $schedule = [
             'faction_sync' => [
                 'name' => 'torn:sync-faction',
-                'schedule' => 'Every 5 min',
+                'schedule' => 'Every 10 min (:00)',
                 'description' => 'Runs sync-members and sync-wars together',
                 'api_calls' => '6-25 calls',
             ],
             'faction_members' => [
                 'name' => 'torn:sync-members',
-                'schedule' => 'Every 5 min (via sync-faction)',
+                'schedule' => 'Every 10 min (via sync-faction)',
                 'description' => 'Syncs faction members, FF scores, and stats',
                 'api_calls' => '1-5 calls',
             ],
             'ranked_wars' => [
                 'name' => 'torn:sync-wars',
-                'schedule' => 'Every 5 min (via sync-faction)',
+                'schedule' => 'Every 10 min (via sync-faction)',
                 'description' => 'Syncs ranked wars, members, and war data',
                 'api_calls' => '5-20 calls',
             ],
             'active_wars' => [
                 'name' => 'torn:sync-active',
-                'schedule' => 'Every 1 min',
-                'description' => 'Real-time war updates (only syncs when war is active)',
+                'schedule' => 'Every 5 min (:02)',
+                'description' => 'War updates with cached online status',
                 'api_calls' => '3-10 calls',
             ],
             'war_attacks' => [
                 'name' => 'torn:sync-attacks',
-                'schedule' => 'Every 5 min (via sync-faction)',
+                'schedule' => 'Every 10 min (:05)',
                 'description' => 'Syncs war attack details with FF and results',
                 'api_calls' => '10-50 calls',
             ],

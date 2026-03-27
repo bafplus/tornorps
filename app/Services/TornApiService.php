@@ -164,20 +164,37 @@ class TornApiService
     public function getPlayersOnlineStatus(array $playerIds): array
     {
         $results = [];
+        $uncachedIds = [];
+        
         foreach ($playerIds as $playerId) {
-            $data = $this->getFresh("user/{$playerId}", ['selections' => 'profile']);
-            if ($data && isset($data['last_action']['status'])) {
-                $results[$playerId] = [
-                    'online_status' => $data['last_action']['status'] ?? 'Offline',
-                    'online_description' => $data['last_action']['relative'] ?? null,
-                ];
+            $cacheKey = "player_online_{$playerId}";
+            $cached = Cache::get($cacheKey);
+            if ($cached !== null) {
+                $results[$playerId] = $cached;
             } else {
-                $results[$playerId] = [
-                    'online_status' => 'Offline',
-                    'online_description' => null,
-                ];
+                $uncachedIds[] = $playerId;
             }
         }
+        
+        if (!empty($uncachedIds)) {
+            foreach ($uncachedIds as $playerId) {
+                $data = $this->getFresh("user/{$playerId}", ['selections' => 'profile']);
+                if ($data && isset($data['last_action']['status'])) {
+                    $statusData = [
+                        'online_status' => $data['last_action']['status'] ?? 'Offline',
+                        'online_description' => $data['last_action']['relative'] ?? null,
+                    ];
+                } else {
+                    $statusData = [
+                        'online_status' => 'Offline',
+                        'online_description' => null,
+                    ];
+                }
+                $results[$playerId] = $statusData;
+                Cache::put("player_online_{$playerId}", $statusData, 180);
+            }
+        }
+        
         return $results;
     }
 
