@@ -37,19 +37,19 @@
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <div class="flex items-center space-x-8">
                     <div class="text-center">
-                        <div class="text-2xl font-bold text-blue-400">{{ $availablePoints }}</div>
+                        <div class="text-2xl font-bold text-blue-400" id="summary-available">{{ $availablePoints }}</div>
                         <div class="text-sm text-gray-400">Available</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-2xl font-bold text-yellow-400">{{ $usedPoints }}</div>
+                        <div class="text-2xl font-bold text-yellow-400" id="summary-used">{{ $usedPoints }}</div>
                         <div class="text-sm text-gray-400">Used</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-2xl font-bold text-purple-400">{{ $totalPlannedCost }}</div>
+                        <div class="text-2xl font-bold text-purple-400" id="summary-planned-cost">{{ $totalPlannedCost }}</div>
                         <div class="text-sm text-gray-400">Planned Cost</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-2xl font-bold {{ $extraNeeded > 0 ? 'text-red-400' : 'text-green-400' }}">
+                        <div class="text-2xl font-bold {{ $extraNeeded > 0 ? 'text-red-400' : 'text-green-400' }}" id="summary-extra-needed">
                             {{ $extraNeeded > 0 ? '+' . $extraNeeded : '0' }}
                         </div>
                         <div class="text-sm text-gray-400">Extra Needed</div>
@@ -84,7 +84,8 @@
                     
                     <div class="space-y-4">
                         @foreach($merits as $merit)
-                            <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                            @php $meritId = str_replace(' ', '_', $merit['name']); @endphp
+                            <div class="bg-gray-800 rounded-lg p-4 border border-gray-700" id="merit-{{ $meritId }}">
                                 <div class="flex items-start justify-between mb-3">
                                     <div>
                                         <h3 class="text-lg font-semibold text-white">{{ $merit['name'] }}</h3>
@@ -96,36 +97,36 @@
                                     <div class="bg-gray-900/50 rounded p-3">
                                         <div class="flex items-center justify-between mb-2">
                                             <span class="text-sm font-medium text-gray-300">Current</span>
-                                            <span class="text-sm text-gray-400">{{ $merit['current_level'] }}/10</span>
+                                            <span class="text-sm text-gray-400 current-level" id="current-level-{{ $meritId }}">{{ $merit['current_level'] }}/10</span>
                                         </div>
                                         <div class="flex items-center">
-                                            <div class="flex space-x-1 mr-3">
+                                            <div class="flex space-x-1 mr-3" id="current-bar-{{ $meritId }}">
                                                 @for($i = 1; $i <= 10; $i++)
-                                                    <div class="w-4 h-4 rounded {{ $i <= $merit['current_level'] ? 'bg-green-500' : 'bg-gray-700' }}"></div>
+                                                    <div class="w-4 h-4 rounded current-seg-{{ $meritId }} {{ $i <= $merit['current_level'] ? 'bg-green-500' : 'bg-gray-700' }}"></div>
                                                 @endfor
                                             </div>
-                                            <span class="text-sm text-green-400">{{ $merit['current_bonus'] }}</span>
+                                            <span class="text-sm text-green-400" id="current-bonus-{{ $meritId }}">{{ $merit['current_bonus'] }}</span>
                                         </div>
                                     </div>
 
                                     <div class="bg-gray-900/50 rounded p-3">
                                         <div class="flex items-center justify-between mb-2">
                                             <span class="text-sm font-medium text-gray-300">Planned</span>
-                                            <span class="text-sm text-gray-400">{{ $merit['planned_level'] }}/10</span>
+                                            <span class="text-sm text-gray-400 planned-level" id="planned-level-{{ $meritId }}">{{ $merit['planned_level'] }}/10</span>
                                         </div>
                                         <div class="flex items-center">
                                             <button 
                                                 type="button"
                                                 onclick="updateMerit('{{ $merit['name'] }}', -1)"
-                                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-sm mr-2"
+                                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-sm mr-2 btn-minus-{{ $meritId }}"
                                                 {{ $merit['planned_level'] <= 0 ? 'disabled' : '' }}
                                             >
                                                 -
                                             </button>
-                                            <div class="flex space-x-1 mr-3">
+                                            <div class="flex space-x-1 mr-3" id="planned-bar-{{ $meritId }}">
                                                 @for($i = 1; $i <= 10; $i++)
                                                     <div 
-                                                        class="w-4 h-4 rounded cursor-pointer transition-colors {{ $i <= $merit['planned_level'] ? ($merit['has_changes'] ? 'bg-purple-500' : 'bg-green-500') : 'bg-gray-700 hover:bg-gray-600' }}"
+                                                        class="w-4 h-4 rounded cursor-pointer transition-colors planned-seg-{{ $meritId }} {{ $i <= $merit['planned_level'] ? ($merit['has_changes'] ? 'bg-purple-500' : 'bg-green-500') : 'bg-gray-700 hover:bg-gray-600' }}"
                                                         onclick="updateMerit('{{ $merit['name'] }}', {{ $i }})"
                                                     ></div>
                                                 @endfor
@@ -133,15 +134,15 @@
                                             <button 
                                                 type="button"
                                                 onclick="updateMerit('{{ $merit['name'] }}', 1)"
-                                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-sm"
+                                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-sm btn-plus-{{ $meritId }}"
                                                 {{ $merit['planned_level'] >= 10 ? 'disabled' : '' }}
                                             >
                                                 +
                                             </button>
                                         </div>
                                         <div class="flex items-center justify-between mt-2">
-                                            <span class="text-sm text-purple-400">{{ $merit['planned_bonus'] }}</span>
-                                            <span class="text-sm {{ $merit['cost_to_plan'] > 0 ? 'text-yellow-400' : 'text-gray-500' }}">
+                                            <span class="text-sm text-purple-400 planned-bonus" id="planned-bonus-{{ $meritId }}">{{ $merit['planned_bonus'] }}</span>
+                                            <span class="text-sm cost-to-plan-{{ $meritId }} {{ $merit['cost_to_plan'] > 0 ? 'text-yellow-400' : 'text-gray-500' }}">
                                                 @if($merit['cost_to_plan'] > 0)
                                                     Need: +{{ $merit['cost_to_plan'] }} pts
                                                 @else
@@ -163,9 +164,15 @@
 @push('scripts')
 <script>
 function updateMerit(meritName, change) {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.textContent = '...';
+    const meritId = meritName.replace(/ /g, '_');
+    
+    // Get buttons
+    const minusBtn = document.querySelector(`.btn-minus-${meritId}`);
+    const plusBtn = document.querySelector(`.btn-plus-${meritId}`);
+    
+    // Disable buttons during update
+    if (minusBtn) minusBtn.disabled = true;
+    if (plusBtn) plusBtn.disabled = true;
     
     fetch('{{ route('merits.update') }}', {
         method: 'POST',
@@ -182,18 +189,56 @@ function updateMerit(meritName, change) {
     .then(data => {
         if (data.error) {
             alert(data.error);
-            btn.disabled = false;
-            btn.textContent = change > 0 ? '+' : '-';
+            if (minusBtn) minusBtn.disabled = false;
+            if (plusBtn) plusBtn.disabled = false;
             return;
         }
-        // Force fresh load with cache-busting
-        window.location.href = window.location.pathname + '?t=' + Date.now();
+        
+        // Update this merit's planned row
+        document.getElementById(`planned-level-${meritId}`).textContent = data.planned_level + '/10';
+        document.getElementById(`planned-bonus-${meritId}`).textContent = data.planned_bonus;
+        
+        // Update cost display
+        const costEl = document.querySelector(`.cost-to-plan-${meritId}`);
+        if (data.cost_to_plan > 0) {
+            costEl.textContent = `Need: +${data.cost_to_plan} pts`;
+            costEl.classList.add('text-yellow-400');
+            costEl.classList.remove('text-gray-500');
+        } else {
+            costEl.textContent = 'No additional cost';
+            costEl.classList.remove('text-yellow-400');
+            costEl.classList.add('text-gray-500');
+        }
+        
+        // Update planned bar segments
+        const plannedSegs = document.querySelectorAll(`.planned-seg-${meritId}`);
+        plannedSegs.forEach((seg, idx) => {
+            const level = idx + 1;
+            if (level <= data.planned_level) {
+                seg.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                seg.classList.add('bg-purple-500');
+            } else {
+                seg.classList.remove('bg-purple-500');
+                seg.classList.add('bg-gray-700', 'hover:bg-gray-600');
+            }
+        });
+        
+        // Update button states
+        if (minusBtn) minusBtn.disabled = data.planned_level <= 0;
+        if (plusBtn) plusBtn.disabled = data.planned_level >= 10;
+        
+        // Update summary
+        document.getElementById('summary-planned-cost').textContent = data.total_planned_cost;
+        const extraEl = document.getElementById('summary-extra-needed');
+        extraEl.textContent = data.extra_needed > 0 ? '+' + data.extra_needed : '0';
+        extraEl.classList.remove('text-red-400', 'text-green-400');
+        extraEl.classList.add(data.extra_needed > 0 ? 'text-red-400' : 'text-green-400');
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to update merit');
-        btn.disabled = false;
-        btn.textContent = change > 0 ? '+' : '-';
+        if (minusBtn) minusBtn.disabled = false;
+        if (plusBtn) plusBtn.disabled = false;
     });
 }
 </script>
