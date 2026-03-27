@@ -94,11 +94,13 @@
                                 <div class="flex items-center text-xs mb-1">
                                     <span class="w-14 text-gray-300">Current</span>
                                     <span class="w-8 text-right text-gray-400 mr-2 current-level" id="current-level-{{ $meritId }}">{{ $merit['current_level'] }}/10</span>
-                                    <div class="flex-1 flex" id="current-bar-{{ $meritId }}">
+                                    <div class="w-4"></div>
+                                    <div class="flex-1 flex mx-1" id="current-bar-{{ $meritId }}">
                                         @for($i = 1; $i <= 10; $i++)
                                             <div class="flex-1 h-3 rounded-sm mr-px current-seg-{{ $meritId }} {{ $i <= $merit['current_level'] ? 'bg-green-500' : 'bg-gray-700' }}"></div>
                                         @endfor
                                     </div>
+                                    <div class="w-4"></div>
                                     <span class="w-10 text-right text-green-400 ml-2" id="current-bonus-{{ $meritId }}">{{ $merit['current_bonus'] }}</span>
                                 </div>
                                 
