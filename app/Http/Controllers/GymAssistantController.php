@@ -99,6 +99,18 @@ class GymAssistantController extends Controller
             $gymId = $data['active_gym'] ?? null;
             $gymName = $this->getGymName($gymId);
 
+            $latest = GymStatsHistory::where('user_id', $user->id)
+                ->orderBy('recorded_at', 'desc')
+                ->first();
+            
+            if ($latest && 
+                $latest->strength == $strength && 
+                $latest->defense == $defense && 
+                $latest->speed == $speed && 
+                $latest->dexterity == $dexterity) {
+                return null; // Stats unchanged, don't create record
+            }
+
             GymStatsHistory::create([
                 'user_id' => $user->id,
                 'strength' => $strength,
