@@ -9,6 +9,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\WarApiController;
 use App\Http\Controllers\GymAssistantController;
+use App\Http\Controllers\MeritPlannerController;
 use App\Http\Controllers\TravelController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\StocksController;
@@ -61,6 +62,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/gym', [GymAssistantController::class, 'index']);
     Route::post('/gym/update', [GymAssistantController::class, 'update']);
     Route::post('/gym/program', [GymAssistantController::class, 'selectProgram']);
+    
+    Route::get('/merits', [MeritPlannerController::class, 'index'])->name('merits');
+    Route::post('/merits/fetch', [MeritPlannerController::class, 'fetch'])->name('merits.fetch');
+    Route::post('/merits/update', [MeritPlannerController::class, 'updatePlanned'])->name('merits.update');
+    Route::post('/merits/reset', [MeritPlannerController::class, 'resetPlanned'])->name('merits.reset');
     
     Route::get('/travel', [TravelController::class, 'index']);
     Route::get('/items', [ItemsController::class, 'index']);

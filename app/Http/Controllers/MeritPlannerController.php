@@ -1,0 +1,192 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\MeritDefinition;
+use App\Services\TornApiService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class MeritPlannerController extends Controller
+{
+    protected TornApiService $tornApi;
+
+    public function __construct(TornApiService $tornApi)
+    {
+        $this->tornApi = $tornApi;
+    }
+
+    public function index()
+    {
+        $user = Auth::user();
+
+        $merits = \DB::table('user_merits')
+            ->where('user_id', $user->id)
+            ->get()
+            ->keyBy('merit_name');
+
+        $allMerits = MeritDefinition::getAllMeritNames();
+        $groupedMerits = [];
+
+        foreach (MeritDefinition::$categories as $categoryKey => $categoryName) {
+            $categoryMerits = MeritDefinition::getMeritsByCategory($categoryKey);
+            
+            $groupedMerits[$categoryName] = [];
+            
+            foreach ($categoryMerits as $name => $definition) {
+                $meritData = $merits[$name] ?? null;
+                
+                $currentLevel = $meritData->current_level ?? 0;
+                $plannedLevel = $meritData->planned_level ?? $currentLevel;
+                
+                $currentCost = MeritDefinition::calculateCost(0, $currentLevel);
+                $plannedCost = MeritDefinition::calculateCost(0, $plannedLevel);
+                $costToPlan = $plannedCost - $currentCost;
+                
+                $currentBonus = MeritDefinition::calculateBonus($name, $currentLevel);
+                $plannedBonus = MeritDefinition::calculateBonus($name, $plannedLevel);
+                
+                $groupedMerits[$categoryName][] = [
+                    'name' => $name,
+                    'description' => $definition['description'],
+                    'current_level' => $currentLevel,
+                    'planned_level' => $plannedLevel,
+                    'current_bonus' => $currentBonus,
+                    'planned_bonus' => $plannedBonus,
+                    'cost_to_plan' => $costToPlan,
+                    'has_changes' => $plannedLevel !== $currentLevel,
+                ];
+            }
+        }
+
+        $totalPlannedCost = 0;
+        foreach ($merits as $merit) {
+            $currentCost = MeritDefinition::calculateCost(0, $merit->current_level);
+            $plannedCost = MeritDefinition::calculateCost(0, $merit->planned_level);
+            $totalPlannedCost += ($plannedCost - $currentCost);
+        }
+
+        $availablePoints = $user->merit_points_available ?? 0;
+        $extraNeeded = max(0, $totalPlannedCost - $availablePoints);
+
+        return view('merit-planner.index', [
+            'groupedMerits' => $groupedMerits,
+            'availablePoints' => $availablePoints,
+            'usedPoints' => $user->merit_points_used ?? 0,
+            'totalPlannedCost' => $totalPlannedCost,
+            'extraNeeded' => $extraNeeded,
+            'hasData' => $merits->isNotEmpty(),
+        ]);
+    }
+
+    public function fetch(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user->torn_api_key) {
+            return back()->with('error', 'No API key found. Please add your Torn API key in settings.');
+        }
+
+        try {
+            $v1Data = $this->tornApi->getUserMeritsV1($user->torn_api_key);
+            $v2Data = $this->tornApi->getUserMeritsV2($user->torn_api_key);
+
+            if (!$v1Data || !isset($v1Data['merits'])) {
+                return back()->with('error', 'Failed to fetch merits from V1 API.');
+            }
+
+            if (!$v2Data || !isset($v2Data['available'])) {
+                return back()->with('error', 'Failed to fetch merits from V2 API.');
+            }
+
+            $user->merit_points_available = $v2Data['available'] ?? 0;
+            $user->merit_points_used = $v2Data['used'] ?? 0;
+            $user->save();
+
+            $allMerits = MeritDefinition::getAllMeritNames();
+
+            foreach ($allMerits as $meritName) {
+                $currentLevel = $v1Data['merits'][$meritName] ?? 0;
+
+                \DB::table('user_merits')->updateOrInsert(
+                    [
+                        'user_id' => $user->id,
+                        'merit_name' => $meritName,
+                    ],
+                    [
+                        'current_level' => $currentLevel,
+                        'planned_level' => $currentLevel,
+                        'updated_at' => now(),
+                    ]
+                );
+            }
+
+            return back()->with('success', 'Merits fetched successfully!');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function updatePlanned(Request $request)
+    {
+        $user = Auth::user();
+        $meritName = $request->input('merit_name');
+        $plannedLevel = (int) $request->input('planned_level', 0);
+
+        if ($plannedLevel < 0 || $plannedLevel > 10) {
+            return response()->json(['error' => 'Invalid level. Must be between 0 and 10.'], 422);
+        }
+
+        $merit = \DB::table('user_merits')
+            ->where('user_id', $user->id)
+            ->where('merit_name', $meritName)
+            ->first();
+
+        if (!$merit) {
+            return response()->json(['error' => 'Merit not found.'], 404);
+        }
+
+        \DB::table('user_merits')
+            ->where('user_id', $user->id)
+            ->where('merit_name', $meritName)
+            ->update(['planned_level' => $plannedLevel, 'updated_at' => now()]);
+
+        $currentCost = MeritDefinition::calculateCost(0, $merit->current_level);
+        $newPlannedCost = MeritDefinition::calculateCost(0, $plannedLevel);
+        $costToPlan = $newPlannedCost - $currentCost;
+
+        $totalPlannedCost = 0;
+        $allMerits = \DB::table('user_merits')->where('user_id', $user->id)->get();
+        foreach ($allMerits as $m) {
+            $cCost = MeritDefinition::calculateCost(0, $m->current_level);
+            $pCost = MeritDefinition::calculateCost(0, $m->planned_level);
+            $totalPlannedCost += ($pCost - $cCost);
+        }
+
+        $availablePoints = $user->merit_points_available ?? 0;
+        $extraNeeded = max(0, $totalPlannedCost - $availablePoints);
+
+        return response()->json([
+            'planned_level' => $plannedLevel,
+            'cost_to_plan' => $costToPlan,
+            'planned_bonus' => MeritDefinition::calculateBonus($meritName, $plannedLevel),
+            'total_planned_cost' => $totalPlannedCost,
+            'extra_needed' => $extraNeeded,
+        ]);
+    }
+
+    public function resetPlanned()
+    {
+        $user = Auth::user();
+
+        \DB::table('user_merits')
+            ->where('user_id', $user->id)
+            ->update([
+                'planned_level' => \DB::raw('current_level'),
+                'updated_at' => now(),
+            ]);
+
+        return back()->with('success', 'Planned levels reset to current levels.');
+    }
+}

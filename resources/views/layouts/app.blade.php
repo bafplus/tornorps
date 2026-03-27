@@ -33,6 +33,7 @@
                             </button>
                             <div class="absolute left-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                                 <a href="/gym" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white {{ request()->is('gym') ? 'bg-gray-700 text-white' : '' }}">Gym Assistant</a>
+                                <a href="/merits" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white {{ request()->is('merits*') ? 'bg-gray-700 text-white' : '' }}">Merits</a>
                                 <a href="/travel" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white {{ request()->is('travel*') ? 'bg-gray-700 text-white' : '' }}">Travel Items</a>
                                 <a href="/items" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white {{ request()->is('items*') ? 'bg-gray-700 text-white' : '' }}">Item Prices</a>
                                 <a href="/stocks" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white {{ request()->is('stocks*') ? 'bg-gray-700 text-white' : '' }}">Stocks</a>
@@ -66,6 +67,6 @@
     <main class="container mx-auto px-4 py-8">
         @yield('content')
     </main>
-    @yield('scripts')
+    @stack('scripts')
 </body>
 </html>

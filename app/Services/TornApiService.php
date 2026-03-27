@@ -330,4 +330,69 @@ return $data;
             'params' => array_diff_key($params, ['key' => ''])
         ]);
     }
+
+    public function getUserMeritsV1(?string $apiKey = null): ?array
+    {
+        $key = $apiKey ?? $this->apiKey;
+        if (!$key) {
+            return null;
+        }
+
+        $response = Http::timeout(10)
+            ->get("{$this->baseUrl}/user/", [
+                'key' => $key,
+                'selections' => 'merits'
+            ]);
+
+        if ($response->failed()) {
+            Log::error('Torn API Error (merits V1)', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            return null;
+        }
+
+        $data = $response->json();
+
+        if (isset($data['error'])) {
+            Log::error('Torn API Error (merits V1)', [
+                'error' => $data['error']
+            ]);
+            return null;
+        }
+
+        return $data['merits'] ?? null;
+    }
+
+    public function getUserMeritsV2(?string $apiKey = null): ?array
+    {
+        $key = $apiKey ?? $this->apiKey;
+        if (!$key) {
+            return null;
+        }
+
+        $response = Http::timeout(10)
+            ->get("{$this->baseUrl}/v2/user/merits", [
+                'key' => $key
+            ]);
+
+        if ($response->failed()) {
+            Log::error('Torn API Error (merits V2)', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            return null;
+        }
+
+        $data = $response->json();
+
+        if (isset($data['error'])) {
+            Log::error('Torn API Error (merits V2)', [
+                'error' => $data['error']
+            ]);
+            return null;
+        }
+
+        return $data['merits'] ?? null;
+    }
 }
