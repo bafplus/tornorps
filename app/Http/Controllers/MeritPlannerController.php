@@ -20,15 +20,20 @@ class MeritPlannerController extends Controller
     {
         $user = Auth::user();
 
+        // Auto-fetch if no merits exist - do this FIRST
+        $fetchError = null;
         $merits = \DB::table('user_merits')
             ->where('user_id', $user->id)
             ->get()
             ->keyBy('merit_name');
 
-        // Auto-fetch if no merits exist
-        $fetchError = null;
         if ($merits->isEmpty() && $user->torn_api_key && $user->torn_player_id) {
             $fetchError = $this->fetchMeritsFromApi($user);
+            // Re-fetch from DB after auto-fetch
+            $merits = \DB::table('user_merits')
+                ->where('user_id', $user->id)
+                ->get()
+                ->keyBy('merit_name');
         }
 
         $allMerits = MeritDefinition::getAllMeritNames();
@@ -75,15 +80,9 @@ class MeritPlannerController extends Controller
         $availablePoints = $user->merit_points_available ?? 0;
         $extraNeeded = max(0, $totalPlannedCost - $availablePoints);
 
-        // Refresh merits after potential auto-fetch
-        $merits = \DB::table('user_merits')
-            ->where('user_id', $user->id)
-            ->get()
-            ->keyBy('merit_name');
-
         return view('merit-planner.index', [
             'groupedMerits' => $groupedMerits,
-            'availablePoints' => $user->merit_points_available ?? 0,
+            'availablePoints' => $availablePoints,
             'usedPoints' => $user->merit_points_used ?? 0,
             'totalPlannedCost' => $totalPlannedCost,
             'extraNeeded' => $extraNeeded,
