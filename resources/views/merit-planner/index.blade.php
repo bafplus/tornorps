@@ -162,8 +162,12 @@ function updateMerit(meritName, change) {
             planned_level: change
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.error) {
             alert(data.error);
             if (minusBtn) minusBtn.disabled = false;
@@ -188,7 +192,9 @@ function updateMerit(meritName, change) {
         }
         
         // Update planned bar segments
+        console.log('Updating merit:', meritId, 'to level:', data.planned_level);
         const plannedSegs = document.querySelectorAll(`.planned-seg-${meritId}`);
+        console.log('Found segments:', plannedSegs.length);
         plannedSegs.forEach((seg, idx) => {
             const level = idx + 1;
             if (level <= data.planned_level) {
@@ -215,7 +221,7 @@ function updateMerit(meritName, change) {
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Failed to update merit');
+        alert('Failed to update merit: ' + error.message);
         if (minusBtn) minusBtn.disabled = false;
         if (plusBtn) plusBtn.disabled = false;
     });
