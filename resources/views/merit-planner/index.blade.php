@@ -95,7 +95,7 @@
                                     <span class="w-14 text-gray-300">Current</span>
                                     <span class="w-8 text-right text-gray-400 mr-2 current-level" id="current-level-{{ $meritId }}">{{ $merit['current_level'] }}/10</span>
                                     <div class="w-4"></div>
-                                    <div class="flex-1 flex" id="current-bar-{{ $meritId }}">
+                                    <div class="w-32 flex" id="current-bar-{{ $meritId }}">
                                         @for($i = 1; $i <= 10; $i++)
                                             <div class="flex-1 h-3 rounded-sm mr-px current-seg-{{ $meritId }} {{ $i <= $merit['current_level'] ? 'bg-green-500' : 'bg-gray-700' }}"></div>
                                         @endfor
@@ -113,7 +113,7 @@
                                         class="w-4 h-4 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-xs btn-minus-{{ $meritId }}"
                                         {{ $merit['planned_level'] <= 0 ? 'disabled' : '' }}
                                     >-</button>
-                                    <div class="flex-1 flex" id="planned-bar-{{ $meritId }}">
+                                    <div class="w-32 flex" id="planned-bar-{{ $meritId }}">
                                         @for($i = 1; $i <= 10; $i++)
                                             <div 
                                                 class="flex-1 h-3 rounded-sm mr-px cursor-pointer transition-colors planned-seg-{{ $meritId }} {{ $i <= $merit['planned_level'] ? 'bg-purple-500' : 'bg-gray-700 hover:bg-gray-600' }}"
