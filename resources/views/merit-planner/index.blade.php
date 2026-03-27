@@ -163,13 +163,21 @@ function updateMerit(meritName, change) {
         })
     })
     .then(response => {
-        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error('HTTP error: ' + response.status);
+        }
         return response.json();
     })
     .then(data => {
-        console.log('Response data:', data);
         if (data.error) {
             alert(data.error);
+            if (minusBtn) minusBtn.disabled = false;
+            if (plusBtn) plusBtn.disabled = false;
+            return;
+        }
+        
+        if (!data.success) {
+            alert('Unknown error occurred');
             if (minusBtn) minusBtn.disabled = false;
             if (plusBtn) plusBtn.disabled = false;
             return;
@@ -179,22 +187,8 @@ function updateMerit(meritName, change) {
         document.getElementById(`planned-level-${meritId}`).textContent = data.planned_level + '/10';
         document.getElementById(`planned-bonus-${meritId}`).textContent = data.planned_bonus;
         
-        // Update cost display
-        const costEl = document.querySelector(`.cost-to-plan-${meritId}`);
-        if (data.cost_to_plan > 0) {
-            costEl.textContent = `Need: +${data.cost_to_plan} pts`;
-            costEl.classList.add('text-yellow-400');
-            costEl.classList.remove('text-gray-500');
-        } else {
-            costEl.textContent = 'No additional cost';
-            costEl.classList.remove('text-yellow-400');
-            costEl.classList.add('text-gray-500');
-        }
-        
         // Update planned bar segments
-        console.log('Updating merit:', meritId, 'to level:', data.planned_level);
         const plannedSegs = document.querySelectorAll(`.planned-seg-${meritId}`);
-        console.log('Found segments:', plannedSegs.length);
         plannedSegs.forEach((seg, idx) => {
             const level = idx + 1;
             if (level <= data.planned_level) {
@@ -211,17 +205,25 @@ function updateMerit(meritName, change) {
         if (plusBtn) plusBtn.disabled = data.planned_level >= 10;
         
         // Update summary
-        document.getElementById('summary-planned-cost').textContent = data.total_planned_cost;
-        document.getElementById('summary-available').textContent = data.available_points;
-        document.getElementById('summary-used').textContent = data.used_points;
+        const summaryPlannedCost = document.getElementById('summary-planned-cost');
+        if (summaryPlannedCost) summaryPlannedCost.textContent = data.total_planned_cost;
+        
+        const summaryAvailable = document.getElementById('summary-available');
+        if (summaryAvailable) summaryAvailable.textContent = data.available_points;
+        
+        const summaryUsed = document.getElementById('summary-used');
+        if (summaryUsed) summaryUsed.textContent = data.used_points;
+        
         const extraEl = document.getElementById('summary-extra-needed');
-        extraEl.textContent = data.extra_needed > 0 ? '+' + data.extra_needed : '0';
-        extraEl.classList.remove('text-red-400', 'text-green-400');
-        extraEl.classList.add(data.extra_needed > 0 ? 'text-red-400' : 'text-green-400');
+        if (extraEl) {
+            extraEl.textContent = data.extra_needed > 0 ? '+' + data.extra_needed : '0';
+            extraEl.classList.remove('text-red-400', 'text-green-400');
+            extraEl.classList.add(data.extra_needed > 0 ? 'text-red-400' : 'text-green-400');
+        }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Failed to update merit: ' + error.message);
+        alert('Failed to update merit');
         if (minusBtn) minusBtn.disabled = false;
         if (plusBtn) plusBtn.disabled = false;
     });
