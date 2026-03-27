@@ -229,6 +229,7 @@ function updateMerit(meritName, change) {
         
         // Update summary
         document.getElementById('summary-planned-cost').textContent = data.total_planned_cost;
+        document.getElementById('summary-available').textContent = data.available_points;
         const extraEl = document.getElementById('summary-extra-needed');
         extraEl.textContent = data.extra_needed > 0 ? '+' + data.extra_needed : '0';
         extraEl.classList.remove('text-red-400', 'text-green-400');

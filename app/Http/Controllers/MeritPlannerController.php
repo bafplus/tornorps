@@ -197,7 +197,7 @@ class MeritPlannerController extends Controller
                 $totalPlannedCost += MeritDefinition::calculateCost(0, $m->planned_level);
             }
 
-            $availablePoints = $user->merit_points_available ?? 0;
+            $availablePoints = (int) ($user->merit_points_available ?? 0);
             $extraNeeded = max(0, $totalPlannedCost - $availablePoints);
 
             return response()->json([
@@ -206,6 +206,7 @@ class MeritPlannerController extends Controller
                 'cost_to_plan' => $costToPlan,
                 'planned_bonus' => MeritDefinition::calculateBonus($meritName, $newLevel),
                 'total_planned_cost' => $totalPlannedCost,
+                'available_points' => $availablePoints,
                 'extra_needed' => $extraNeeded,
             ]);
         } catch (\Exception $e) {
