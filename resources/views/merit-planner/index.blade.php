@@ -163,6 +163,10 @@
 @push('scripts')
 <script>
 function updateMerit(meritName, change) {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = '...';
+    
     fetch('{{ route('merits.update') }}', {
         method: 'POST',
         headers: {
@@ -178,13 +182,18 @@ function updateMerit(meritName, change) {
     .then(data => {
         if (data.error) {
             alert(data.error);
+            btn.disabled = false;
+            btn.textContent = change > 0 ? '+' : '-';
             return;
         }
-        location.reload();
+        // Force fresh load with cache-busting
+        window.location.href = window.location.pathname + '?t=' + Date.now();
     })
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to update merit');
+        btn.disabled = false;
+        btn.textContent = change > 0 ? '+' : '-';
     });
 }
 </script>

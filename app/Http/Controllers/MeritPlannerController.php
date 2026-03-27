@@ -134,58 +134,69 @@ class MeritPlannerController extends Controller
 
     public function updatePlanned(Request $request)
     {
-        $user = Auth::user();
-        $meritName = $request->input('merit_name');
-        $change = (int) $request->input('planned_level', 0);
+        try {
+            $user = Auth::user();
+            $meritName = $request->input('merit_name');
+            $change = (int) $request->input('planned_level', 0);
 
-        $merit = \DB::table('user_merits')
-            ->where('user_id', $user->id)
-            ->where('merit_name', $meritName)
-            ->first();
+            $merit = \DB::table('user_merits')
+                ->where('user_id', $user->id)
+                ->where('merit_name', $meritName)
+                ->first();
 
-        if (!$merit) {
-            return response()->json(['error' => 'Merit not found.'], 404);
+            if (!$merit) {
+                return response()->json(['error' => 'Merit not found: ' . $meritName], 404);
+            }
+
+            // Handle relative change (+1, -1) or absolute level (0-10)
+            if (in_array($change, [-1, 1])) {
+                // Relative change
+                $newLevel = $merit->planned_level + $change;
+            } else {
+                // Absolute level (from bar click)
+                $newLevel = $change;
+            }
+
+            // Clamp between 0 and 10
+            $newLevel = max(0, min(10, $newLevel));
+
+            \DB::table('user_merits')
+                ->where('user_id', $user->id)
+                ->where('merit_name', $meritName)
+                ->update(['planned_level' => $newLevel, 'updated_at' => now()]);
+
+            // Re-fetch the updated merit to ensure we have latest data
+            $updatedMerit = \DB::table('user_merits')
+                ->where('user_id', $user->id)
+                ->where('merit_name', $meritName)
+                ->first();
+
+            $currentCost = MeritDefinition::calculateCost(0, $updatedMerit->current_level);
+            $newPlannedCost = MeritDefinition::calculateCost(0, $newLevel);
+            $costToPlan = $newPlannedCost - $currentCost;
+
+            $totalPlannedCost = 0;
+            $allMerits = \DB::table('user_merits')->where('user_id', $user->id)->get();
+            foreach ($allMerits as $m) {
+                $cCost = MeritDefinition::calculateCost(0, $m->current_level);
+                $pCost = MeritDefinition::calculateCost(0, $m->planned_level);
+                $totalPlannedCost += ($pCost - $cCost);
+            }
+
+            $availablePoints = $user->merit_points_available ?? 0;
+            $extraNeeded = max(0, $totalPlannedCost - $availablePoints);
+
+            return response()->json([
+                'success' => true,
+                'planned_level' => $newLevel,
+                'cost_to_plan' => $costToPlan,
+                'planned_bonus' => MeritDefinition::calculateBonus($meritName, $newLevel),
+                'total_planned_cost' => $totalPlannedCost,
+                'extra_needed' => $extraNeeded,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
         }
-
-        // Handle relative change (+1, -1) or absolute level (0-10)
-        if (in_array($change, [-1, 1])) {
-            // Relative change
-            $newLevel = $merit->planned_level + $change;
-        } else {
-            // Absolute level (from bar click)
-            $newLevel = $change;
-        }
-
-        // Clamp between 0 and 10
-        $newLevel = max(0, min(10, $newLevel));
-
-        \DB::table('user_merits')
-            ->where('user_id', $user->id)
-            ->where('merit_name', $meritName)
-            ->update(['planned_level' => $newLevel, 'updated_at' => now()]);
-
-        $currentCost = MeritDefinition::calculateCost(0, $merit->current_level);
-        $newPlannedCost = MeritDefinition::calculateCost(0, $newLevel);
-        $costToPlan = $newPlannedCost - $currentCost;
-
-        $totalPlannedCost = 0;
-        $allMerits = \DB::table('user_merits')->where('user_id', $user->id)->get();
-        foreach ($allMerits as $m) {
-            $cCost = MeritDefinition::calculateCost(0, $m->current_level);
-            $pCost = MeritDefinition::calculateCost(0, $m->planned_level);
-            $totalPlannedCost += ($pCost - $cCost);
-        }
-
-        $availablePoints = $user->merit_points_available ?? 0;
-        $extraNeeded = max(0, $totalPlannedCost - $availablePoints);
-
-        return response()->json([
-            'planned_level' => $newLevel,
-            'cost_to_plan' => $costToPlan,
-            'planned_bonus' => MeritDefinition::calculateBonus($meritName, $newLevel),
-            'total_planned_cost' => $totalPlannedCost,
-            'extra_needed' => $extraNeeded,
-        ]);
     }
 
     public function resetPlanned()
