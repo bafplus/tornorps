@@ -95,13 +95,12 @@
                                     <span class="w-14 text-gray-300">Current</span>
                                     <span class="w-8 text-right text-gray-400 mr-2 current-level" id="current-level-{{ $meritId }}">{{ $merit['current_level'] }}/10</span>
                                     <div class="w-4"></div>
-                                    <div class="w-1/2 flex mx-1" id="current-bar-{{ $meritId }}">
+                                    <div class="w-1/2 flex" id="current-bar-{{ $meritId }}">
                                         @for($i = 1; $i <= 10; $i++)
                                             <div class="flex-1 h-3 rounded-sm mr-px current-seg-{{ $meritId }} {{ $i <= $merit['current_level'] ? 'bg-green-500' : 'bg-gray-700' }}"></div>
                                         @endfor
                                     </div>
-                                    <div class="w-4"></div>
-                                    <span class="w-16 text-right text-green-400 ml-2 truncate" title="{{ $merit['current_bonus'] }}" id="current-bonus-{{ $meritId }}">{{ $merit['current_bonus'] }}</span>
+                                    <div class="flex-1 text-right text-green-400 truncate" title="{{ $merit['current_bonus'] }}" id="current-bonus-{{ $meritId }}">{{ $merit['current_bonus'] }}</span>
                                 </div>
                                 
                                 <div class="flex items-center text-xs">
@@ -113,7 +112,7 @@
                                         class="w-4 h-4 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-xs btn-minus-{{ $meritId }}"
                                         {{ $merit['planned_level'] <= 0 ? 'disabled' : '' }}
                                     >-</button>
-                                    <div class="w-1/2 flex mx-1" id="planned-bar-{{ $meritId }}">
+                                    <div class="w-1/2 flex" id="planned-bar-{{ $meritId }}">
                                         @for($i = 1; $i <= 10; $i++)
                                             <div 
                                                 class="flex-1 h-3 rounded-sm mr-px cursor-pointer transition-colors planned-seg-{{ $meritId }} {{ $i <= $merit['planned_level'] ? 'bg-purple-500' : 'bg-gray-700 hover:bg-gray-600' }}"
@@ -127,7 +126,7 @@
                                         class="w-4 h-4 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-xs btn-plus-{{ $meritId }}"
                                         {{ $merit['planned_level'] >= 10 ? 'disabled' : '' }}
                                     >+</button>
-                                    <span class="w-16 text-right text-purple-400 ml-2 truncate planned-bonus" title="{{ $merit['planned_bonus'] }}" id="planned-bonus-{{ $meritId }}">{{ $merit['planned_bonus'] }}</span>
+                                    <span class="flex-1 text-right text-purple-400 truncate planned-bonus" title="{{ $merit['planned_bonus'] }}" id="planned-bonus-{{ $meritId }}">{{ $merit['planned_bonus'] }}</span>
                                 </div>
                             </div>
                         @endforeach
