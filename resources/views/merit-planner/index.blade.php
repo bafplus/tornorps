@@ -82,75 +82,50 @@
                         {{ $categoryName }}
                     </h2>
                     
-                    <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         @foreach($merits as $merit)
                             @php $meritId = str_replace(' ', '_', $merit['name']); @endphp
-                            <div class="bg-gray-800 rounded-lg p-4 border border-gray-700" id="merit-{{ $meritId }}">
-                                <div class="flex items-start justify-between mb-3">
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-white">{{ $merit['name'] }}</h3>
-                                        <p class="text-sm text-gray-400">{{ $merit['description'] }}</p>
-                                    </div>
+                            <div class="bg-gray-800 rounded-lg p-3 border border-gray-700" id="merit-{{ $meritId }}">
+                                <div class="mb-2">
+                                    <h3 class="text-base font-semibold text-white">{{ $merit['name'] }}</h3>
+                                    <p class="text-xs text-gray-400">{{ $merit['description'] }}</p>
                                 </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="bg-gray-900/50 rounded p-3">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <span class="text-sm font-medium text-gray-300">Current</span>
-                                            <span class="text-sm text-gray-400 current-level" id="current-level-{{ $meritId }}">{{ $merit['current_level'] }}/10</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <div class="flex space-x-1 mr-3" id="current-bar-{{ $meritId }}">
-                                                @for($i = 1; $i <= 10; $i++)
-                                                    <div class="w-4 h-4 rounded current-seg-{{ $meritId }} {{ $i <= $merit['current_level'] ? 'bg-green-500' : 'bg-gray-700' }}"></div>
-                                                @endfor
-                                            </div>
-                                            <span class="text-sm text-green-400" id="current-bonus-{{ $meritId }}">{{ $merit['current_bonus'] }}</span>
-                                        </div>
+                                
+                                <div class="flex items-center text-xs mb-1">
+                                    <span class="w-16 text-gray-300">Current</span>
+                                    <span class="w-10 text-gray-400 current-level" id="current-level-{{ $meritId }}">{{ $merit['current_level'] }}/10</span>
+                                    <div class="flex-1 flex mx-1" id="current-bar-{{ $meritId }}">
+                                        @for($i = 1; $i <= 10; $i++)
+                                            <div class="flex-1 h-3 rounded-sm mr-px current-seg-{{ $meritId }} {{ $i <= $merit['current_level'] ? 'bg-green-500' : 'bg-gray-700' }}"></div>
+                                        @endfor
                                     </div>
-
-                                    <div class="bg-gray-900/50 rounded p-3">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <span class="text-sm font-medium text-gray-300">Planned</span>
-                                            <span class="text-sm text-gray-400 planned-level" id="planned-level-{{ $meritId }}">{{ $merit['planned_level'] }}/10</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <button 
-                                                type="button"
-                                                onclick="updateMerit('{{ $merit['name'] }}', -1)"
-                                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-sm mr-2 btn-minus-{{ $meritId }}"
-                                                {{ $merit['planned_level'] <= 0 ? 'disabled' : '' }}
-                                            >
-                                                -
-                                            </button>
-                                            <div class="flex space-x-1 mr-3" id="planned-bar-{{ $meritId }}">
-                                                @for($i = 1; $i <= 10; $i++)
-                                                    <div 
-                                                        class="w-4 h-4 rounded cursor-pointer transition-colors planned-seg-{{ $meritId }} {{ $i <= $merit['planned_level'] ? 'bg-purple-500' : 'bg-gray-700 hover:bg-gray-600' }}"
-                                                        onclick="updateMerit('{{ $merit['name'] }}', {{ $i }})"
-                                                    ></div>
-                                                @endfor
-                                            </div>
-                                            <button 
-                                                type="button"
-                                                onclick="updateMerit('{{ $merit['name'] }}', 1)"
-                                                class="w-6 h-6 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-sm btn-plus-{{ $meritId }}"
-                                                {{ $merit['planned_level'] >= 10 ? 'disabled' : '' }}
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-                                        <div class="flex items-center justify-between mt-2">
-                                            <span class="text-sm text-purple-400 planned-bonus" id="planned-bonus-{{ $meritId }}">{{ $merit['planned_bonus'] }}</span>
-                                            <span class="text-sm cost-to-plan-{{ $meritId }} {{ $merit['cost_to_plan'] > 0 ? 'text-yellow-400' : 'text-gray-500' }}">
-                                                @if($merit['cost_to_plan'] > 0)
-                                                    Need: +{{ $merit['cost_to_plan'] }} pts
-                                                @else
-                                                    No additional cost
-                                                @endif
-                                            </span>
-                                        </div>
+                                    <span class="w-12 text-right text-green-400" id="current-bonus-{{ $meritId }}">{{ $merit['current_bonus'] }}</span>
+                                </div>
+                                
+                                <div class="flex items-center text-xs">
+                                    <span class="w-16 text-gray-300">Planned</span>
+                                    <span class="w-10 text-gray-400 planned-level" id="planned-level-{{ $meritId }}">{{ $merit['planned_level'] }}/10</span>
+                                    <button 
+                                        type="button"
+                                        onclick="updateMerit('{{ $merit['name'] }}', -1)"
+                                        class="w-4 h-4 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-xs mr-1 btn-minus-{{ $meritId }}"
+                                        {{ $merit['planned_level'] <= 0 ? 'disabled' : '' }}
+                                    >-</button>
+                                    <div class="flex-1 flex mx-1" id="planned-bar-{{ $meritId }}">
+                                        @for($i = 1; $i <= 10; $i++)
+                                            <div 
+                                                class="flex-1 h-3 rounded-sm mr-px cursor-pointer transition-colors planned-seg-{{ $meritId }} {{ $i <= $merit['planned_level'] ? 'bg-purple-500' : 'bg-gray-700 hover:bg-gray-600' }}"
+                                                onclick="updateMerit('{{ $merit['name'] }}', {{ $i }})"
+                                            ></div>
+                                        @endfor
                                     </div>
+                                    <button 
+                                        type="button"
+                                        onclick="updateMerit('{{ $merit['name'] }}', 1)"
+                                        class="w-4 h-4 flex items-center justify-center bg-gray-700 hover:bg-gray-600 rounded text-white text-xs ml-1 btn-plus-{{ $meritId }}"
+                                        {{ $merit['planned_level'] >= 10 ? 'disabled' : '' }}
+                                    >+</button>
+                                    <span class="w-12 text-right text-purple-400 ml-1 planned-bonus" id="planned-bonus-{{ $meritId }}">{{ $merit['planned_bonus'] }}</span>
                                 </div>
                             </div>
                         @endforeach
