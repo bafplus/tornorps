@@ -77,7 +77,9 @@ class MeritPlannerController extends Controller
         }
 
         $availablePoints = $user->merit_points_available ?? 0;
-        $extraNeeded = max(0, $totalPlannedCost - $availablePoints);
+        $usedPoints = $user->merit_points_used ?? 0;
+        $totalPointsAvailable = $availablePoints + $usedPoints;
+        $extraNeeded = max(0, $totalPlannedCost - $totalPointsAvailable);
 
         return view('merit-planner.index', [
             'groupedMerits' => $groupedMerits,
@@ -198,7 +200,9 @@ class MeritPlannerController extends Controller
             }
 
             $availablePoints = (int) ($user->merit_points_available ?? 0);
-            $extraNeeded = max(0, $totalPlannedCost - $availablePoints);
+            $usedPoints = (int) ($user->merit_points_used ?? 0);
+            $totalPointsAvailable = $availablePoints + $usedPoints;
+            $extraNeeded = max(0, $totalPlannedCost - $totalPointsAvailable);
 
             return response()->json([
                 'success' => true,
@@ -207,6 +211,7 @@ class MeritPlannerController extends Controller
                 'planned_bonus' => MeritDefinition::calculateBonus($meritName, $newLevel),
                 'total_planned_cost' => $totalPlannedCost,
                 'available_points' => $availablePoints,
+                'used_points' => $usedPoints,
                 'extra_needed' => $extraNeeded,
             ]);
         } catch (\Exception $e) {
