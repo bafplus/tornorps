@@ -30,6 +30,12 @@
         </div>
     @endif
 
+    @if(isset($fetchError))
+        <div class="mb-4 p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-400">
+            {{ $fetchError }}
+        </div>
+    @endif
+
     @if(!Auth::user()->torn_api_key)
         <div class="mb-4 p-4 bg-yellow-900/50 border border-yellow-700 rounded-lg text-yellow-400">
             No API key found. Please add your Torn API key in <a href="/settings" class="underline">Settings</a> to fetch gym stats.

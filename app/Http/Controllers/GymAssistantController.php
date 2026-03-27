@@ -18,6 +18,16 @@ class GymAssistantController extends Controller
             ->orderBy('recorded_at', 'desc')
             ->first();
         
+        // Auto-fetch if no stats exist
+        $fetchError = null;
+        if (!$latestStats && $user->torn_api_key && $user->torn_player_id) {
+            $fetchError = $this->fetchGymStats($user);
+            // Re-fetch after auto-fetch
+            $latestStats = GymStatsHistory::where('user_id', $user->id)
+                ->orderBy('recorded_at', 'desc')
+                ->first();
+        }
+        
         $history = GymStatsHistory::where('user_id', $user->id)
             ->orderBy('recorded_at', 'desc')
             ->paginate(10);
@@ -56,7 +66,53 @@ class GymAssistantController extends Controller
             return ['id' => $id, 'name' => $this->getGymName($id)];
         });
         
-        return view('gym-assistant.index', compact('latestStats', 'history', 'chartData', 'programs', 'selectedProgram', 'percentages', 'trainRecommendation', 'gyms'));
+         return view('gym-assistant.index', compact('latestStats', 'history', 'chartData', 'programs', 'selectedProgram', 'percentages', 'trainRecommendation', 'gyms', 'fetchError'));
+    }
+
+    private function fetchGymStats($user): ?string
+    {
+        if (!$user->torn_api_key || !$user->torn_player_id) {
+            return null;
+        }
+
+        try {
+            $response = Http::timeout(10)->get('https://api.torn.com/user/' . $user->torn_player_id, [
+                'key' => $user->torn_api_key,
+                'selections' => 'gym,battlestats'
+            ]);
+
+            if ($response->failed()) {
+                return 'Failed to fetch gym stats from API';
+            }
+
+            $data = $response->json();
+
+            if (isset($data['error'])) {
+                return 'API Error: ' . $data['error'];
+            }
+
+            $strength = $data['strength'] ?? 0;
+            $defense = $data['defense'] ?? 0;
+            $speed = $data['speed'] ?? 0;
+            $dexterity = $data['dexterity'] ?? 0;
+            $gymId = $data['active_gym'] ?? null;
+            $gymName = $this->getGymName($gymId);
+
+            GymStatsHistory::create([
+                'user_id' => $user->id,
+                'strength' => $strength,
+                'defense' => $defense,
+                'speed' => $speed,
+                'dexterity' => $dexterity,
+                'gym_name' => $gymName,
+                'gym_id' => $gymId,
+                'recorded_at' => now(),
+            ]);
+
+            return null;
+        } catch (\Exception $e) {
+            return 'Error: ' . $e->getMessage();
+        }
     }
 
     public function update(Request $request)
