@@ -192,7 +192,7 @@ class MeritDefinition
         ],
 
         // Crime
-        'Crime Progression' => [
+        'Crime XP' => [
             'category' => self::CATEGORY_CRIME,
             'description' => 'Increases crime experience and skill gain by 1% per level',
             'bonus_type' => 'crime',
