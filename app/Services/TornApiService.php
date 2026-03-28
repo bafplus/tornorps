@@ -454,4 +454,58 @@ return $data;
 
         return $data['stocks'] ?? null;
     }
+
+    public function getUserBars(string $apiKey): ?array
+    {
+        $response = Http::timeout(10)
+            ->get("{$this->baseUrl}/v2/user/bars", ['key' => $apiKey]);
+
+        if ($response->failed()) {
+            Log::error('Torn V2 API Error (user bars)', [
+                'endpoint' => 'v2/user/bars',
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            return null;
+        }
+
+        $data = $response->json();
+
+        if (isset($data['error'])) {
+            Log::error('Torn V2 API Error (user bars)', [
+                'endpoint' => 'v2/user/bars',
+                'error' => $data['error']
+            ]);
+            return null;
+        }
+
+        return $data['bars'] ?? null;
+    }
+
+    public function getUserStats(string $apiKey): ?array
+    {
+        $response = Http::timeout(10)
+            ->get("{$this->baseUrl}/v2/user", ['key' => $apiKey, 'selections' => 'battlestats']);
+
+        if ($response->failed()) {
+            Log::error('Torn V2 API Error (user stats)', [
+                'endpoint' => 'v2/user',
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            return null;
+        }
+
+        $data = $response->json();
+
+        if (isset($data['error'])) {
+            Log::error('Torn V2 API Error (user stats)', [
+                'endpoint' => 'v2/user',
+                'error' => $data['error']
+            ]);
+            return null;
+        }
+
+        return $data;
+    }
 }
