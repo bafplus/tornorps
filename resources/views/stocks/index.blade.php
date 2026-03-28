@@ -11,13 +11,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let sortDir = 'desc';
 
     function updateSortIcons() {
-        thead.querySelectorAll('th').forEach(h => {
+        thead.querySelectorAll('th[data-sort]').forEach(h => {
+            const icon = h.querySelector('.sort-icon');
+            if (!icon) return;
+            
             if (h.dataset.sort === sortCol) {
                 h.dataset.dir = sortDir;
-                h.querySelector('.sort-icon').textContent = sortDir === 'asc' ? '↑' : '↓';
+                icon.textContent = sortDir === 'asc' ? '↑' : '↓';
             } else {
                 h.dataset.dir = h.dataset.sort === 'name' ? 'asc' : 'desc';
-                h.querySelector('.sort-icon').textContent = h.dataset.dir === 'asc' ? '↑' : '↓';
+                icon.textContent = h.dataset.dir === 'asc' ? '↑' : '↓';
             }
         });
     }
@@ -44,11 +47,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     thead.addEventListener('click', function(e) {
         const th = e.target.closest('th[data-sort]');
-        console.log('Click detected, th:', th);
         if (!th) return;
         
         const col = th.dataset.sort;
-        console.log('Sorting by:', col);
         if (sortCol === col) {
             sortDir = sortDir === 'asc' ? 'desc' : 'asc';
         } else {
