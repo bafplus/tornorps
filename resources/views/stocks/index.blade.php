@@ -164,6 +164,60 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     @endif
 
+    @if($recommendations && $recommendations->count() > 0)
+    <div class="mb-6 bg-gray-800 rounded-lg border border-yellow-700/50 overflow-hidden">
+        <div class="p-4 border-b border-gray-700 bg-yellow-900/20">
+            <h2 class="text-xl font-semibold text-yellow-400">Investment Recommendations</h2>
+            <p class="text-gray-400 text-xs">Best passive income stocks ranked by ROI</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-700/50">
+                    <tr class="text-left text-gray-400 text-sm">
+                        <th class="p-3">#</th>
+                        <th class="p-3">Stock</th>
+                        <th class="p-3 text-right">Price</th>
+                        <th class="p-3 text-right">Shares Needed</th>
+                        <th class="p-3 text-right">Cost to Unlock</th>
+                        <th class="p-3 text-right">Payout</th>
+                        <th class="p-3 text-right">Annual Return</th>
+                        <th class="p-3 text-right">ROI %</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-700">
+                    @foreach($recommendations as $i => $rec)
+                    <tr class="hover:bg-gray-700/30 @if($i === 0) bg-green-900/10 @endif">
+                        <td class="p-3 font-mono text-gray-500">{{ $i + 1 }}</td>
+                        <td class="p-3">
+                            <div class="flex items-center gap-2">
+                                @if($i === 0)<span class="text-green-400 font-bold">★</span>@endif
+                                <div>
+                                    <div class="font-medium">{{ $rec['name'] }}</div>
+                                    <div class="text-gray-500 text-xs">{{ $rec['acronym'] }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-3 text-right font-mono">${{ number_format($rec['price'], 2) }}</td>
+                        <td class="p-3 text-right font-mono text-gray-400">{{ number_format($rec['shares_needed']) }}</td>
+                        <td class="p-3 text-right font-mono text-yellow-400">${{ number_format($rec['cost_to_unlock'], 0) }}</td>
+                        <td class="p-3 text-right text-xs">
+                            <span class="text-green-400">{{ $rec['payout'] }}</span>
+                            <span class="text-gray-500">{{ $rec['frequency'] }}</span>
+                        </td>
+                        <td class="p-3 text-right font-mono text-green-400">${{ number_format($rec['annual_return'], 0) }}</td>
+                        <td class="p-3 text-right font-bold">
+                            <span class="@if($rec['roi_percent'] >= 50) text-green-400 @elseif($rec['roi_percent'] >= 20) text-yellow-400 @else text-gray-400 @endif">
+                                {{ number_format($rec['roi_percent'], 1) }}%
+                            </span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
     @if(empty($stocks))
         <div class="bg-gray-800 rounded-lg border border-gray-700 p-8 text-center">
             <p class="text-gray-400">No stock data available. Click refresh to load.</p>

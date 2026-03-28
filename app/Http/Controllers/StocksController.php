@@ -104,6 +104,48 @@ class StocksController extends Controller
             ];
         })->sortByDesc('shares')->values();
 
+        // Generate investment recommendations for passive income
+        $recommendations = $stocks->filter(function ($stock) {
+            return $stock['bonus_passive'] && $stock['bonus_requirement'] > 0;
+        })->map(function ($stock) {
+            $costToUnlock = $stock['price'] * $stock['bonus_requirement'];
+            $payoutAmount = float preg_replace('/[^0-9.]/', '', $stock['bonus_payout']) ?: 0;
+            
+            // Calculate annual return based on frequency
+            $freq = $stock['bonus_frequency'];
+            $payoutsPerYear = match(true) {
+                $freq == 1 => 365,
+                $freq == 7 => 52,
+                $freq == 14 => 26,
+                $freq == 31 => 12,
+                $freq == 91 => 4,
+                default => 0,
+            };
+            
+            $annualReturn = $payoutsPerYear * $payoutAmount;
+            $roiPercent = $costToUnlock > 0 ? ($annualReturn / $costToUnlock * 100) : 0;
+            
+            return [
+                'id' => $stock['id'],
+                'name' => $stock['name'],
+                'acronym' => $stock['acronym'],
+                'price' => $stock['price'],
+                'shares_needed' => $stock['bonus_requirement'],
+                'cost_to_unlock' => $costToUnlock,
+                'payout' => $stock['bonus_payout'],
+                'frequency' => match($freq) {
+                    1 => 'daily',
+                    7 => 'weekly',
+                    14 => 'bi-weekly',
+                    31 => 'monthly',
+                    91 => 'quarterly',
+                    default => 'unknown',
+                },
+                'annual_return' => $annualReturn,
+                'roi_percent' => $roiPercent,
+            ];
+        })->sortByDesc('roi_percent')->values();
+
         // Get history for chart
         $history = \App\Models\StockHistory::selectRaw('stock_id, acronym, name, recorded_at, price')
             ->where('recorded_at', '>=', now()->subDays(7)->toDateString())
@@ -183,6 +225,7 @@ class StocksController extends Controller
             'stocks' => $stocks,
             'history' => $history,
             'userStocks' => $userStocks,
+            'recommendations' => $recommendations,
             'error' => null
         ]);
     }
