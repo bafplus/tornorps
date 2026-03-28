@@ -394,7 +394,6 @@
 @endsection
 
 @push('scripts')
-<script>console.log('INLINE TEST - scripts section loaded');</script>
 <script>
 (function() {
 'use strict';
@@ -863,6 +862,8 @@ fetch('/api/wars/' + warId + '/live')
 
 syncRealtime();
 setInterval(syncRealtime, syncInterval);
+})();
+}
 })();
 </script>
 @endpush
