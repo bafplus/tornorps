@@ -394,6 +394,7 @@
 @endsection
 
 @section('scripts')
+<script>console.log('INLINE TEST - scripts section loaded');</script>
 <script>
 (function() {
 'use strict';
