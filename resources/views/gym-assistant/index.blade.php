@@ -204,7 +204,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        @if($chartData && $chartData->count() > 1)
+        @if($chartData && $chartData->count() > 0)
         <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
             <h2 class="text-lg font-semibold mb-4 text-gray-300">Progress Chart</h2>
             <div class="h-80">
@@ -261,6 +261,41 @@
 console.log('Chart.js loaded:', typeof Chart);
 console.log('Chart exists:', Chart !== undefined);
 
+@if($chartData && $chartData->count() > 0)
+var chartData = {
+    labels: {!! json_encode($chartData->pluck('recorded_at')->map(fn($d) => $d->format('d M H:i'))) !!},
+    strength: {!! json_encode($chartData->pluck('strength')) !!},
+    defense: {!! json_encode($chartData->pluck('defense')) !!},
+    speed: {!! json_encode($chartData->pluck('speed')) !!},
+    dexterity: {!! json_encode($chartData->pluck('dexterity')) !!}
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                { label: 'Strength', data: chartData.strength, borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.1)', fill: true, tension: 0.3 },
+                { label: 'Defense', data: chartData.defense, borderColor: '#4ade80', backgroundColor: 'rgba(74, 222, 128, 0.1)', fill: true, tension: 0.3 },
+                { label: 'Speed', data: chartData.speed, borderColor: '#facc15', backgroundColor: 'rgba(250, 204, 21, 0.1)', fill: true, tension: 0.3 },
+                { label: 'Dexterity', data: chartData.dexterity, borderColor: '#c084fc', backgroundColor: 'rgba(192, 132, 252, 0.1)', fill: true, tension: 0.3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af' } } },
+            scales: {
+                x: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } }
+            }
+        }
+    });
+});
+@endif
+
 function toggleCustomInputs() {
     var select = document.getElementById('programSelect');
     var customInputs = document.getElementById('customInputs');
@@ -274,8 +309,6 @@ function toggleCustomInputs() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, checking chart conditions');
-    console.log('chartData exists:', typeof chartData !== 'undefined');
     setTimeout(function() {
         var successAlert = document.getElementById('success-alert');
         var errorAlert = document.getElementById('error-alert');
