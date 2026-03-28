@@ -58,7 +58,7 @@ class AdminController extends Controller
                 'api_calls' => '10-50 calls',
             ],
             'stocks' => [
-                'name' => 'stocks:sync',
+                'name' => 'torn:sync-stocks',
                 'schedule' => 'Daily (00:15)',
                 'description' => 'Syncs stock prices and saves to history',
                 'api_calls' => '1 call',

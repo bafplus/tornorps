@@ -109,7 +109,28 @@ Route::middleware(['auth'])->group(function () {
             return back()->with('status', 'War attacks sync completed.');
         });
 
-        Route::post('/admin/sync/stocks', [StocksController::class, 'sync']);
+        Route::post('/admin/sync/stocks', function () {
+            \Illuminate\Support\Facades\Artisan::call('torn:sync-stocks');
+            return back()->with('status', 'Stocks sync completed.');
+        });
+
+        Route::get('/admin/logs', function () {
+            $logFile = storage_path('logs/laravel.log');
+            $lines = [];
+            if (file_exists($logFile)) {
+                $handle = fopen($logFile, 'r');
+                $buffer = [];
+                while (($line = fgets($handle)) !== false) {
+                    $buffer[] = $line;
+                    if (count($buffer) > 100) {
+                        array_shift($buffer);
+                    }
+                }
+                fclose($handle);
+                $lines = array_reverse($buffer);
+            }
+            return view('admin.logs', ['lines' => $lines]);
+        });
 
         Route::post('/admin/check-updates', [AdminController::class, 'checkForUpdates']);
         Route::post('/admin/upgrade', [AdminController::class, 'upgrade']);

@@ -40,9 +40,7 @@ $schedule->command('torn:sync-attacks')
             ->runInBackground();
 
         $schedule->call(function () {
-            $controller = app()->make(\App\Http\Controllers\StocksController::class);
-            $tornApi = app()->make(\App\Services\TornApiService::class);
-            $controller->sync($tornApi);
+            \Illuminate\Support\Facades\Artisan::call('torn:sync-stocks');
         })
             ->dailyAt('00:15')
             ->withoutOverlapping()

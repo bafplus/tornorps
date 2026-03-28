@@ -266,5 +266,13 @@
             </p>
         </div>
     </div>
+
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 class="text-xl font-semibold mb-4 text-red-400">Log Viewer</h2>
+        <p class="text-gray-400 text-sm mb-4">View recent errors and log entries for debugging.</p>
+        <a href="/admin/logs" class="inline-block bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white">
+            View Logs
+        </a>
+    </div>
 </div>
 @endsection
