@@ -106,12 +106,12 @@ class StocksController extends Controller
 
         // Generate investment recommendations for passive income
         $recommendations = $stocks->filter(function ($stock) {
-            return $stock['bonus_passive'] && $stock['bonus_requirement'] > 0;
+            return $stock['bonus_passive'] && $stock['bonus_requirement'] > 0 && !empty($stock['bonus_payout']);
         })->map(function ($stock) {
             $costToUnlock = $stock['price'] * $stock['bonus_requirement'];
             $payoutStr = $stock['bonus_payout'];
             
-            // Parse payout amount from string like "$50,000,000" or "50 points"
+            // Parse payout amount - handle various formats like "$50,000,000", "50m", "$100"
             $cleaned = preg_replace('/[^0-9.]/', '', $payoutStr);
             $payoutAmount = (float) $cleaned;
             
@@ -122,15 +122,6 @@ class StocksController extends Controller
             
             // Calculate ROI
             $roi = $costToUnlock > 0 ? ($payoutAmount / $costToUnlock * 100) : 0;
-            
-            \Illuminate\Support\Facades\Log::info('ROI Debug', [
-                'stock' => $stock['acronym'],
-                'payoutStr' => $payoutStr,
-                'cleaned' => $cleaned,
-                'payoutAmount' => $payoutAmount,
-                'costToUnlock' => $costToUnlock,
-                'roi' => $roi,
-            ]);
             
             return [
                 'id' => $stock['id'],
