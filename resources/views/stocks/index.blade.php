@@ -140,27 +140,31 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                             </td>
-                            <td class="p-3 text-right font-mono">${{ number_format($stock['price'], 2) }}</td>
-                            <td class="p-3 text-right text-xs">
-                                <div class="space-y-1">
-                                    <div class="flex items-center justify-end gap-2">
-                                        <span class="text-gray-400">24h:</span>
+                            <td class="p-3 text-right font-mono">
+                                <div>${{ number_format($stock['price'], 2) }}</div>
+                                @if($stock['change_24h'] !== null)
+                                    <div class="@if($stock['change_24h'] > 0) text-green-400 @elseif($stock['change_24h'] < 0) text-red-400 @else text-gray-500 @endif text-xs flex items-center justify-end gap-1">
+                                        @if($stock['change_24h'] > 0)<span>▲</span>@elseif($stock['change_24h'] < 0)<span>▼</span>@endif
+                                        {{ $stock['change_24h'] > 0 ? '+' : '' }}{{ number_format($stock['change_24h'], 2) }}% (24h)
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="p-3 text-xs">
+                                <div class="space-y-1 text-left">
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-gray-500 w-6">24h</span>
                                         @if($stock['price_24h_ago'] !== null)
                                             <span class="font-mono">${{ number_format($stock['price_24h_ago'], 2) }}</span>
-                                            <span class="@if($stock['change_24h'] > 0) text-green-400 @elseif($stock['change_24h'] < 0) text-red-400 @else text-gray-500 @endif">
-                                                ({{ $stock['change_24h'] > 0 ? '+' : '' }}{{ number_format($stock['change_24h'], 2) }}%)
-                                            </span>
+                                            @if($stock['change_24h'] > 0)<span class="text-green-400">▲</span>@elseif($stock['change_24h'] < 0)<span class="text-red-400">▼</span>@endif
                                         @else
                                             <span class="text-gray-600">-</span>
                                         @endif
                                     </div>
-                                    <div class="flex items-center justify-end gap-2">
-                                        <span class="text-gray-400">7d:</span>
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-gray-500 w-6">7d</span>
                                         @if($stock['price_7d_ago'] !== null)
                                             <span class="font-mono">${{ number_format($stock['price_7d_ago'], 2) }}</span>
-                                            <span class="@if($stock['change_7d'] > 0) text-green-400 @elseif($stock['change_7d'] < 0) text-red-400 @else text-gray-500 @endif">
-                                                ({{ $stock['change_7d'] > 0 ? '+' : '' }}{{ number_format($stock['change_7d'], 2) }}%)
-                                            </span>
+                                            @if($stock['change_7d'] > 0)<span class="text-green-400">▲</span>@elseif($stock['change_7d'] < 0)<span class="text-red-400">▼</span>@endif
                                         @else
                                             <span class="text-gray-600">-</span>
                                         @endif
