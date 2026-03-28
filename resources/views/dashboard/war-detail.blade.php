@@ -779,6 +779,7 @@ travelText.textContent = 'In ' + result.country + ' ';
 const urlParams = getUrlParams();
 let currentSort = { field: urlParams.sort, dir: urlParams.dir };
 
+document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('thead-our').querySelectorAll('th').forEach(th => {
 th.addEventListener('click', () => handleSortClick(th));
 });
@@ -805,6 +806,7 @@ initTravelBubbles();
 
         updateChainTimer();
         setInterval(updateChainTimer, 1000);
+});
 
         if (isActiveWar) {
 setInterval(function() {
