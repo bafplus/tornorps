@@ -122,6 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <th class="p-3 cursor-pointer hover:text-white" data-sort="name" data-dir="asc">Stock <span class="sort-icon">↑</span></th>
                             <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="price" data-dir="desc">Price <span class="sort-icon">↓</span></th>
                             <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="change_24h" data-dir="desc">24h / 7d <span class="sort-icon">↓</span></th>
+                            <th class="p-3">7d Chart</th>
                             <th class="p-3">Bonus</th>
                         </tr>
                     </thead>
@@ -171,11 +172,37 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </div>
                                 </div>
                             </td>
+                            <td class="p-3">
+                                @if(isset($history[$stock['id']]) && $history[$stock['id']]->count() > 1)
+                                    @php
+                                        $stockHistory = $history[$stock['id']]->sortBy('recorded_at');
+                                        $prices = $stockHistory->pluck('price')->toArray();
+                                        $min = min($prices);
+                                        $max = max($prices);
+                                        $range = $max - $min ?: 1;
+                                        $width = 80;
+                                        $height = 24;
+                                        $points = [];
+                                        foreach ($prices as $i => $price) {
+                                            $x = ($i / (count($prices) - 1)) * $width;
+                                            $y = $height - (($price - $min) / $range * $height);
+                                            $points[] = "{$x},{$y}";
+                                        }
+                                        $lineColor = $stock['change_7d'] > 0 ? '#4ade80' : ($stock['change_7d'] < 0 ? '#f87171' : '#6b7280');
+                                    @endphp
+                                    <svg width="{{ $width }}" height="{{ $height }}" class="block">
+                                        <polyline fill="none" stroke="{{ $lineColor }}" stroke-width="1.5" points="{{ implode(' ', $points) }}"/>
+                                    </svg>
+                                @else
+                                    <span class="text-gray-600">-</span>
+                                @endif
+                            </td>
                             <td class="p-3 text-xs">
                                 @if(is_array($stock['bonus_text']))
                                     <div class="@if($stock['bonus_text']['type'] === 'Passive') text-green-400 bg-green-900/30 @else text-blue-400 bg-blue-900/30 @endif px-2 py-1 rounded">
-                                        <span class="font-semibold">{{ $stock['bonus_text']['type'] }}</span>
-                                        <span class="text-gray-300"> - Own {{ $stock['bonus_text']['shares_needed'] }} shares → Get {{ $stock['bonus_text']['payout'] }} ({{ $stock['bonus_text']['frequency'] }})</span>
+                                        <div class="font-semibold">{{ $stock['bonus_text']['type'] }}</div>
+                                        <div class="text-gray-300">Own {{ $stock['bonus_text']['shares_needed'] }} → {{ $stock['bonus_text']['payout'] }}</div>
+                                        <div class="text-gray-400 text-xs">{{ $stock['bonus_text']['frequency'] }}</div>
                                     </div>
                                 @else
                                     <span class="text-gray-500">-</span>
