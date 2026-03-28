@@ -180,23 +180,25 @@ document.addEventListener('DOMContentLoaded', function() {
                                         $min = min($prices);
                                         $max = max($prices);
                                         $range = $max - $min ?: 1;
-                                        $width = 90;
-                                        $height = 30;
-                                        $padding = 2;
+                                        $w = 90;
+                                        $h = 30;
+                                        $pad = 4;
                                         $points = [];
+                                        $count = count($prices);
                                         foreach ($prices as $i => $price) {
-                                            $x = $padding + ($i / (count($prices) - 1)) * ($width - 2 * $padding);
-                                            $y = $padding + ($height - 2 * $padding) - (($price - $min) / $range * ($height - 2 * $padding));
-                                            $points[] = "{$x},{$y}";
+                                            $x = $pad + ($i / ($count - 1)) * ($w - 2 * $pad);
+                                            $y = $pad + ($h - 2 * $pad) - (($price - $min) / $range * ($h - 2 * $pad));
+                                            $points[] = round($x, 1) . ',' . round($y, 1);
                                         }
                                         $lineColor = $stock['change_7d'] > 0 ? '#4ade80' : ($stock['change_7d'] < 0 ? '#f87171' : '#6b7280');
-                                        $fillColor = $stock['change_7d'] > 0 ? 'rgba(74,222,128,0.2)' : ($stock['change_7d'] < 0 ? 'rgba(248,113,113,0.2)' : 'rgba(107,114,128,0.2)');
-                                        $polygonPoints = $padding . ',' . ($height - $padding) . ' ' . implode(' ', $points) . ' ' . ($width - $padding) . ',' . ($height - $padding);
+                                        $fillColor = $stock['change_7d'] > 0 ? 'rgba(74,222,128,0.3)' : ($stock['change_7d'] < 0 ? 'rgba(248,113,113,0.3)' : 'rgba(107,114,128,0.3))');
+                                        $lastPoint = end($points);
+                                        $lastCoords = explode(',', $lastPoint);
                                     @endphp
-                                    <svg width="{{ $width }}" height="{{ $height }}" class="block">
-                                        <polygon fill="{{ $fillColor }}" points="{{ $polygonPoints }}"/>
+                                    <svg width="{{ $w }}" height="{{ $h }}" class="block">
+                                        <polygon fill="{{ $fillColor }}" points="{{ $pad }},{{ $h - $pad }} {{ implode(' ', $points) }} {{ $w - $pad }},{{ $h - $pad }}"/>
                                         <polyline fill="none" stroke="{{ $lineColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="{{ implode(' ', $points) }}"/>
-                                        <circle cx="{{ end(explode(',', explode(' ', end($points)))) }}" cy="{{ end($points) ? explode(',', end($points))[1] : $height/2 }}" r="3" fill="{{ $lineColor }}"/>
+                                        <circle cx="{{ $lastCoords[0] }}" cy="{{ $lastCoords[1] }}" r="3" fill="{{ $lineColor }}"/>
                                     </svg>
                                 @else
                                     <span class="text-gray-600">-</span>
