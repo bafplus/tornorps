@@ -109,7 +109,7 @@ class StocksController extends Controller
             return $stock['bonus_passive'] && $stock['bonus_requirement'] > 0;
         })->map(function ($stock) {
             $costToUnlock = $stock['price'] * $stock['bonus_requirement'];
-            $payoutAmount = float preg_replace('/[^0-9.]/', '', $stock['bonus_payout']) ?: 0;
+            $payoutAmount = (float) preg_replace('/[^0-9.]/', '', $stock['bonus_payout']) ?: 0;
             
             // Calculate annual return based on frequency
             $freq = $stock['bonus_frequency'];
