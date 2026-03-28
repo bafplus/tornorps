@@ -16,7 +16,10 @@ class StocksController extends Controller
         if (!$apiKey) {
             return view('stocks.index', [
                 'error' => 'No API key found. Please add your Torn API key in Settings.',
-                'stocks' => []
+                'stocks' => [],
+                'history' => collect(),
+                'userStocks' => [],
+                'recommendations' => collect(),
             ]);
         }
         
@@ -48,7 +51,10 @@ class StocksController extends Controller
         if (!$rawStocks) {
             return view('stocks.index', [
                 'error' => 'Failed to fetch stock data. Check your API key has stocks access.',
-                'stocks' => []
+                'stocks' => [],
+                'history' => collect(),
+                'userStocks' => [],
+                'recommendations' => collect(),
             ]);
         }
 
