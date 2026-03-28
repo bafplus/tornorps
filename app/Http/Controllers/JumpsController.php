@@ -35,6 +35,7 @@ class JumpsController extends Controller
         }
 
         // Extract battle stats - handle both formats (direct value or object with 'total')
+        $battleStats = $stats['battlestats'] ?? [];
         $getValue = function ($stat) {
             if (is_array($stat)) {
                 return $stat['total'] ?? $stat['value'] ?? 0;
