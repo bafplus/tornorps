@@ -124,17 +124,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td class="p-3 text-right font-mono">${{ number_format($stock['price'], 2) }}</td>
                             <td class="p-3 text-right font-mono text-gray-400">{{ number_format($stock['investors']) }}</td>
                             <td class="p-3 text-xs">
-                                @if($stock['bonus_text'])
-                                    <div class="@if($stock['bonus_passive']) text-green-400 bg-green-900/30 @else text-blue-400 bg-blue-900/30 @endif px-2 py-1 rounded">
-                                        @if($stock['bonus_passive'])<span class="font-semibold">PASSIVE</span> @endif
-                                        {{ number_format($stock['bonus_requirement']) }} → {{ $stock['bonus_payout'] }}
-                                        @switch($stock['bonus_frequency'])
-                                            @case(1) <span class="text-gray-400">(daily)</span> @break
-                                            @case(7) <span class="text-gray-400">(weekly)</span> @break
-                                            @case(14) <span class="text-gray-400">(bi-weekly)</span> @break
-                                            @case(31) <span class="text-gray-400">(monthly)</span> @break
-                                            @case(91) <span class="text-gray-400">(quarterly)</span> @break
-                                        @endswitch
+                                @if(is_array($stock['bonus_text']))
+                                    <div class="@if($stock['bonus_text']['type'] === 'Passive') text-green-400 bg-green-900/30 @else text-blue-400 bg-blue-900/30 @endif px-2 py-1 rounded">
+                                        <span class="font-semibold">{{ $stock['bonus_text']['type'] }}</span>
+                                        <span class="text-gray-300"> - Own {{ $stock['bonus_text']['shares_needed'] }} shares → Get {{ $stock['bonus_text']['payout'] }} ({{ $stock['bonus_text']['frequency'] }})</span>
                                     </div>
                                 @else
                                     <span class="text-gray-500">-</span>

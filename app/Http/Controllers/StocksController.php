@@ -44,16 +44,19 @@ class StocksController extends Controller
             $bonusText = '';
             if ($bonus) {
                 $freq = match($bonus['frequency'] ?? 0) {
-                    1 => 'Daily',
-                    7 => 'Weekly',
-                    14 => 'Bi-weekly',
-                    31 => 'Monthly',
-                    91 => 'Quarterly',
-                    default => 'Every ' . ($bonus['frequency'] ?? '?') . ' days'
+                    1 => 'daily',
+                    7 => 'weekly',
+                    14 => 'bi-weekly',
+                    31 => 'monthly',
+                    91 => 'quarterly',
+                    default => 'every ' . ($bonus['frequency'] ?? '?') . ' days'
                 };
-                $bonusText = ($bonus['passive'] ? 'Passive ' : '') . 
-                    number_format($bonus['requirement'] ?? 0) . ' shares → ' . 
-                    ($bonus['description'] ?? '') . ' (' . $freq . ')';
+                $bonusText = [
+                    'type' => $bonus['passive'] ? 'Passive' : 'Active',
+                    'shares_needed' => number_format($bonus['requirement'] ?? 0),
+                    'payout' => $bonus['description'] ?? '',
+                    'frequency' => $freq,
+                ];
             }
             
             return [
