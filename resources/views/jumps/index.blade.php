@@ -18,17 +18,33 @@
     @if($stats && $bars)
     <!-- Gym Info -->
     <div class="mb-6 bg-gray-800 rounded-lg border border-purple-700/50 p-4">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 bg-purple-900/50 rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                    </svg>
+                    <span class="text-purple-400 font-bold">{{ $gym_id ?? '?' }}</span>
                 </div>
                 <div>
                     <div class="font-semibold text-purple-400 text-lg">{{ $gym_name }}</div>
-                    <div class="text-gray-500 text-sm">Gym ID: {{ $gym_id ?? 'None' }}</div>
+                    <div class="text-gray-500 text-sm">Energy per train: {{ $gym_energy_cost }} | Multiplier: {{ number_format($gym_multiplier, 1) }}x</div>
                 </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-4 gap-2 text-center text-xs">
+            <div class="bg-red-900/30 rounded p-2">
+                <div class="text-red-400 font-bold">{{ number_format($gym_str_bonus, 1) }}x</div>
+                <div class="text-gray-500">STR</div>
+            </div>
+            <div class="bg-blue-900/30 rounded p-2">
+                <div class="text-blue-400 font-bold">{{ number_format($gym_def_bonus, 1) }}x</div>
+                <div class="text-gray-500">DEF</div>
+            </div>
+            <div class="bg-yellow-900/30 rounded p-2">
+                <div class="text-yellow-400 font-bold">{{ number_format($gym_spd_bonus, 1) }}x</div>
+                <div class="text-gray-500">SPD</div>
+            </div>
+            <div class="bg-green-900/30 rounded p-2">
+                <div class="text-green-400 font-bold">{{ number_format($gym_dex_bonus, 1) }}x</div>
+                <div class="text-gray-500">DEX</div>
             </div>
         </div>
     </div>
