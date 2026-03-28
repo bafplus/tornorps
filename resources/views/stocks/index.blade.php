@@ -40,6 +40,7 @@
                 <table class="w-full">
                     <thead class="bg-gray-700">
                         <tr class="text-left text-gray-400 text-sm">
+                            <th class="p-3">ID</th>
                             <th class="p-3">Stock</th>
                             <th class="p-3 text-right">Price</th>
                             <th class="p-3 text-right">Change</th>
@@ -51,6 +52,7 @@
                     <tbody class="divide-y divide-gray-700">
                         @foreach($stocks as $stock)
                         <tr class="hover:bg-gray-700/30">
+                            <td class="p-3 font-mono text-gray-400">{{ $stock['id'] }}</td>
                             <td class="p-3">
                                 <div class="font-medium">{{ $stock['name'] }}</div>
                                 <div class="text-gray-500 text-sm">{{ $stock['acronym'] }}</div>

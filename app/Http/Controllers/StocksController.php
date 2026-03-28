@@ -13,29 +13,37 @@ class StocksController extends Controller
     {
         $apiKey = $this->getApiKey();
         
-        $stocks = Cache::remember('stocks_data', 1800, function () use ($tornApi, $apiKey) {
+        $rawStocks = Cache::remember('stocks_data', 1800, function () use ($tornApi, $apiKey) {
             return $tornApi->getStocks($apiKey);
         });
 
-        if (!$stocks) {
+        // Debug: log the first stock to see structure
+        if ($rawStocks && count($rawStocks) > 0) {
+            \Illuminate\Support\Facades\Log::info('Stock API response sample', ['first' => array_first($rawStocks)]);
+        }
+
+        if (!$rawStocks) {
             return view('stocks.index', [
                 'error' => 'Failed to fetch stock data from Torn API. Please ensure you have a valid API key in Settings.',
                 'stocks' => []
             ]);
         }
 
-        $stocks = collect($stocks)->map(function ($stock, $acronym) {
+        $stocks = collect($rawStocks)->map(function ($stock) {
+            $price = $stock['current_price'] ?? 0;
+            $prevPrice = $stock['previous_price'] ?? $price;
+            $profit = ($prevPrice > 0) ? (($price - $prevPrice) / $prevPrice * 100) : 0;
+            
             return [
-                'acronym' => $acronym,
-                'name' => $stock['name'] ?? $acronym,
-                'price' => $stock['current_price'] ?? 0,
-                'previous_price' => $stock['previous_price'] ?? 0,
+                'id' => $stock['stock_id'] ?? 0,
+                'acronym' => $stock['acronym'] ?? '',
+                'name' => $stock['name'] ?? '',
+                'price' => $price,
+                'previous_price' => $prevPrice,
                 'market_cap' => $stock['market_cap'] ?? 0,
                 'volume' => $stock['volume'] ?? 0,
                 'shares' => $stock['total_shares'] ?? 0,
-                'profit' => isset($stock['current_price'], $stock['previous_price']) 
-                    ? (($stock['current_price'] - $stock['previous_price']) / $stock['previous_price'] * 100)
-                    : 0,
+                'profit' => $profit,
             ];
         })->sortByDesc('market_cap')->values();
 
