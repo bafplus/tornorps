@@ -79,10 +79,10 @@ class StocksController extends Controller
             
             // Get price changes from history
             $dayAgo = \App\Models\StockHistory::where('stock_id', $stockId)
-                ->where('recorded_at', now()->subDay()->toDateString())
+                ->whereDate('recorded_at', now()->subDay())
                 ->value('price');
             $weekAgo = \App\Models\StockHistory::where('stock_id', $stockId)
-                ->where('recorded_at', now()->subDays(7)->toDateString())
+                ->whereDate('recorded_at', now()->subDays(7))
                 ->value('price');
             
             return [
