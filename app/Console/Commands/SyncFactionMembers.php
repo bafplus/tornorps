@@ -100,6 +100,15 @@ class SyncFactionMembers extends Command
         $skipped = count($missingIds);
         $reused = $count - $skipped;
         $this->info("Synced {$count} members ({$reused} from cache, {$skipped} from FF Scouter).");
+
+        $currentMemberIds = array_keys($data['members']);
+        $deleted = FactionMember::where('faction_id', $factionId)
+            ->whereNotIn('player_id', $currentMemberIds)
+            ->delete();
+        
+        if ($deleted > 0) {
+            $this->info("Removed {$deleted} member(s) who are no longer in the faction.");
+        }
         
         $log->markComplete($count);
         return Command::SUCCESS;
