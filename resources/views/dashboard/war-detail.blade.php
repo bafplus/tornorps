@@ -362,7 +362,7 @@
                         <th class="p-4">Result</th>
                         <th class="p-4">Defender</th>
                         <th class="p-4">Score</th>
-                        <th class="p-4">Time (UTC)</th>
+                        <th class="p-4">Date/Time (UTC)</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-700">
@@ -380,7 +380,7 @@
                         </td>
                         <td class="p-4">{{ $attack->defender_name ?? 'Unknown' }}</td>
                         <td class="p-4 font-mono text-purple-400">{{ $attack->respect_gain > 0 ? '+' . $attack->respect_gain : '-' }}</td>
-                        <td class="p-4 text-gray-400">{{ $attack->timestamp ? $attack->timestamp->format('H:i:s') : '-' }}</td>
+                        <td class="p-4 text-gray-400">{{ $attack->timestamp ? $attack->timestamp->format('d M H:i') : '-' }}</td>
                     </tr>
                     @empty
                     <tr><td class="p-4 text-gray-500" colspan="5">No attacks recorded</td></tr>
