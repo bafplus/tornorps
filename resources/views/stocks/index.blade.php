@@ -44,9 +44,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     thead.addEventListener('click', function(e) {
         const th = e.target.closest('th[data-sort]');
+        console.log('Click detected, th:', th);
         if (!th) return;
         
         const col = th.dataset.sort;
+        console.log('Sorting by:', col);
         if (sortCol === col) {
             sortDir = sortDir === 'asc' ? 'desc' : 'asc';
         } else {
@@ -124,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </thead>
                     <tbody class="divide-y divide-gray-700">
                         @foreach($stocks as $stock)
-                        <tr class="hover:bg-gray-700/30" data-id="{{ $stock['id'] }}" data-name="{{ strtolower($stock['name']) }}" data-price="{{ $stock['price'] }}" data-investors="{{ $stock['investors'] }}">
+                        <tr class="hover:bg-gray-700/30" data-id="{{ $stock['id'] }}" data-name="{{ strtolower($stock['name']) }}" data-price="{{ $stock['price'] }}" data-investors="{{ $stock['investors'] }}" data-shares="{{ $stock['shares'] ?? 0 }}">
                             <td class="p-3 font-mono text-gray-400">{{ $stock['id'] }}</td>
                             <td class="p-3">
                                 <div class="flex items-center gap-2">
