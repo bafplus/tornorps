@@ -863,7 +863,5 @@ fetch('/api/wars/' + warId + '/live')
 syncRealtime();
 setInterval(syncRealtime, syncInterval);
 })();
-}
-})();
 </script>
 @endsection
