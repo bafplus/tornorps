@@ -111,13 +111,12 @@ class StocksController extends Controller
             ->get()
             ->groupBy('stock_id');
 
-        // Get user's portfolio
+        // Get user's portfolio - always fetch fresh on page load
         $userStocks = [];
         $userApiKey = $this->getApiKey();
-        if ($userApiKey) {
-            $rawUserStocks = Cache::remember('user_stocks_data', 3600, function () use ($tornApi, $userApiKey) {
-                return $tornApi->getUserStocks($userApiKey);
-            });
+        $userId = Auth::id();
+        if ($userApiKey && $userId) {
+            $rawUserStocks = $tornApi->getUserStocks($userApiKey);
             
             if ($rawUserStocks) {
                 $stockPrices = collect($stocks)->keyBy('id');
@@ -197,6 +196,7 @@ class StocksController extends Controller
         }
 
         Cache::forget('stocks_data');
+        Cache::forget('user_stocks_' . Auth::id());
         $stocks = $tornApi->getStocks($apiKey);
         
         if (!$stocks) {
