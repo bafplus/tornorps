@@ -81,6 +81,7 @@ class JumpsController extends Controller
         $energy = $bars['energy'] ?? [];
         $currentHappy = $happy['current'] ?? 0;
         $maxHappy = $happy['maximum'] ?? 0;
+        $currentEnergy = $energy['current'] ?? 0;
 
         // Calculate jump results
         $jumpResults = $this->calculateJumpResults($gymData, $totalStats, $currentHappy, $currentEnergy);
