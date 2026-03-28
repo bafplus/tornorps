@@ -779,14 +779,18 @@ travelText.textContent = 'In ' + result.country + ' ';
 const urlParams = getUrlParams();
 let currentSort = { field: urlParams.sort, dir: urlParams.dir };
 
+console.log('Script loaded, currentSort:', currentSort);
+
 document.addEventListener('DOMContentLoaded', function() {
 console.log('DOM loaded, setting up sort handlers');
+try {
 document.getElementById('thead-our').querySelectorAll('th').forEach(th => {
 th.addEventListener('click', () => { console.log('Sort clicked:', th.dataset.sort); handleSortClick(th); });
 });
 document.getElementById('thead-opp').querySelectorAll('th').forEach(th => {
 th.addEventListener('click', () => { console.log('Sort clicked:', th.dataset.sort); handleSortClick(th); });
 });
+} catch(e) { console.error('Setup error:', e); }
 
 console.log('Initial sort:', currentSort);
 updateAllTheads(currentSort.field, currentSort.dir);
