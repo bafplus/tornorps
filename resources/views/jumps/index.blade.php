@@ -125,6 +125,21 @@
                     {{ $result['name'] }}
                 </h3>
                 
+                <!-- Materials List -->
+                <div class="mb-4 text-xs">
+                    <div class="text-gray-500 mb-2">Materials Needed:</div>
+                    <div class="space-y-1 bg-gray-900/50 rounded p-2">
+                        @foreach($result['materials_list'] as $material)
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">{{ $material['qty'] }}x {{ $material['name'] }}</span>
+                            <span class="font-mono {{ is_numeric($material['cost_total']) ? 'text-green-400' : 'text-blue-400' }}">
+                                {{ is_numeric($material['cost_total']) ? '$' . number_format($material['cost_total']) : $material['cost_total'] }}
+                            </span>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
                         <span class="text-gray-400">Money Cost</span>

@@ -324,6 +324,56 @@ class JumpsController extends Controller
             // Calculate points per train
             $pointsPerTrain = $numTrains > 0 ? $pointsCost / $numTrains : 0;
 
+            // Build materials list with costs
+            $materialsList = [];
+            $materialsList[] = [
+                'name' => 'Xanax',
+                'qty' => $jump['materials']['xanax'],
+                'cost_each' => $xanaxCost,
+                'cost_total' => $jump['materials']['xanax'] * $xanaxCost,
+            ];
+
+            if (isset($jump['materials']['candy'])) {
+                $materialsList[] = [
+                    'name' => 'Candy',
+                    'qty' => $jump['materials']['candy'],
+                    'cost_each' => $candyCost,
+                    'cost_total' => $jump['materials']['candy'] * $candyCost,
+                ];
+            }
+
+            if (isset($jump['materials']['choco'])) {
+                $materialsList[] = [
+                    'name' => 'Bag of Candy Kisses',
+                    'qty' => $jump['materials']['choco'],
+                    'cost_each' => $chocoCost,
+                    'cost_total' => $jump['materials']['choco'] * $chocoCost,
+                ];
+            }
+
+            if (isset($jump['materials']['dvd'])) {
+                $materialsList[] = [
+                    'name' => 'Erotic DVD',
+                    'qty' => $jump['materials']['dvd'],
+                    'cost_each' => $dvdCost,
+                    'cost_total' => $jump['materials']['dvd'] * $dvdCost,
+                ];
+            }
+
+            $materialsList[] = [
+                'name' => 'Ecstasy',
+                'qty' => $jump['materials']['ecstasy'],
+                'cost_each' => $ecstasyCost,
+                'cost_total' => $jump['materials']['ecstasy'] * $ecstasyCost,
+            ];
+
+            $materialsList[] = [
+                'name' => 'Refill Energy Bar (optional)',
+                'qty' => $jump['materials']['refill'],
+                'cost_each' => '30 pts',
+                'cost_total' => $refillPoints . ' pts',
+            ];
+
             $results[$type] = [
                 'name' => $jump['name'],
                 'money_cost' => $moneyCost,
@@ -337,6 +387,7 @@ class JumpsController extends Controller
                 'points_per_train' => $pointsPerTrain,
                 'starting_happy' => $startingHappy,
                 'happy_from_items' => $happyFromItems,
+                'materials_list' => $materialsList,
             ];
         }
 
