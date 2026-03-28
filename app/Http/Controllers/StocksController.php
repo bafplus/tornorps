@@ -39,21 +39,38 @@ class StocksController extends Controller
         $stocks = collect($rawStocks)->map(function ($stock) {
             $market = $stock['market'] ?? [];
             $price = $market['price'] ?? 0;
+            $bonus = $stock['bonus'] ?? null;
+            
+            $bonusText = '';
+            if ($bonus) {
+                $freq = match($bonus['frequency'] ?? 0) {
+                    1 => 'Daily',
+                    7 => 'Weekly',
+                    14 => 'Bi-weekly',
+                    31 => 'Monthly',
+                    91 => 'Quarterly',
+                    default => 'Every ' . ($bonus['frequency'] ?? '?') . ' days'
+                };
+                $bonusText = ($bonus['passive'] ? 'Passive ' : '') . 
+                    number_format($bonus['requirement'] ?? 0) . ' shares → ' . 
+                    ($bonus['description'] ?? '') . ' (' . $freq . ')';
+            }
             
             return [
                 'id' => $stock['id'] ?? 0,
                 'acronym' => $stock['acronym'] ?? '',
                 'name' => $stock['name'] ?? '',
                 'price' => $price,
-                'previous_price' => $price,
-                'market_cap' => $market['cap'] ?? 0,
-                'volume' => $market['investors'] ?? 0,
+                'investors' => $market['investors'] ?? 0,
                 'shares' => $market['shares'] ?? 0,
-                'bonus' => $stock['bonus'] ?? null,
+                'bonus_passive' => $bonus['passive'] ?? false,
+                'bonus_requirement' => $bonus['requirement'] ?? 0,
+                'bonus_payout' => $bonus['description'] ?? '',
+                'bonus_frequency' => $bonus['frequency'] ?? 0,
+                'bonus_text' => $bonusText,
                 'logo' => $stock['images']['logo'] ?? null,
-                'profit' => 0, // No previous price in v2 API
             ];
-        })->sortByDesc('market_cap')->values();
+        })->sortByDesc('shares')->values();
 
         return view('stocks.index', [
             'stocks' => $stocks,

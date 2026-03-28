@@ -90,15 +90,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             <th class="p-3 cursor-pointer hover:text-white" data-sort="id" data-dir="asc">ID <span class="sort-icon">↑</span></th>
                             <th class="p-3 cursor-pointer hover:text-white" data-sort="name" data-dir="asc">Stock <span class="sort-icon">↑</span></th>
                             <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="price" data-dir="desc">Price <span class="sort-icon">↓</span></th>
-                            <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="market_cap" data-dir="desc">Market Cap <span class="sort-icon">↓</span></th>
                             <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="investors" data-dir="desc">Investors <span class="sort-icon">↓</span></th>
-                            <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="shares" data-dir="desc">Shares <span class="sort-icon">↓</span></th>
                             <th class="p-3">Bonus</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-700">
                         @foreach($stocks as $stock)
-                        <tr class="hover:bg-gray-700/30" data-id="{{ $stock['id'] }}" data-name="{{ strtolower($stock['name']) }}" data-price="{{ $stock['price'] }}" data-market_cap="{{ $stock['market_cap'] }}" data-investors="{{ $stock['volume'] }}" data-shares="{{ $stock['shares'] }}">
+                        <tr class="hover:bg-gray-700/30" data-id="{{ $stock['id'] }}" data-name="{{ strtolower($stock['name']) }}" data-price="{{ $stock['price'] }}" data-investors="{{ $stock['investors'] }}">
                             <td class="p-3 font-mono text-gray-400">{{ $stock['id'] }}</td>
                             <td class="p-3">
                                 <div class="flex items-center gap-2">
@@ -112,14 +110,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </td>
                             <td class="p-3 text-right font-mono">${{ number_format($stock['price'], 2) }}</td>
-                            <td class="p-3 text-right font-mono text-gray-400">${{ number_format($stock['market_cap']) }}</td>
-                            <td class="p-3 text-right font-mono text-gray-400">{{ number_format($stock['volume']) }}</td>
-                            <td class="p-3 text-right font-mono text-gray-400">{{ number_format($stock['shares']) }}</td>
+                            <td class="p-3 text-right font-mono text-gray-400">{{ number_format($stock['investors']) }}</td>
                             <td class="p-3 text-xs">
-                                @if($stock['bonus'])
-                                    <span class="px-2 py-1 rounded bg-blue-900/50 text-blue-400">
-                                        {{ $stock['bonus']['description'] ?? 'Bonus' }}
-                                    </span>
+                                @if($stock['bonus_text'])
+                                    <div class="@if($stock['bonus_passive']) text-green-400 bg-green-900/30 @else text-blue-400 bg-blue-900/30 @endif px-2 py-1 rounded">
+                                        @if($stock['bonus_passive'])<span class="font-semibold">PASSIVE</span> @endif
+                                        {{ number_format($stock['bonus_requirement']) }} → {{ $stock['bonus_payout'] }}
+                                        @switch($stock['bonus_frequency'])
+                                            @case(1) <span class="text-gray-400">(daily)</span> @break
+                                            @case(7) <span class="text-gray-400">(weekly)</span> @break
+                                            @case(14) <span class="text-gray-400">(bi-weekly)</span> @break
+                                            @case(31) <span class="text-gray-400">(monthly)</span> @break
+                                            @case(91) <span class="text-gray-400">(quarterly)</span> @break
+                                        @endswitch
+                                    </div>
                                 @else
                                     <span class="text-gray-500">-</span>
                                 @endif
