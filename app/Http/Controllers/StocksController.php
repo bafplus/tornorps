@@ -112,13 +112,25 @@ class StocksController extends Controller
             $payoutStr = $stock['bonus_payout'];
             
             // Parse payout amount from string like "$50,000,000" or "50 points"
-            $payoutAmount = (float) preg_replace('/[^0-9.]/', '', $payoutStr);
-            if (stripos($payoutStr, 'm') !== false && stripos($payoutStr, '$') !== false) {
-                $payoutAmount *= 1000000; // Handle "50m" as 50,000,000
+            $cleaned = preg_replace('/[^0-9.]/', '', $payoutStr);
+            $payoutAmount = (float) $cleaned;
+            
+            // Handle "m" suffix for millions
+            if (stripos($payoutStr, 'm') !== false && is_numeric($cleaned)) {
+                $payoutAmount = (float) $cleaned * 1000000;
             }
             
-            // Calculate ROI - cost per claim vs payout
+            // Calculate ROI
             $roi = $costToUnlock > 0 ? ($payoutAmount / $costToUnlock * 100) : 0;
+            
+            \Illuminate\Support\Facades\Log::info('ROI Debug', [
+                'stock' => $stock['acronym'],
+                'payoutStr' => $payoutStr,
+                'cleaned' => $cleaned,
+                'payoutAmount' => $payoutAmount,
+                'costToUnlock' => $costToUnlock,
+                'roi' => $roi,
+            ]);
             
             return [
                 'id' => $stock['id'],
