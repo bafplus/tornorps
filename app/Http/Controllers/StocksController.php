@@ -109,21 +109,16 @@ class StocksController extends Controller
             return $stock['bonus_passive'] && $stock['bonus_requirement'] > 0;
         })->map(function ($stock) {
             $costToUnlock = $stock['price'] * $stock['bonus_requirement'];
-            $payoutAmount = (float) preg_replace('/[^0-9.]/', '', $stock['bonus_payout']) ?: 0;
+            $payoutStr = $stock['bonus_payout'];
             
-            // Calculate annual return based on frequency
-            $freq = $stock['bonus_frequency'];
-            $payoutsPerYear = match(true) {
-                $freq == 1 => 365,
-                $freq == 7 => 52,
-                $freq == 14 => 26,
-                $freq == 31 => 12,
-                $freq == 91 => 4,
-                default => 0,
-            };
+            // Parse payout amount from string like "$50,000,000" or "50 points"
+            $payoutAmount = (float) preg_replace('/[^0-9.]/', '', $payoutStr);
+            if (stripos($payoutStr, 'm') !== false && stripos($payoutStr, '$') !== false) {
+                $payoutAmount *= 1000000; // Handle "50m" as 50,000,000
+            }
             
-            $annualReturn = $payoutsPerYear * $payoutAmount;
-            $roiPercent = $costToUnlock > 0 ? ($annualReturn / $costToUnlock * 100) : 0;
+            // Calculate ROI - cost per claim vs payout
+            $roi = $costToUnlock > 0 ? ($payoutAmount / $costToUnlock * 100) : 0;
             
             return [
                 'id' => $stock['id'],
@@ -132,17 +127,10 @@ class StocksController extends Controller
                 'price' => $stock['price'],
                 'shares_needed' => $stock['bonus_requirement'],
                 'cost_to_unlock' => $costToUnlock,
-                'payout' => $stock['bonus_payout'],
-                'frequency' => match($freq) {
-                    1 => 'daily',
-                    7 => 'weekly',
-                    14 => 'bi-weekly',
-                    31 => 'monthly',
-                    91 => 'quarterly',
-                    default => 'unknown',
-                },
-                'annual_return' => $annualReturn,
-                'roi_percent' => $roiPercent,
+                'payout' => $payoutStr,
+                'payout_amount' => $payoutAmount,
+                'frequency' => 'passive (7 day hold)',
+                'roi_percent' => $roi,
             ];
         })->sortByDesc('roi_percent')->values();
 

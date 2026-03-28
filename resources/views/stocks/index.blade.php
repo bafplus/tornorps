@@ -180,7 +180,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <th class="p-3 text-right">Shares Needed</th>
                         <th class="p-3 text-right">Cost to Unlock</th>
                         <th class="p-3 text-right">Payout</th>
-                        <th class="p-3 text-right">Annual Return</th>
                         <th class="p-3 text-right">ROI %</th>
                     </tr>
                 </thead>
@@ -201,10 +200,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td class="p-3 text-right font-mono text-gray-400">{{ number_format($rec['shares_needed']) }}</td>
                         <td class="p-3 text-right font-mono text-yellow-400">${{ number_format($rec['cost_to_unlock'], 0) }}</td>
                         <td class="p-3 text-right text-xs">
-                            <span class="text-green-400">{{ $rec['payout'] }}</span>
-                            <span class="text-gray-500">{{ $rec['frequency'] }}</span>
+                            <span class="text-green-400 font-medium">{{ $rec['payout'] }}</span>
                         </td>
-                        <td class="p-3 text-right font-mono text-green-400">${{ number_format($rec['annual_return'], 0) }}</td>
                         <td class="p-3 text-right font-bold">
                             <span class="@if($rec['roi_percent'] >= 50) text-green-400 @elseif($rec['roi_percent'] >= 20) text-yellow-400 @else text-gray-400 @endif">
                                 {{ number_format($rec['roi_percent'], 1) }}%
