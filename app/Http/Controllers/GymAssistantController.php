@@ -310,43 +310,45 @@ class GymAssistantController extends Controller
         ];
     }
 
-    private function getGymGains(int $gymId): ?array
+private function getGymGains(int $gymId): ?array
     {
+        // Gym gains from Torn API (divided by 10 to get scale of 10)
+        // API returns values like 20, formula uses 2.0
         $gymGains = [
-            1 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            2 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            3 => ['strength' => 2, 'defense' => 1, 'speed' => 3, 'dexterity' => 2],
-            4 => ['strength' => 1, 'defense' => 2, 'speed' => 3, 'dexterity' => 2],
-            5 => ['strength' => 2, 'defense' => 3, 'speed' => 1, 'dexterity' => 2],
-            6 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            7 => ['strength' => 3, 'defense' => 2, 'speed' => 1, 'dexterity' => 2],
-            8 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            9 => ['strength' => 3, 'defense' => 1, 'speed' => 2, 'dexterity' => 2],
-            10 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            11 => ['strength' => 3, 'defense' => 2, 'speed' => 1, 'dexterity' => 2],
-            12 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            13 => ['strength' => 1, 'defense' => 2, 'speed' => 3, 'dexterity' => 2],
-            14 => ['strength' => 1, 'defense' => 2, 'speed' => 3, 'dexterity' => 2],
-            15 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            16 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            17 => ['strength' => 2, 'defense' => 3, 'speed' => 1, 'dexterity' => 2],
-            18 => ['strength' => 3, 'defense' => 1, 'speed' => 2, 'dexterity' => 2],
-            19 => ['strength' => 3, 'defense' => 2, 'speed' => 1, 'dexterity' => 2],
-            20 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            21 => ['strength' => 3, 'defense' => 2, 'speed' => 1, 'dexterity' => 2],
-            22 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            23 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            24 => ['strength' => 2, 'defense' => 3, 'speed' => 1, 'dexterity' => 2],
-            25 => ['strength' => 3, 'defense' => 1, 'speed' => 2, 'dexterity' => 2],
-            26 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            27 => ['strength' => 2, 'defense' => 2, 'speed' => 3, 'dexterity' => 1],
-            28 => ['strength' => 3, 'defense' => 1, 'speed' => 2, 'dexterity' => 2],
-            29 => ['strength' => 1, 'defense' => 2, 'speed' => 3, 'dexterity' => 2],
-            30 => ['strength' => 3, 'defense' => 2, 'speed' => 1, 'dexterity' => 2],
-            31 => ['strength' => 2, 'defense' => 2, 'speed' => 2, 'dexterity' => 2],
-            32 => ['strength' => 3, 'defense' => 2, 'speed' => 2, 'dexterity' => 1],
+            1 => ['strength' => 2.0, 'defense' => 2.0, 'speed' => 2.0, 'dexterity' => 2.0],   // Premier Fitness
+            2 => ['strength' => 2.4, 'defense' => 2.8, 'speed' => 2.4, 'dexterity' => 2.4],  // Average Joes
+            3 => ['strength' => 2.7, 'defense' => 3.0, 'speed' => 3.2, 'dexterity' => 2.7],  // Woody's Workout
+            4 => ['strength' => 3.2, 'defense' => 3.2, 'speed' => 3.2, 'dexterity' => 0],    // Beach Bods
+            5 => ['strength' => 3.4, 'defense' => 3.4, 'speed' => 3.6, 'dexterity' => 3.2],  // Silver Gym
+            6 => ['strength' => 3.4, 'defense' => 3.6, 'speed' => 3.6, 'dexterity' => 3.8],  // Pour Femme
+            7 => ['strength' => 3.7, 'defense' => 3.7, 'speed' => 0, 'dexterity' => 3.7],    // Davies Den
+            8 => ['strength' => 4.0, 'defense' => 4.0, 'speed' => 4.0, 'dexterity' => 4.0],  // Global Gym
+            9 => ['strength' => 4.8, 'defense' => 4.0, 'speed' => 4.4, 'dexterity' => 4.2],  // Knuckle Heads
+            10 => ['strength' => 4.4, 'defense' => 4.8, 'speed' => 4.6, 'dexterity' => 4.4], // Pioneer Fitness
+            11 => ['strength' => 5.0, 'defense' => 5.2, 'speed' => 4.6, 'dexterity' => 4.6], // Anabolic Anomalies
+            12 => ['strength' => 5.0, 'defense' => 5.0, 'speed' => 5.2, 'dexterity' => 5.0], // Core
+            13 => ['strength' => 5.0, 'defense' => 4.8, 'speed' => 5.4, 'dexterity' => 5.2], // Racing Fitness
+            14 => ['strength' => 5.5, 'defense' => 5.5, 'speed' => 5.7, 'dexterity' => 5.2], // Complete Cardio
+            15 => ['strength' => 0, 'defense' => 5.5, 'speed' => 5.5, 'dexterity' => 5.7],   // Legs, Bums and Tums
+            16 => ['strength' => 6.0, 'defense' => 6.0, 'speed' => 6.0, 'dexterity' => 6.0], // Deep Burn
+            17 => ['strength' => 6.0, 'defense' => 6.4, 'speed' => 6.2, 'dexterity' => 6.2], // Apollo Gym
+            18 => ['strength' => 6.5, 'defense' => 6.2, 'speed' => 6.4, 'dexterity' => 6.2], // Gun Shop
+            19 => ['strength' => 6.4, 'defense' => 6.4, 'speed' => 6.5, 'dexterity' => 6.8], // Force Training
+            20 => ['strength' => 6.4, 'defense' => 6.8, 'speed' => 6.4, 'dexterity' => 7.0], // Cha Cha's
+            21 => ['strength' => 7.0, 'defense' => 6.4, 'speed' => 6.4, 'dexterity' => 6.5], // Atlas
+            22 => ['strength' => 6.8, 'defense' => 7.0, 'speed' => 6.5, 'dexterity' => 6.5], // Last Round
+            23 => ['strength' => 6.8, 'defense' => 7.0, 'speed' => 7.0, 'dexterity' => 6.8], // The Edge
+            24 => ['strength' => 7.3, 'defense' => 7.3, 'speed' => 7.3, 'dexterity' => 7.3], // George's
+            25 => ['strength' => 0, 'defense' => 7.5, 'speed' => 0, 'dexterity' => 7.5],     // Balboas Gym
+            26 => ['strength' => 7.5, 'defense' => 0, 'speed' => 7.5, 'dexterity' => 0],     // Frontline Fitness
+            27 => ['strength' => 8.0, 'defense' => 0, 'speed' => 0, 'dexterity' => 0],       // Gym 3000
+            28 => ['strength' => 0, 'defense' => 8.0, 'speed' => 0, 'dexterity' => 0],       // Mr. Isoyamas
+            29 => ['strength' => 0, 'defense' => 0, 'speed' => 8.0, 'dexterity' => 0],       // Total Rebound
+            30 => ['strength' => 0, 'defense' => 0, 'speed' => 0, 'dexterity' => 8.0],      // Elites
+            31 => ['strength' => 9.0, 'defense' => 9.0, 'speed' => 9.0, 'dexterity' => 9.0], // The Sports Science Lab
+            32 => ['strength' => 10.0, 'defense' => 10.0, 'speed' => 10.0, 'dexterity' => 10.0], // Fight Club
         ];
-        
+
         return $gymGains[$gymId] ?? null;
     }
     
