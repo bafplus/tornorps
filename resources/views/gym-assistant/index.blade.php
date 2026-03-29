@@ -180,24 +180,24 @@
                 <div class="text-xs text-gray-500">Gym gains: STR +{{ $trainRecommendation['gym_gains']['strength'] }}, DEF +{{ $trainRecommendation['gym_gains']['defense'] }}, SPD +{{ $trainRecommendation['gym_gains']['speed'] }}, DEX +{{ $trainRecommendation['gym_gains']['dexterity'] }}</div>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                <div class="bg-gray-700/50 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-blue-400">{{ $trainRecommendation['trains']['str'] }}</div>
-                    <div class="text-sm text-gray-400">Strength</div>
-                </div>
-                <div class="bg-gray-700/50 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-green-400">{{ $trainRecommendation['trains']['def'] }}</div>
-                    <div class="text-sm text-gray-400">Defense</div>
-                </div>
-                <div class="bg-gray-700/50 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-yellow-400">{{ $trainRecommendation['trains']['spd'] }}</div>
-                    <div class="text-sm text-gray-400">Speed</div>
-                </div>
-                <div class="bg-gray-700/50 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-purple-400">{{ $trainRecommendation['trains']['dex'] }}</div>
-                    <div class="text-sm text-gray-400">Dexterity</div>
-                </div>
-            </div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div class="bg-gray-700/50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-blue-400">{{ $trainRecommendation['trains']['str'] }}</div>
+            <div class="text-sm text-gray-400">STR trains</div>
+        </div>
+        <div class="bg-gray-700/50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-400">{{ $trainRecommendation['trains']['def'] }}</div>
+            <div class="text-sm text-gray-400">DEF trains</div>
+        </div>
+        <div class="bg-gray-700/50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-yellow-400">{{ $trainRecommendation['trains']['spd'] }}</div>
+            <div class="text-sm text-gray-400">SPD trains</div>
+        </div>
+        <div class="bg-gray-700/50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-purple-400">{{ $trainRecommendation['trains']['dex'] }}</div>
+            <div class="text-sm text-gray-400">DEX trains</div>
+        </div>
+    </div>
             
             <div class="text-center p-4 bg-blue-900/30 rounded-lg">
                 <div class="text-lg font-bold text-white">Total: {{ $trainRecommendation['trains']['total'] }} trains</div>
