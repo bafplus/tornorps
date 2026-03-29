@@ -426,7 +426,6 @@ function fetchTarget(type) {
                                     <span>FF <span class="text-green-400 font-medium">${target.fair_fight.toFixed(2)}</span></span>
                                     <span>Inactive: <span class="text-yellow-400 font-medium">${target.inactiveFormatted}</span></span>
                                     <span>Est: <span class="text-blue-400 font-medium">${target.estStats}</span></span>
-                                    <span>Public: <span class="text-gray-300 font-medium">${target.publicStats}</span></span>
                                 </div>
                             </div>
                             <a href="${target.attackUrl}" target="_blank" class="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium whitespace-nowrap">

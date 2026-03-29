@@ -182,7 +182,6 @@ class TargetFinderController extends Controller
                 $target['attackUrl'] = 'https://www.torn.com/loader.php?sid=attack&user2ID=' . $target['player_id'];
                 $target['inactiveFormatted'] = $this->formatInactiveTime($target['last_action'] ?? null);
                 $target['estStats'] = $target['bs_estimate_human'] ?? 'N/A';
-                $target['publicStats'] = $target['bss_public'] ? number_format($target['bss_public']) : 'N/A';
 
                 $resultTargets[] = $target;
             }
@@ -240,15 +239,26 @@ class TargetFinderController extends Controller
 
         $diff = time() - $timestamp;
         $days = floor($diff / 86400);
-        $hours = floor(($diff % 86400) / 3600);
 
-        if ($days > 0) {
-            return "{$days}d {$hours}h";
-        } elseif ($hours > 0) {
-            return "{$hours}h";
-        } else {
-            return '<1h';
+        if ($days < 30) {
+            return $days . 'd';
         }
+
+        $months = floor($days / 30);
+        $remainingDays = $days % 30;
+
+        if ($months < 12) {
+            return $months . 'm ' . $remainingDays . 'd';
+        }
+
+        $years = floor($months / 12);
+        $remainingMonths = $months % 12;
+
+        if ($remainingMonths > 0) {
+            return $years . 'y ' . $remainingMonths . 'm';
+        }
+
+        return $years . 'y';
     }
 
     private function findValidTarget(array $targets, string $apiKey, bool $verifyStatus): ?array
