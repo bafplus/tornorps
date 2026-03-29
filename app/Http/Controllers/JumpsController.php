@@ -219,8 +219,14 @@ private function calculateJumpResults(array $gymData, int $totalStats, int $curr
         // Energy per train (from gym)
         $energyPerTrain = $gymData['energy_cost'];
 
-        // Gym dots (API returns 0-100, formula uses scale of 10)
-        $dots = $gymData['dots'];
+        // Gym dots - calculate as average of stat bonuses (API returns 0-100, divide by 10 for formula)
+        $statSum = $gymData['str_bonus'] + $gymData['def_bonus'] + $gymData['spd_bonus'] + $gymData['dex_bonus'];
+        $statCount = 4;
+        if ($gymData['str_bonus'] == 0) $statCount--;
+        if ($gymData['def_bonus'] == 0) $statCount--;
+        if ($gymData['spd_bonus'] == 0) $statCount--;
+        if ($gymData['dex_bonus'] == 0) $statCount--;
+        $dots = $statCount > 0 ? ($statSum / $statCount) : 2.0;
 
         // Happy loss per train (average from Vladar docs)
         // 5 energy: 2.67, 10 energy: 5, 25 energy: 12.67, 50 energy: 25
