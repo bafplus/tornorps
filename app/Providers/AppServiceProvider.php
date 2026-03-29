@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         $this->seedTrainingPrograms();
     }
     
-    private function ensureStorageDirectories(): void
+private function ensureStorageDirectories(): void
     {
         $directories = [
             storage_path('framework/cache/data'),
@@ -37,11 +37,18 @@ class AppServiceProvider extends ServiceProvider
             storage_path('framework/views'),
             storage_path('logs'),
         ];
-        
+
         foreach ($directories as $dir) {
             if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
+                mkdir($dir, 0775, true);
+                @chmod($dir, 0775);
             }
+        }
+
+        // Ensure framework cache is writable
+        $cacheDir = storage_path('framework/cache');
+        if (is_dir($cacheDir)) {
+            @chmod($cacheDir, 0775);
         }
     }
 
