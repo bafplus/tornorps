@@ -248,6 +248,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (hasApiKey) {
         checkKeyStatus();
     }
+
+    document.querySelectorAll('[class*="bg-green"], [class*="bg-red"], [class*="bg-yellow"]').forEach(el => {
+        if (el.id !== 'register-error') {
+            setTimeout(() => {
+                el.style.transition = 'opacity 0.5s';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            }, 4000);
+        }
+    });
 });
 
 function toggleSettings() {
