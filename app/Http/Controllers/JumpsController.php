@@ -335,8 +335,8 @@ private function calculateJumpResults(array $gymData, int $totalStats, int $curr
             // Base calculation
             $baseGain = ($Sterm + $happyTerm + $happyAdjTerm) * (1 / 200000);
             
-            // Apply gym dots and energy
-            $gainPerTrain = $baseGain * ($dots / 10) * $energyPerTrain;
+            // Apply gym dots (already in scale of 10) and energy
+            $gainPerTrain = $baseGain * $dots * $energyPerTrain;
             
             $totalGain += $gainPerTrain;
 
