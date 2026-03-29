@@ -31,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
                     ['name' => 'STR/DEF Build', 'str_percent' => 35, 'def_percent' => 35, 'spd_percent' => 15, 'dex_percent' => 15, 'is_custom' => false, 'created_at' => now(), 'updated_at' => now()],
                     ['name' => 'SPD/DEX Build', 'str_percent' => 15, 'def_percent' => 15, 'spd_percent' => 35, 'dex_percent' => 35, 'is_custom' => false, 'created_at' => now(), 'updated_at' => now()],
                     ['name' => 'Melee Special', 'str_percent' => 45, 'def_percent' => 25, 'spd_percent' => 15, 'dex_percent' => 15, 'is_custom' => false, 'created_at' => now(), 'updated_at' => now()],
+                    ['name' => "Hank's Ratio", 'str_percent' => 28, 'def_percent' => 35, 'spd_percent' => 28, 'dex_percent' => 10, 'is_custom' => false, 'created_at' => now(), 'updated_at' => now()],
+                    ['name' => "Balder's Ratio", 'str_percent' => 30, 'def_percent' => 30, 'spd_percent' => 20, 'dex_percent' => 20, 'is_custom' => false, 'created_at' => now(), 'updated_at' => now()],
+                    ["Duce's Ratio", 'str_percent' => 25, 'def_percent' => 25, 'spd_percent' => 25, 'dex_percent' => 25, 'is_custom' => false, 'created_at' => now(), 'updated_at' => now()],
                     ['name' => 'Custom', 'str_percent' => 25, 'def_percent' => 25, 'spd_percent' => 25, 'dex_percent' => 25, 'is_custom' => true, 'created_at' => now(), 'updated_at' => now()],
                 ];
                 DB::table('training_programs')->insert($programs);
