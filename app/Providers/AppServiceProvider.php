@@ -14,6 +14,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Force HTTPS for all URLs
+        if (env('APP_ENV') !== 'local') {
+            \URL::forceScheme('https');
+        }
+        
         $this->seedTrainingPrograms();
     }
 
