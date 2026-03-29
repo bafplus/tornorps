@@ -224,7 +224,7 @@ class TargetFinderController extends Controller
         return null;
     }
 
-public function getTargetCount(Request $request, string $type)
+    public function getTargetCount(Request $request, string $type)
     {
         $user = Auth::user();
 
@@ -380,47 +380,6 @@ public function getTargetCount(Request $request, string $type)
                 'success' => false,
                 'error' => 'Error: ' . $e->getMessage(),
             ], 500);
-        }
-    }
-}
-
-        if (!in_array($type, ['easy', 'good'])) {
-            return response()->json(['success' => false, 'count' => 0]);
-        }
-
-        $settings = $this->getUserSettings($user);
-        $targetSettings = $settings[$type];
-
-        $params = [
-            'key' => $user->torn_api_key,
-            'minff' => $targetSettings['minFF'],
-            'maxff' => $targetSettings['maxFF'],
-            'minlevel' => $targetSettings['minLevel'],
-            'maxlevel' => $targetSettings['maxLevel'],
-            'inactiveonly' => $settings['inactiveOnly'] ? 1 : 0,
-            'factionless' => $settings['factionlessOnly'] ? 1 : 0,
-            'limit' => 50,
-        ];
-
-        try {
-            $response = Http::timeout(10)->get('https://ffscouter.com/api/v1/get-targets', $params);
-
-            if ($response->failed()) {
-                return response()->json(['success' => false, 'count' => 0]);
-            }
-
-            $data = $response->json();
-
-            if (isset($data['error'])) {
-                return response()->json(['success' => false, 'count' => 0]);
-            }
-
-            $count = count($data['targets'] ?? []);
-
-            return response()->json(['success' => true, 'count' => $count]);
-
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'count' => 0]);
         }
     }
 }
