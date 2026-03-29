@@ -25,6 +25,18 @@
     <div class="mb-4 p-4 bg-yellow-900/50 border border-yellow-700 rounded-lg text-yellow-400">
         No API key found. Please add your Torn API key in <a href="/settings" class="underline">Settings</a> to use Target Finder.
     </div>
+    @else
+    <div id="api-status-banner" class="mb-4 p-4 rounded-lg border hidden">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span id="status-icon" class="text-2xl"></span>
+                <span id="status-text" class="font-medium"></span>
+            </div>
+            <button id="btn-register" onclick="showRegisterModal()" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm">
+                Register Key
+            </button>
+        </div>
+    </div>
     @endif
 
     <form action="/target-finder/settings" method="POST" class="mb-6">
@@ -187,6 +199,39 @@
         </div>
     </div>
 </div>
+
+<div id="register-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gray-800 rounded-xl border border-gray-700 w-full max-w-md shadow-2xl">
+        <div class="p-6 border-b border-gray-700">
+            <h2 class="text-xl font-bold text-white">Register with FFScout</h2>
+            <p class="text-gray-400 text-sm mt-1">Register your API key to use the Target Finder</p>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="bg-blue-900/30 border border-blue-700 rounded-lg p-4">
+                <p class="text-sm text-blue-300">
+                    Before registering, you must read and agree to the FFScout Data Policy and Terms.
+                </p>
+                <a href="https://ffscouter.com" target="_blank" class="inline-flex items-center gap-1 mt-2 text-blue-400 hover:text-blue-300 text-sm font-medium">
+                    Read FFScout Data Policy
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            </div>
+            <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="agree-policy" class="mt-1 w-5 h-5 rounded bg-gray-700 border-gray-600 text-green-600 focus:ring-green-600">
+                <span class="text-sm text-gray-300">I have read and agree to the FFScout Data Policy and Terms</span>
+            </label>
+            <div id="register-error" class="hidden p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400 text-sm"></div>
+        </div>
+        <div class="p-6 border-t border-gray-700 flex gap-3">
+            <button onclick="closeRegisterModal()" class="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium">
+                Cancel
+            </button>
+            <button onclick="registerKey()" id="btn-submit-register" class="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
+                Register API Key
+            </button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -195,11 +240,101 @@ const hasApiKey = {{ Auth::user()->torn_api_key ? 'true' : 'false' }};
 
 document.addEventListener('DOMContentLoaded', function() {
     if (hasApiKey) {
-        document.getElementById('btn-easy').disabled = false;
-        document.getElementById('btn-good').disabled = false;
-        refreshCounts();
+        checkKeyStatus();
     }
 });
+
+function checkKeyStatus() {
+    fetch('/target-finder/check-key')
+        .then(res => res.json())
+        .then(data => {
+            const banner = document.getElementById('api-status-banner');
+            const icon = document.getElementById('status-icon');
+            const text = document.getElementById('status-text');
+            const btnRegister = document.getElementById('btn-register');
+
+            banner.classList.remove('hidden');
+
+            if (data.success && data.isRegistered) {
+                banner.className = 'mb-4 p-4 rounded-lg border bg-green-900/30 border-green-700';
+                icon.textContent = '✓';
+                text.textContent = 'API key registered at FFScout';
+                text.className = 'font-medium text-green-400';
+                btnRegister.classList.add('hidden');
+
+                document.getElementById('btn-easy').disabled = false;
+                document.getElementById('btn-good').disabled = false;
+                refreshCounts();
+            } else {
+                banner.className = 'mb-4 p-4 rounded-lg border bg-red-900/30 border-red-700';
+                icon.textContent = '✕';
+                text.textContent = 'API key not registered at FFScout';
+                text.className = 'font-medium text-red-400';
+                btnRegister.classList.remove('hidden');
+            }
+        })
+        .catch(() => {
+            const banner = document.getElementById('api-status-banner');
+            banner.classList.remove('hidden');
+            banner.className = 'mb-4 p-4 rounded-lg border bg-yellow-900/30 border-yellow-700';
+            document.getElementById('status-icon').textContent = '?';
+            document.getElementById('status-text').textContent = 'Could not verify API key status';
+            document.getElementById('status-text').className = 'font-medium text-yellow-400';
+        });
+}
+
+function showRegisterModal() {
+    document.getElementById('register-modal').classList.remove('hidden');
+    document.getElementById('agree-policy').checked = false;
+    document.getElementById('register-error').classList.add('hidden');
+}
+
+function closeRegisterModal() {
+    document.getElementById('register-modal').classList.add('hidden');
+}
+
+function registerKey() {
+    const agreePolicy = document.getElementById('agree-policy').checked;
+    const errorEl = document.getElementById('register-error');
+    const submitBtn = document.getElementById('btn-submit-register');
+
+    if (!agreePolicy) {
+        errorEl.textContent = 'You must agree to the data policy to register.';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+
+    errorEl.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Registering...';
+
+    fetch('/target-finder/register-key', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ agree_to_policy: true })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            closeRegisterModal();
+            checkKeyStatus();
+        } else {
+            errorEl.textContent = data.error || 'Registration failed';
+            errorEl.classList.remove('hidden');
+        }
+    })
+    .catch(err => {
+        errorEl.textContent = 'Error: ' + err.message;
+        errorEl.classList.remove('hidden');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Register API Key';
+    });
+}
 
 function refreshCounts() {
     fetchTargetCount('easy');

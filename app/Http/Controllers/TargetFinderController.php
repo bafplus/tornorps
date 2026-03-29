@@ -224,13 +224,165 @@ class TargetFinderController extends Controller
         return null;
     }
 
-    public function getTargetCount(Request $request, string $type)
+public function getTargetCount(Request $request, string $type)
     {
         $user = Auth::user();
 
         if (!$user->torn_api_key) {
             return response()->json(['success' => false, 'count' => 0]);
         }
+
+        if (!in_array($type, ['easy', 'good'])) {
+            return response()->json(['success' => false, 'count' => 0]);
+        }
+
+        $settings = $this->getUserSettings($user);
+        $targetSettings = $settings[$type];
+
+        $params = [
+            'key' => $user->torn_api_key,
+            'minff' => $targetSettings['minFF'],
+            'maxff' => $targetSettings['maxFF'],
+            'minlevel' => $targetSettings['minLevel'],
+            'maxlevel' => $targetSettings['maxLevel'],
+            'inactiveonly' => $settings['inactiveOnly'] ? 1 : 0,
+            'factionless' => $settings['factionlessOnly'] ? 1 : 0,
+            'limit' => 50,
+        ];
+
+        try {
+            $response = Http::timeout(10)->get('https://ffscouter.com/api/v1/get-targets', $params);
+
+            if ($response->failed()) {
+                return response()->json(['success' => false, 'count' => 0]);
+            }
+
+            $data = $response->json();
+
+            if (isset($data['error'])) {
+                return response()->json(['success' => false, 'count' => 0]);
+            }
+
+            $count = count($data['targets'] ?? []);
+            return response()->json(['success' => true, 'count' => $count]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'count' => 0]);
+        }
+    }
+
+    public function checkKeyStatus()
+    {
+        $user = Auth::user();
+
+        if (!$user->torn_api_key) {
+            return response()->json([
+                'success' => false,
+                'hasKey' => false,
+                'error' => 'No API key found',
+            ]);
+        }
+
+        try {
+            $response = Http::timeout(10)->get('https://ffscouter.com/api/v1/check-key', [
+                'key' => $user->torn_api_key,
+            ]);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'success' => false,
+                    'isRegistered' => false,
+                    'error' => 'Failed to connect to FFScout API',
+                ]);
+            }
+
+            $data = $response->json();
+
+            if (isset($data['error'])) {
+                return response()->json([
+                    'success' => false,
+                    'isRegistered' => false,
+                    'error' => $data['error'],
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'isRegistered' => $data['is_registered'] ?? false,
+                'registeredAt' => $data['registered_at'] ?? null,
+                'lastUsed' => $data['last_used'] ?? null,
+                'policyVersion' => $data['policy_version'] ?? null,
+                'policyUpdateRequired' => $data['policy_update_required'] ?? false,
+                'isPremium' => $data['is_premium'] ?? false,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'isRegistered' => false,
+                'error' => 'Error: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function registerKey(Request $request)
+    {
+        $request->validate([
+            'agree_to_policy' => 'required|boolean',
+        ]);
+
+        $user = Auth::user();
+
+        if (!$user->torn_api_key) {
+            return response()->json([
+                'success' => false,
+                'error' => 'No API key found. Please add your Torn API key in settings.',
+            ], 400);
+        }
+
+        if (!$request->input('agree_to_policy')) {
+            return response()->json([
+                'success' => false,
+                'error' => 'You must agree to the data policy to register.',
+            ], 400);
+        }
+
+        try {
+            $response = Http::timeout(30)->post('https://ffscouter.com/api/v1/register', [
+                'key' => $user->torn_api_key,
+                'agree_to_data_policy' => true,
+                'signup_source' => 'TornOps',
+            ]);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Failed to connect to FFScout API',
+                ], 500);
+            }
+
+            $data = $response->json();
+
+            if (isset($data['error'])) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $data['error'],
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'API key registered successfully!',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+}
 
         if (!in_array($type, ['easy', 'good'])) {
             return response()->json(['success' => false, 'count' => 0]);

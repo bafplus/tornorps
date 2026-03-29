@@ -78,6 +78,8 @@ Route::get('/target-finder', [TargetFinderController::class, 'index']);
 Route::post('/target-finder/settings', [TargetFinderController::class, 'saveSettings']);
 Route::get('/target-finder/target/{type}', [TargetFinderController::class, 'getTarget']);
 Route::get('/target-finder/count/{type}', [TargetFinderController::class, 'getTargetCount']);
+Route::get('/target-finder/check-key', [TargetFinderController::class, 'checkKeyStatus']);
+Route::post('/target-finder/register-key', [TargetFinderController::class, 'registerKey']);
 Route::get('/scripts', [ScriptsController::class, 'index']);
     Route::get('/tools', [ToolsController::class, 'index']);
     
