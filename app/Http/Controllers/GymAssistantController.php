@@ -107,7 +107,7 @@ $selectedProgram = null;
             return ['id' => $id, 'name' => $this->getGymName($id)];
         });
         
-         return view('gym-assistant.index', compact('latestStats', 'history', 'chartData', 'programs', 'selectedProgram', 'selectedProgramId', 'percentages', 'trainRecommendation', 'gyms', 'fetchError'));
+         return view('gym-assistant.index', compact('latestStats', 'history', 'chartData', 'programs', 'selectedProgram', 'selectedProgramId', 'percentages', 'trainRecommendation', 'gyms', 'fetchError', 'programId'));
     }
 
     private function fetchGymStats($user): ?string

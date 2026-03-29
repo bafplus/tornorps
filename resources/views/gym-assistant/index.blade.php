@@ -106,14 +106,17 @@
                 <div class="flex flex-wrap items-end gap-4">
                     <div class="flex-1 min-w-[200px]">
                         <label class="block text-sm text-gray-400 mb-1">Select Program</label>
-                        <select name="program_id" id="programSelect" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white" onchange="toggleCustomInputs()">
-                            <option value="">-- Select --</option>
-                            @foreach($programs as $program)
-                                <option value="{{ $program->id }}" {{ $selectedProgram && $selectedProgram->id == $program->id ? 'selected' : '' }}>
-                                    {{ $program->name }}{{ !$program->is_custom ? ' (' . $program->str_percent . '/' . $program->def_percent . '/' . $program->spd_percent . '/' . $program->dex_percent . ')' : '' }}
-                                </option>
-                            @endforeach
-                        </select>
+<select name="program_id" id="programSelect" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white" onchange="toggleCustomInputs()">
+                <option value="">-- Select --</option>
+                @foreach($programs as $program)
+                <option value="{{ $program->id }}" {{ $selectedProgramId == $program->id ? 'selected' : '' }}>
+                    {{ $program->name }}{{ !$program->is_custom ? ' (' . $program->str_percent . '/' . $program->def_percent . '/' . $program->spd_percent . '/' . $program->dex_percent . ')' : '' }}
+                </option>
+                @endforeach
+            </select>
+            @if($selectedProgramId)
+            <div class="text-sm text-green-400 mt-1">Current: {{ $programs->firstWhere('id', $selectedProgramId)?->name ?? 'Custom' }}</div>
+            @endif
                     </div>
                     
                     <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium">
@@ -121,7 +124,7 @@
                     </button>
                 </div>
                 
-                <div id="customInputs" class="flex gap-2 {{ $selectedProgram && $selectedProgram->is_custom ? '' : 'hidden' }}">
+                <div id="customInputs" class="flex gap-2 {{ ($programId ?? 0) > 11 ? '' : 'hidden' }} mt-3">
                     <div class="w-20">
                         <label class="block text-xs text-gray-400 mb-1">STR %</label>
                         <input type="number" name="custom_str" value="{{ $percentages['str'] ?? 25 }}" min="0" max="100" class="w-full px-2 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-center">
