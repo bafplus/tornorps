@@ -83,8 +83,8 @@ class JumpsController extends Controller
         $maxHappy = $happy['maximum'] ?? 0;
         $currentEnergy = $energy['current'] ?? 0;
 
-        // Calculate jump results
-        $jumpResults = $this->calculateJumpResults($gymData, $totalStats, $currentHappy, $currentEnergy);
+// Calculate jump results
+    $jumpResults = $this->calculateJumpResults($gymData, $totalStats, $maxHappy, $currentEnergy);
 
         return view('jumps.index', [
             'error' => null,
@@ -193,7 +193,7 @@ class JumpsController extends Controller
         return $gymData[$gymId] ?? ['energy_cost' => 5, 'dots' => 2.0, 'str_bonus' => 2.0, 'def_bonus' => 2.0, 'spd_bonus' => 2.0, 'dex_bonus' => 2.0];
     }
 
-private function calculateJumpResults(array $gymData, int $totalStats, int $currentHappy, int $currentEnergy): array
+private function calculateJumpResults(array $gymData, int $totalStats, int $maxHappy, int $currentEnergy): array
     {
         // Vladar formula constants for each stat
         // A = (1-(H/99999)^2) * A constant
@@ -219,14 +219,14 @@ private function calculateJumpResults(array $gymData, int $totalStats, int $curr
         // Energy per train (from gym)
         $energyPerTrain = $gymData['energy_cost'];
 
-        // Gym dots - calculate as average of stat bonuses (API returns 0-100, divide by 10 for formula)
-        $statSum = $gymData['str_bonus'] + $gymData['def_bonus'] + $gymData['spd_bonus'] + $gymData['dex_bonus'];
-        $statCount = 4;
-        if ($gymData['str_bonus'] == 0) $statCount--;
-        if ($gymData['def_bonus'] == 0) $statCount--;
-        if ($gymData['spd_bonus'] == 0) $statCount--;
-        if ($gymData['dex_bonus'] == 0) $statCount--;
-        $dots = $statCount > 0 ? ($statSum / $statCount) : 2.0;
+// Gym dots - use lowest non-zero stat bonus for conservative estimate
+    $bonuses = array_filter([
+        $gymData['str_bonus'],
+        $gymData['def_bonus'],
+        $gymData['spd_bonus'],
+        $gymData['dex_bonus'],
+    ]);
+    $dots = !empty($bonuses) ? min($bonuses) : 2.0;
 
         // Happy loss per train (average from Vladar docs)
         // 5 energy: 2.67, 10 energy: 5, 25 energy: 12.67, 50 energy: 25
@@ -298,8 +298,8 @@ private function calculateJumpResults(array $gymData, int $totalStats, int $curr
             $happyFromItems = $jump['happy_from_items'];
             $ecstasyDoublesHappy = true; // Ecstasy doubles current happy
             
-            // Starting happy is current happy + candy happy
-            $startingHappy = $currentHappy + $happyFromItems;
+// Starting happy is max happy + candy happy (use max for conservative estimate)
+    $startingHappy = $maxHappy + $happyFromItems;
             
             // Ecstasy doubles the happy
             if ($ecstasyDoublesHappy) {
