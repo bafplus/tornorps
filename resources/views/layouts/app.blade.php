@@ -8,9 +8,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TornOps">
     <title>@yield('title', 'TornOps')</title>
-    <link rel="icon" type="image/png" href="/images/tornops-shield-transparant.png">
+    <link rel="icon" type="image/png" href="/images/tornops-shield-background.png">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/images/tornops-shield-background.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/tornops-shield-background.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/tornops-shield-background.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/tornops-shield-background.png">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -121,19 +123,6 @@
 document.getElementById('mobile-menu-btn').addEventListener('click', function() {
     document.getElementById('mobile-menu').classList.toggle('hidden');
 });
-
-// Register service worker for PWA
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-                console.log('SW registered:', registration.scope);
-            })
-            .catch((error) => {
-                console.log('SW registration failed:', error);
-            });
-    });
-}
 </script>
 
     <main class="container mx-auto px-4 py-8">
