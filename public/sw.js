@@ -1,9 +1,10 @@
-const CACHE_NAME = 'tornops-v1';
+const CACHE_NAME = 'tornops-v2';
 const urlsToCache = [
     '/',
     '/manifest.json',
     '/images/tornops-shield-transparant.png',
     '/images/tornops-shield-text-transparant.png',
+    '/images/tornops-shield-background.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -11,6 +12,7 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then((cache) => cache.addAll(urlsToCache))
     );
+    self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -20,9 +22,28 @@ self.addEventListener('fetch', (event) => {
                 if (response) {
                     return response;
                 }
-                return fetch(event.request);
+                return fetch(event.request).then((networkResponse) => {
+                    return networkResponse;
+                }).catch(() => {
+                    return caches.match('/');
+                });
             })
     );
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+    self.clients.claim();
 });
 
 self.addEventListener('activate', (event) => {
