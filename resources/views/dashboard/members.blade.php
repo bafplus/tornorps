@@ -152,18 +152,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             if (sortKey === 'status') {
-                // Custom sort: okay -> hospitalized (by timer asc) -> traveling (by timer asc)
+                // Custom sort: okay first, hosp second, others last - then by timer
                 const aType = a.dataset['statusType'] || 'okay';
                 const bType = b.dataset['statusType'] || 'okay';
-                const aTimer = parseInt(a.dataset['statusTimer']) || 0;
-                const bTimer = parseInt(b.dataset['statusTimer']) || 0;
-                
-                const typeOrder = { 'okay': 0, 'hosp': 1, 'travel': 2 };
-                
-                if (aType !== bType) {
-                    return typeOrder[aType] - typeOrder[bType];
-                }
-                // Same type - sort by timer (ascending = shortest first)
+                const aTimer = parseInt(a.dataset['statusTimer']) || 999999;
+                const bTimer = parseInt(b.dataset['statusTimer']) || 999999;
+                const typeScore = { 'okay': 0, 'hosp': 1, 'travel': 2 };
+                const aScore = typeScore[aType] !== undefined ? typeScore[aType] : 2;
+                const bScore = typeScore[bType] !== undefined ? typeScore[bType] : 2;
+                if (aScore !== bScore) return aScore - bScore;
                 return aTimer - bTimer;
             }
             

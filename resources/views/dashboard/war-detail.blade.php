@@ -641,16 +641,18 @@ bVal = parseFloat(b.dataset.warscore) || 0;
 } else if (field === 'status') {
 aVal = a.dataset.status || '';
 bVal = b.dataset.status || '';
-// Custom sort: okay -> hospitalized (by timer asc) -> traveling (by timer asc)
 const aType = a.dataset.statusType || 'okay';
 const bType = b.dataset.statusType || 'okay';
-const aTimer = parseInt(a.dataset.statusTimer) || 0;
-const bTimer = parseInt(b.dataset.statusTimer) || 0;
-const typeOrder = { 'okay': 0, 'hosp': 1, 'travel': 2 };
-if (aType !== bType) {
-return typeOrder[aType] - typeOrder[bType];
+const aTimer = parseInt(a.dataset.statusTimer) || 999999;
+const bTimer = parseInt(b.dataset.statusTimer) || 999999;
+// Sort: okay=0 first, hosp=1 second, others=2 last - then by timer
+const typeScore = { 'okay': 0, 'hosp': 1, 'travel': 2 };
+const aScore = typeScore[aType] !== undefined ? typeScore[aType] : 2;
+const bScore = typeScore[bType] !== undefined ? typeScore[bType] : 2;
+if (aScore !== bScore) return aScore - bScore;
+return aTimer - bTimer;
 }
-return aTimer - bTimer; // ascending = shortest timer first
+return aTimer - bTimer;
 }
 
 if (typeof aVal === 'string') {
