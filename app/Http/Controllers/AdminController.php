@@ -6,6 +6,7 @@ use App\Models\FactionSettings;
 use App\Models\User;
 use App\Models\DataRefreshLog;
 use App\Services\TornApiService;
+use App\Services\WarService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -17,51 +18,60 @@ class AdminController extends Controller
     {
         $settings = FactionSettings::first();
         $users = User::orderBy('is_admin', 'desc')->orderBy('name')->get();
+        $warActive = WarService::hasActiveWar();
         
         // Get last run times for each API endpoint
-        $apiSchedule = $this->getApiSchedule();
+        $apiSchedule = $this->getApiSchedule($warActive);
         
-        return view('admin.index', compact('settings', 'users', 'apiSchedule'));
+        return view('admin.index', compact('settings', 'users', 'apiSchedule', 'warActive'));
     }
 
-    private function getApiSchedule(): array
+    private function getApiSchedule(bool $warActive): array
     {
+        $nonEssentialDuringWar = ['faction_sync', 'faction_members', 'stocks'];
+        
         $schedule = [
             'faction_sync' => [
                 'name' => 'torn:sync-faction',
                 'schedule' => 'Every 10 min (:00)',
                 'description' => 'Runs sync-members and sync-wars together',
                 'api_calls' => '6-25 calls',
+                'essential' => false,
             ],
             'faction_members' => [
                 'name' => 'torn:sync-members',
                 'schedule' => 'Every 10 min (via sync-faction)',
                 'description' => 'Syncs faction members, FF scores, and stats',
                 'api_calls' => '1-5 calls',
+                'essential' => false,
             ],
             'ranked_wars' => [
                 'name' => 'torn:sync-wars',
                 'schedule' => 'Every 10 min (via sync-faction)',
                 'description' => 'Syncs ranked wars, members, and war data',
                 'api_calls' => '5-20 calls',
+                'essential' => false,
             ],
             'active_wars' => [
                 'name' => 'torn:sync-active',
-                'schedule' => 'Every 5 min (:02)',
+                'schedule' => 'Every 1 min (war mode)',
                 'description' => 'War updates with cached online status',
                 'api_calls' => '3-10 calls',
+                'essential' => true,
             ],
             'war_attacks' => [
                 'name' => 'torn:sync-attacks',
-                'schedule' => 'Every 10 min (:05)',
+                'schedule' => 'Every 1 min (war mode)',
                 'description' => 'Syncs war attack details with FF and results',
                 'api_calls' => '10-50 calls',
+                'essential' => true,
             ],
             'stocks' => [
                 'name' => 'torn:sync-stocks',
                 'schedule' => 'Daily (00:15)',
                 'description' => 'Syncs stock prices and saves to history',
                 'api_calls' => '1 call',
+                'essential' => false,
             ],
         ];
 
@@ -74,6 +84,7 @@ class AdminController extends Controller
             
             $item['last_run'] = $lastRun?->completed_at?->diffForHumans() ?? 'Never';
             $item['last_run_at'] = $lastRun?->completed_at;
+            $item['disabled'] = $warActive && !$item['essential'];
         }
 
         // Sort by next run (last run + 5 minutes)

@@ -6,6 +6,16 @@
 <div class="space-y-6">
     <h1 class="text-3xl font-bold">Admin Panel</h1>
 
+    @if($warActive ?? false)
+    <div class="bg-red-900/50 border border-red-700 rounded-lg p-4 text-red-400">
+        <div class="flex items-center gap-2 font-semibold text-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Active War in Progress
+        </div>
+        <p class="text-sm mt-1">War-essential syncs (active wars, attacks) run every minute. Non-essential syncs are disabled to conserve API usage.</p>
+    </div>
+    @endif
+
     @if(session('status'))
         <div class="bg-green-900/50 border border-green-700 text-green-400 px-4 py-3 rounded">
             {{ session('status') }}
@@ -210,7 +220,13 @@
 
     <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
         <h2 class="text-xl font-semibold mb-4 text-yellow-400">API Schedule</h2>
+        @if($warActive ?? false)
+        <p class="text-red-400 text-sm mb-4">
+            <span class="font-semibold">War Mode Active:</span> Non-essential syncs are disabled. Only war-critical syncs run every minute.
+        </p>
+        @else
         <p class="text-gray-400 text-sm mb-4">All scheduled API calls and their current status</p>
+        @endif
         
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -227,30 +243,42 @@
                 </thead>
                 <tbody class="divide-y divide-gray-700">
                     @foreach($apiSchedule as $key => $item)
-                    <tr class="hover:bg-gray-700/30">
-                        <td class="p-3 font-mono text-blue-400">{{ $item['name'] }}</td>
-                        <td class="p-3">{{ $item['schedule'] }}</td>
+                    <tr class="hover:bg-gray-700/30 {{ $item['disabled'] ?? false ? 'opacity-50' : '' }}">
+                        <td class="p-3 font-mono {{ $item['disabled'] ?? false ? 'text-gray-500' : 'text-blue-400' }}">{{ $item['name'] }}</td>
+                        <td class="p-3 {{ $item['disabled'] ?? false ? 'text-gray-500' : '' }}">{{ $item['schedule'] }}</td>
                         <td class="p-3 text-gray-300">{{ $item['last_run'] }}</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span></td>
+                        <td class="p-3">
+                            @if($item['disabled'] ?? false)
+                                <span class="px-2 py-1 rounded text-xs bg-red-900 text-red-400">Disabled (War)</span>
+                            @elseif($item['essential'] ?? false)
+                                <span class="px-2 py-1 rounded text-xs bg-green-900 text-green-400">Active</span>
+                            @else
+                                <span class="px-2 py-1 rounded text-xs bg-blue-900 text-blue-400">Active</span>
+                            @endif
+                        </td>
                         <td class="p-3 text-gray-400">{{ $item['api_calls'] }}</td>
                         <td class="p-3 text-gray-400">{{ $item['description'] }}</td>
                         <td class="p-3">
-                            @php
-                                $routeMap = [
-                                    'faction_sync' => 'factions',
-                                    'faction_members' => 'members',
-                                    'active_wars' => 'active',
-                                    'war_attacks' => 'attacks',
-                                    'stocks' => 'stocks',
-                                ];
-                                $route = $routeMap[$key] ?? 'wars';
-                            @endphp
-                            <form action="/admin/sync/{{ $route }}" method="POST">
-                                @csrf
-                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-white text-xs">
-                                    Run Now
-                                </button>
-                            </form>
+                            @if($item['disabled'] ?? false)
+                                <span class="text-gray-500 text-xs">Skipped during war</span>
+                            @else
+                                @php
+                                    $routeMap = [
+                                        'faction_sync' => 'factions',
+                                        'faction_members' => 'members',
+                                        'active_wars' => 'active',
+                                        'war_attacks' => 'attacks',
+                                        'stocks' => 'stocks',
+                                    ];
+                                    $route = $routeMap[$key] ?? 'wars';
+                                @endphp
+                                <form action="/admin/sync/{{ $route }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-white text-xs">
+                                        Run Now
+                                    </button>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                     @endforeach
@@ -262,7 +290,11 @@
             <p class="text-gray-400 text-sm">
                 <span class="text-yellow-400 font-semibold">Note:</span> 
                 Torn API limits to 100 requests per minute. This system uses caching and smart reuse to stay well under that limit.
-                War syncs may be delayed if rate limited.
+                @if($warActive ?? false)
+                    <br><span class="text-green-400">During active wars, only essential war syncs run every minute.</span>
+                @else
+                    <br>War syncs (active wars, attacks) run every 5 minutes during peace time.
+                @endif
             </p>
         </div>
     </div>
