@@ -66,17 +66,17 @@ class DashboardController extends Controller
             ->where('faction_id', $settings->faction_id ?? 0)
             ->firstOrFail();
         
-        $ourMembers = $war->members()
+$ourMembers = $war->members()
             ->where('faction_id', $settings->faction_id)
-            ->orderByRaw("CASE status_color WHEN 'green' THEN 0 WHEN 'red' THEN 1 ELSE 2 END")
+            ->orderByRaw("CASE LOWER(status_color) WHEN 'green' THEN 0 WHEN 'red' THEN 1 ELSE 2 END")
             ->get();
         
         $opponentMembers = $war->members()
             ->where('faction_id', $war->opponent_faction_id)
-            ->orderByRaw("CASE status_color WHEN 'green' THEN 0 WHEN 'red' THEN 1 ELSE 2 END")
+            ->orderByRaw("CASE LOWER(status_color) WHEN 'green' THEN 0 WHEN 'red' THEN 1 ELSE 2 END")
             ->get();
-
-$ourFactionId = $settings->faction_id;
+        
+        $ourFactionId = $settings->faction_id;
     $oppFactionId = $war->opponent_faction_id;
     $ourMemberIds = $war->members()->where('faction_id', $ourFactionId)->pluck('player_id');
     $oppMemberIds = $war->members()->where('faction_id', $oppFactionId)->pluck('player_id');
