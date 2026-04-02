@@ -212,10 +212,9 @@
                             $remaining = $until > 0 ? max(0, $until - time()) : 0;
                             $onlineStatus = $member->online_status ?? '';
                             $statusColor = $member->status_color ?? '';
-                            $isHospitalized = $statusColor === 'red';
-                            $statusType = match(true) {
-                                $onlineStatus === 'Online' => '0',
-                                $isHospitalized => '1',
+                            $statusType = match($statusColor) {
+                                'green' => '0',
+                                'red' => '1',
                                 default => '2'
                             };
                         @endphp
