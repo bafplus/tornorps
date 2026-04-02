@@ -59,6 +59,7 @@ class StocksController extends Controller
                 'history' => collect(),
                 'userStocks' => [],
                 'recommendations' => collect(),
+                'warActive' => $warActive,
             ]);
         }
 
@@ -229,7 +230,8 @@ class StocksController extends Controller
             'history' => $history,
             'userStocks' => $userStocks,
             'recommendations' => $recommendations,
-            'error' => null
+            'error' => null,
+            'warActive' => $warActive,
         ]);
     }
 
