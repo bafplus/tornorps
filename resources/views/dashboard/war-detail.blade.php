@@ -206,8 +206,16 @@
                             $failed = $stats->failed ?? 0;
                             $interrupted = $stats->interrupted ?? 0;
                             $warScore = $stats->total_score ?? 0;
+                            $data = $member->data ?? [];
+                            $statusData = $data['status'] ?? [];
+                            $until = $statusData['until'] ?? 0;
+                            $remaining = $until > 0 ? max(0, $until - time()) : 0;
+                            $statusColor = $member->status_color ?? '';
+                            $isHospitalized = $statusColor === 'red' && $remaining > 0;
+                            $isTraveling = $member->status_description === 'Traveling' && $remaining > 0;
+                            $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
                         @endphp
-                        <tr class="hover:bg-gray-700/30" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-hits="{{ $hits }}" data-pwar="{{ $warScore }}" data-status="{{ $member->status_description ?? '' }}">
+                        <tr class="hover:bg-gray-700/30" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-hits="{{ $hits }}" data-pwar="{{ $warScore }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-status-timer="{{ $remaining }}">
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full mr-2 @if($member->online_status === 'Online') bg-green-500 @elseif($member->online_status === 'Idle') bg-yellow-500 @else bg-gray-500 @endif"></span>
                                 <span class="font-medium">{{ $member->name }}</span>
@@ -289,12 +297,17 @@
                             $failed = $stats->failed ?? 0;
                             $interrupted = $stats->interrupted ?? 0;
                             $leavingSoon = false;
+                            $remaining = 0;
                             if ($member->status_color === 'red' && isset($member->data['status']['until'])) {
                                 $until = $member->data['status']['until'];
+                                $remaining = $until > 0 ? max(0, $until - time()) : 0;
                                 $leavingSoon = $until > 0 && ($until - time()) <= 300;
                             }
+                            $isHospitalized = $member->status_color === 'red' && $remaining > 0;
+                            $isTraveling = $member->status_description === 'Traveling' && $remaining > 0;
+                            $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
                         @endphp
-                        <tr class="hover:bg-gray-700/30 {{ $leavingSoon ? 'bg-red-900/20' : '' }}" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-hits="{{ $hits }}" data-status="{{ $member->status_description ?? '' }}">
+                        <tr class="hover:bg-gray-700/30 {{ $leavingSoon ? 'bg-red-900/20' : '' }}" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-hits="{{ $hits }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-status-timer="{{ $remaining }}">
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full mr-2 @if($member->online_status === 'Online') bg-green-500 @elseif($member->online_status === 'Idle') bg-yellow-500 @else bg-gray-500 @endif"></span>
                                 <a href="https://www.torn.com/loader.php?sid=attack&user2ID={{ $member->player_id }}" target="_blank" class="font-medium hover:text-blue-400">{{ $member->name }}</a>
@@ -628,6 +641,16 @@ bVal = parseFloat(b.dataset.warscore) || 0;
 } else if (field === 'status') {
 aVal = a.dataset.status || '';
 bVal = b.dataset.status || '';
+// Custom sort: okay -> hospitalized (by timer asc) -> traveling (by timer asc)
+const aType = a.dataset.statusType || 'okay';
+const bType = b.dataset.statusType || 'okay';
+const aTimer = parseInt(a.dataset.statusTimer) || 0;
+const bTimer = parseInt(b.dataset.statusTimer) || 0;
+const typeOrder = { 'okay': 0, 'hosp': 1, 'travel': 2 };
+if (aType !== bType) {
+return typeOrder[aType] - typeOrder[bType];
+}
+return aTimer - bTimer; // ascending = shortest timer first
 }
 
 if (typeof aVal === 'string') {
