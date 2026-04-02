@@ -211,10 +211,11 @@
                             $until = $statusData['until'] ?? 0;
                             $remaining = $until > 0 ? max(0, $until - time()) : 0;
                             $statusColor = $member->status_color ?? '';
-                            $statusDesc = $member->status_description ?? '';
-                            $isHospitalized = $statusColor === 'red' && $remaining > 0;
-                            $isTraveling = ($statusColor === 'blue' || str_contains($statusDesc, 'Traveling')) && $remaining > 0;
-                            $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
+                            $statusType = match($statusColor) {
+                                'green' => '0',
+                                'red' => '1',
+                                default => '2'
+                            };
                         @endphp
                         <tr class="hover:bg-gray-700/30" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-hits="{{ $hits }}" data-pwar="{{ $warScore }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-status-timer="{{ $remaining }}">
                             <td class="p-3">
@@ -305,10 +306,11 @@
                                 $leavingSoon = $until > 0 && ($until - time()) <= 300;
                             }
                             $statusColor = $member->status_color ?? '';
-                            $statusDesc = $member->status_description ?? '';
-                            $isHospitalized = $statusColor === 'red' && $remaining > 0;
-                            $isTraveling = ($statusColor === 'blue' || str_contains($statusDesc, 'Traveling')) && $remaining > 0;
-                            $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
+                            $statusType = match($statusColor) {
+                                'green' => '0',
+                                'red' => '1',
+                                default => '2'
+                            };
                         @endphp
                         <tr class="hover:bg-gray-700/30 {{ $leavingSoon ? 'bg-red-900/20' : '' }}" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-hits="{{ $hits }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-status-timer="{{ $remaining }}">
                             <td class="p-3">
@@ -648,15 +650,11 @@ const aVal = parseFloat(a.dataset.warscore) || 0;
 const bVal = parseFloat(b.dataset.warscore) || 0;
 return dir === 'asc' ? aVal - bVal : bVal - aVal;
 } else if (field === 'status') {
-const aType = a.dataset.statusType || 'okay';
-const bType = b.dataset.statusType || 'okay';
-const aTimer = parseInt(a.dataset.statusTimer) || 999999;
-const bTimer = parseInt(b.dataset.statusTimer) || 999999;
-const typeScore = { 'okay': 0, 'hosp': 1, 'travel': 2 };
-const aScore = typeScore[aType] !== undefined ? typeScore[aType] : 2;
-const bScore = typeScore[bType] !== undefined ? typeScore[bType] : 2;
+// Sort: green=0 first, red=1 second, others=2 last
+const aScore = parseInt(a.dataset.statusType) || 2;
+const bScore = parseInt(b.dataset.statusType) || 2;
 if (aScore !== bScore) return dir === 'asc' ? aScore - bScore : bScore - aScore;
-return dir === 'asc' ? aTimer - bTimer : bTimer - aTimer;
+return 0;
 }
 return 0;
 });

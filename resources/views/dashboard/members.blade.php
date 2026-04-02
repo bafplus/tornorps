@@ -51,13 +51,14 @@
                                 $statsNum = floatval($statsStr);
                             }
                         }
-                        // Determine status type for sorting
+                        // Determine status type for sorting: green=0, red=1, other=2
                         $statusColor = $member->status_color ?? '';
-                        $statusDesc = $member->status_description ?? '';
-                        $isHospitalized = $statusColor === 'red' && $remaining > 0;
-                        $isTraveling = ($statusColor === 'blue' || str_contains($statusDesc, 'Traveling')) && $remaining > 0;
-                        $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
                         $statusTimer = $remaining;
+                        $statusType = match($statusColor) {
+                            'green' => '0',
+                            'red' => '1',
+                            default => '2'
+                        };
                     @endphp
                     <tr class="hover:bg-gray-700/30" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $statsNum }}" data-position="{{ strtolower($member->position ?? '') }}" data-days="{{ $member->days_in_faction ?? 0 }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-status-timer="{{ $statusTimer }}">
                         <td class="p-3">
@@ -144,15 +145,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const rows = Array.from(tbody.querySelectorAll('tr'));
         rows.sort((a, b) => {
             if (sortKey === 'status') {
-                const aType = a.dataset['statusType'] || 'okay';
-                const bType = b.dataset['statusType'] || 'okay';
-                const aTimer = parseInt(a.dataset['statusTimer']) || 999999;
-                const bTimer = parseInt(b.dataset['statusTimer']) || 999999;
-                const typeScore = { 'okay': 0, 'hosp': 1, 'travel': 2 };
-                const aScore = typeScore[aType] !== undefined ? typeScore[aType] : 2;
-                const bScore = typeScore[bType] !== undefined ? typeScore[bType] : 2;
+                // Sort: green=0 first, red=1 second, others=2 last
+                const aScore = parseInt(a.dataset['statusType']) || 2;
+                const bScore = parseInt(b.dataset['statusType']) || 2;
                 if (aScore !== bScore) return dir === 'asc' ? aScore - bScore : bScore - aScore;
-                return dir === 'asc' ? aTimer - bTimer : bTimer - aTimer;
+                return 0;
             }
             
             if (['level', 'ff', 'stats', 'days'].includes(sortKey)) {
