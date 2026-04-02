@@ -51,8 +51,14 @@
                                 $statsNum = floatval($statsStr);
                             }
                         }
+                        // Determine status type for sorting
+                        $statusColor = $member->status_color ?? '';
+                        $isHospitalized = $statusColor === 'red' && $remaining > 0;
+                        $isTraveling = $member->status_description === 'Traveling' && $remaining > 0;
+                        $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
+                        $statusTimer = $remaining;
                     @endphp
-                    <tr class="hover:bg-gray-700/30" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $statsNum }}" data-position="{{ strtolower($member->position ?? '') }}" data-days="{{ $member->days_in_faction ?? 0 }}" data-status="{{ $member->status_description ?? '' }}">
+                    <tr class="hover:bg-gray-700/30" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $statsNum }}" data-position="{{ strtolower($member->position ?? '') }}" data-days="{{ $member->days_in_faction ?? 0 }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-status-timer="{{ $statusTimer }}">
                         <td class="p-3">
                             <span class="inline-block w-2 h-2 rounded-full mr-2 @if($member->online_status === 'Online') bg-green-500 @elseif($member->online_status === 'Idle') bg-yellow-500 @else bg-gray-500 @endif"></span>
                             <a href="https://www.torn.com/profiles.php?XID={{ $member->player_id }}" target="_blank" class="text-blue-400 hover:text-blue-300">{{ $member->name ?? 'Unknown' }}</a>
@@ -143,6 +149,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 aVal = parseFloat(aVal) || 0;
                 bVal = parseFloat(bVal) || 0;
                 return dir === 'asc' ? aVal - bVal : bVal - aVal;
+            }
+            
+            if (sortKey === 'status') {
+                // Custom sort: okay -> hospitalized (by timer asc) -> traveling (by timer asc)
+                const aType = a.dataset['statusType'] || 'okay';
+                const bType = b.dataset['statusType'] || 'okay';
+                const aTimer = parseInt(a.dataset['statusTimer']) || 0;
+                const bTimer = parseInt(b.dataset['statusTimer']) || 0;
+                
+                const typeOrder = { 'okay': 0, 'hosp': 1, 'travel': 2 };
+                
+                if (aType !== bType) {
+                    return typeOrder[aType] - typeOrder[bType];
+                }
+                // Same type - sort by timer (ascending = shortest first)
+                return aTimer - bTimer;
             }
             
             aVal = aVal.toLowerCase();
