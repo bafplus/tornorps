@@ -210,10 +210,12 @@
                             $statusData = $data['status'] ?? [];
                             $until = $statusData['until'] ?? 0;
                             $remaining = $until > 0 ? max(0, $until - time()) : 0;
+                            $onlineStatus = $member->online_status ?? '';
                             $statusColor = $member->status_color ?? '';
-                            $statusType = match($statusColor) {
-                                'green' => '0',
-                                'red' => '1',
+                            $isHospitalized = $statusColor === 'red';
+                            $statusType = match(true) {
+                                $onlineStatus === 'Online' => '0',
+                                $isHospitalized => '1',
                                 default => '2'
                             };
                         @endphp
@@ -300,15 +302,17 @@
                             $interrupted = $stats->interrupted ?? 0;
                             $leavingSoon = false;
                             $remaining = 0;
-                            if ($member->status_color === 'red' && isset($member->data['status']['until'])) {
+                            $onlineStatus = $member->online_status ?? '';
+                            $statusColor = $member->status_color ?? '';
+                            if ($statusColor === 'red' && isset($member->data['status']['until'])) {
                                 $until = $member->data['status']['until'];
                                 $remaining = $until > 0 ? max(0, $until - time()) : 0;
                                 $leavingSoon = $until > 0 && ($until - time()) <= 300;
                             }
-                            $statusColor = $member->status_color ?? '';
-                            $statusType = match($statusColor) {
-                                'green' => '0',
-                                'red' => '1',
+                            $isHospitalized = $statusColor === 'red';
+                            $statusType = match(true) {
+                                $onlineStatus === 'Online' => '0',
+                                $isHospitalized => '1',
                                 default => '2'
                             };
                         @endphp

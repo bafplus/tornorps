@@ -51,12 +51,14 @@
                                 $statsNum = floatval($statsStr);
                             }
                         }
-                        // Determine status type for sorting: green=0, red=1, other=2
+                        // Determine status type for sorting: Online=0, hospitalized=1, other=2
+                        $onlineStatus = $member->online_status ?? '';
                         $statusColor = $member->status_color ?? '';
+                        $isHospitalized = $statusColor === 'red';
                         $statusTimer = $remaining;
-                        $statusType = match($statusColor) {
-                            'green' => '0',
-                            'red' => '1',
+                        $statusType = match(true) {
+                            $onlineStatus === 'Online' => '0',
+                            $isHospitalized => '1',
                             default => '2'
                         };
                     @endphp
