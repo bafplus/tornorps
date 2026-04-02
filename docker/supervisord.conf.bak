@@ -14,7 +14,7 @@ stderr_logfile=/dev/stderr
 stderr_logfile_maxbytes=0
 
 [program:apache2]
-command=/var/www/html/docker/fix-perms.sh
+command=/usr/sbin/apache2ctl -D FOREGROUND
 autostart=true
 autorestart=true
 stdout_logfile=/dev/stdout
