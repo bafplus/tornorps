@@ -53,8 +53,9 @@
                         }
                         // Determine status type for sorting
                         $statusColor = $member->status_color ?? '';
+                        $statusDesc = $member->status_description ?? '';
                         $isHospitalized = $statusColor === 'red' && $remaining > 0;
-                        $isTraveling = $member->status_description === 'Traveling' && $remaining > 0;
+                        $isTraveling = ($statusColor === 'blue' || str_contains($statusDesc, 'Traveling')) && $remaining > 0;
                         $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
                         $statusTimer = $remaining;
                     @endphp

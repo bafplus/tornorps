@@ -211,8 +211,9 @@
                             $until = $statusData['until'] ?? 0;
                             $remaining = $until > 0 ? max(0, $until - time()) : 0;
                             $statusColor = $member->status_color ?? '';
+                            $statusDesc = $member->status_description ?? '';
                             $isHospitalized = $statusColor === 'red' && $remaining > 0;
-                            $isTraveling = $member->status_description === 'Traveling' && $remaining > 0;
+                            $isTraveling = ($statusColor === 'blue' || str_contains($statusDesc, 'Traveling')) && $remaining > 0;
                             $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
                         @endphp
                         <tr class="hover:bg-gray-700/30" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-hits="{{ $hits }}" data-pwar="{{ $warScore }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-status-timer="{{ $remaining }}">
@@ -303,8 +304,10 @@
                                 $remaining = $until > 0 ? max(0, $until - time()) : 0;
                                 $leavingSoon = $until > 0 && ($until - time()) <= 300;
                             }
-                            $isHospitalized = $member->status_color === 'red' && $remaining > 0;
-                            $isTraveling = $member->status_description === 'Traveling' && $remaining > 0;
+                            $statusColor = $member->status_color ?? '';
+                            $statusDesc = $member->status_description ?? '';
+                            $isHospitalized = $statusColor === 'red' && $remaining > 0;
+                            $isTraveling = ($statusColor === 'blue' || str_contains($statusDesc, 'Traveling')) && $remaining > 0;
                             $statusType = $isHospitalized ? 'hosp' : ($isTraveling ? 'travel' : 'okay');
                         @endphp
                         <tr class="hover:bg-gray-700/30 {{ $leavingSoon ? 'bg-red-900/20' : '' }}" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-hits="{{ $hits }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-status-timer="{{ $remaining }}">
