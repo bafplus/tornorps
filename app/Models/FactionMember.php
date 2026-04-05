@@ -20,6 +20,7 @@ class FactionMember extends Model
         'ff_score',
         'estimated_stats',
         'status_changed_at',
+        'travel_started_at',
         'data',
         'last_synced_at',
     ];
@@ -28,6 +29,7 @@ class FactionMember extends Model
         'data' => 'array',
         'last_synced_at' => 'datetime',
         'status_changed_at' => 'datetime',
+        'travel_started_at' => 'datetime',
     ];
 
     public function player()

@@ -100,6 +100,30 @@ class SyncFactionMembers extends Command
                     'last_synced_at' => now(),
                 ]
             );
+
+            // Track when member started traveling (blue status)
+            $isTraveling = ($member['status']['color'] ?? null) === 'blue';
+            $wasTraveling = false;
+            
+            // Check if member was previously traveling (if we have old data)
+            $oldMember = FactionMember::where('faction_id', $factionId)
+                ->where('player_id', $playerId)
+                ->first();
+            
+            if ($oldMember) {
+                $wasTraveling = $oldMember->status_color === 'blue';
+                
+                // If transitioning from not traveling to traveling, set travel_started_at
+                if ($isTraveling && !$wasTraveling && !$oldMember->travel_started_at) {
+                    $oldMember->travel_started_at = now();
+                    $oldMember->save();
+                }
+                // If traveling stopped, clear travel_started_at
+                elseif (!$isTraveling && $wasTraveling) {
+                    $oldMember->travel_started_at = null;
+                    $oldMember->save();
+                }
+            }
             $count++;
         }
 

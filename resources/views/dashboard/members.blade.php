@@ -91,8 +91,8 @@
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium">{{ $statusDesc }}</span>
                                 @endif
                             @elseif($member->status_color === 'blue')
-                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium">
-                                    <span>{{ $member->status_description ?? 'Traveling' }}</span>
+                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-time="60">
+                                    <span class="travel-text">{{ $member->status_description ?? 'Traveling' }}</span><span class="travel-eta ml-1 font-mono"></span>
                                 </span>
                             @elseif($member->status_color === 'green')
                                 <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-medium">{{ $member->status_description ?? 'Okay' }}</span>
@@ -165,5 +165,42 @@ document.addEventListener('DOMContentLoaded', function() {
         rows.forEach(row => tbody.appendChild(row));
     });
 });
+
+function updateTravelTimers() {
+    var now = Math.floor(Date.now() / 1000);
+    document.querySelectorAll('.travel-bubble').forEach(function(bubble) {
+        var etaEl = bubble.querySelector('.travel-eta');
+        if (!etaEl) return;
+        
+        var statusChanged = parseInt(bubble.getAttribute('data-status-changed'));
+        var travelTime = parseInt(bubble.getAttribute('data-travel-time')) || 60;
+        
+        if (isNaN(statusChanged)) {
+            etaEl.textContent = '';
+            return;
+        }
+        
+        var travelTimeSec = travelTime * 60;
+        var earliestLanding = Math.floor(travelTimeSec / 1.03);
+        var elapsed = now - statusChanged;
+        var remaining = earliestLanding - elapsed;
+        
+        if (remaining > 0) {
+            var h = Math.floor(remaining / 3600);
+            var m = Math.floor((remaining % 3600) / 60);
+            var s = remaining % 60;
+            if (h > 0) {
+                etaEl.textContent = '(' + h + ':' + m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0') + ')';
+            } else {
+                etaEl.textContent = '(' + m + ':' + s.toString().padStart(2, '0') + ')';
+            }
+        } else {
+            etaEl.textContent = '';
+        }
+    });
+}
+
+updateTravelTimers();
+setInterval(updateTravelTimers, 1000);
 </script>
 @endsection
