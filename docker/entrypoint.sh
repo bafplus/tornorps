@@ -109,7 +109,8 @@ echo "Installing dependencies..."
 if grep -q 'nunomaduro/collision' composer.json && ! grep -q 'nunomaduro/collision' composer.lock 2>/dev/null; then
     echo "Updating dependencies (collision package missing from lock file)..."
     composer update --no-interaction --no-dev
-elif [ ! -f "vendor/autoload.php" ]; then
+else
+    echo "Using composer install..."
     composer install --no-interaction --no-dev
 fi
 
