@@ -13,6 +13,7 @@ use App\Http\Controllers\MeritPlannerController;
 use App\Http\Controllers\TravelController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\StocksController;
+use App\Http\Controllers\OverdoseController;
 use App\Http\Controllers\JumpsController;
 use App\Http\Controllers\ScriptsController;
 use App\Http\Controllers\ToolsController;
