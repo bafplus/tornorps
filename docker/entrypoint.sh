@@ -14,6 +14,8 @@ chown www-data:www-data /var/www
 if [ -d "/var/www/html/.git" ]; then
     echo "Updating repository..."
     cd /var/www/html
+    # Discard local changes to avoid conflicts
+    git checkout --force .
     git pull origin main || true
 else
     echo "First run: Cloning repository..."
