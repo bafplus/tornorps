@@ -104,9 +104,17 @@ EOF
     DB_PATH="/var/www/html/database.sqlite"
 fi
 
-# Install dependencies - always use composer update if collision is in composer.json but not in lock file
-echo "Installing dependencies..."
-if grep -q 'nunomaduro/collision' composer.json && ! grep -q 'nunomaduro/collision' composer.lock 2>/dev/null; then
+# Install dependencies - use composer update if collision is in composer.json but not in lock file
+echo "Checking dependency status..."
+COLLISION_IN_JSON=false
+COLLISION_IN_LOCK=false
+
+grep -q 'nunomaduro/collision' composer.json 2>/dev/null && COLLISION_IN_JSON=true
+grep -q 'nunomaduro/collision' composer.lock 2>/dev/null && COLLISION_IN_LOCK=true
+
+echo "collision in json: $COLLISION_IN_JSON, in lock: $COLLISION_IN_LOCK"
+
+if [ "$COLLISION_IN_JSON" = true ] && [ "$COLLISION_IN_LOCK" = false ]; then
     echo "Updating dependencies (collision package missing from lock file)..."
     composer update --no-interaction --no-dev
 else
