@@ -2,6 +2,7 @@
 
 @section('title', 'Overdose History')
 
+@section('content')
 <div class="container mx-auto px-4 py-6">
     <h1 class="text-2xl font-bold mb-6">Overdose History</h1>
 
@@ -47,3 +48,4 @@
     </div>
     @endif
 </div>
+@endsection
