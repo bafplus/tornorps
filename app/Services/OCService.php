@@ -27,13 +27,13 @@ class OCService
             $openSlots = $oc->slots->filter(fn($s) => !$s->user_id);
             $filledSlots = $oc->slots->filter(fn($s) => $s->user_id);
             
-            // Check for open slots when ready
-            if ($oc->status === 'ready' && $openSlots->isNotEmpty()) {
+            // Check for open slots when ready or recruiting
+            if (in_array($oc->status, ['ready', 'recruiting']) && $openSlots->isNotEmpty()) {
                 $alerts[] = [
                     'type' => 'open_slots',
-                    'severity' => 'warning',
+                    'severity' => $oc->status === 'ready' ? 'warning' : 'info',
                     'oc' => $oc,
-                    'message' => "{$oc->name} is READY but has {$openSlots->count()} open slot(s)",
+                    'message' => "{$oc->name} has {$openSlots->count()} open slot(s)",
                     'open_count' => $openSlots->count(),
                 ];
             }
