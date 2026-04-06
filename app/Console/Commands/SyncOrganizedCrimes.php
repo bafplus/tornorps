@@ -59,7 +59,7 @@ class SyncOrganizedCrimes extends Command
                     'ready_at' => $crimeData['ready_at'],
                     'executed_at' => $crimeData['executed_at'],
                     'expires_at' => $crimeData['expired_at'],
-                    'rewards' => $crimeData['rewards'] ?? null,
+                    'rewards' => isset($crimeData['rewards']) ? json_encode($crimeData['rewards']) : null,
                     'last_synced_at' => now(),
                 ]
             );
@@ -81,7 +81,7 @@ class SyncOrganizedCrimes extends Command
                         'user_joined_at' => $user['joined_at'] ?? null,
                         'item_required_id' => $itemReq['id'] ?? null,
                         'item_available' => $itemReq['is_available'] ?? false,
-                        'item_outcome' => $user['item_outcome'] ?? null,
+                        'item_outcome' => isset($user['item_outcome']) ? json_encode($user['item_outcome']) : null,
                         'last_synced_at' => now(),
                     ]
                 );
