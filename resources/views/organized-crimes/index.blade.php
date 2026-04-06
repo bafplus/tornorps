@@ -45,6 +45,15 @@
                         Ready: {{ $oc->ready_at ? \Carbon\Carbon::createFromTimestamp($oc->ready_at)->format('M j, H:i') : 'N/A' }}
                     </span>
                     @endif
+                    @if($oc->rewards && in_array($oc->status, ['successful', 'Successful']))
+                    <span class="text-green-400 text-sm ml-2">
+                        💰 {{ number_format($oc->rewards['money'] ?? 0) }} | 
+                        Respect +{{ $oc->rewards['respect'] ?? 0 }}
+                        @if(($oc->rewards['payout']['percentage'] ?? 0) > 0)
+                            | {{ $oc->rewards['payout']['percentage'] }}% paid
+                        @endif
+                    </span>
+                    @endif
                 </div>
             </div>
         </div>
