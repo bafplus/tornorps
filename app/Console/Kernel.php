@@ -45,6 +45,11 @@ $schedule->command('torn:sync-attacks')
             ->dailyAt('00:15')
             ->withoutOverlapping()
             ->runInBackground();
+
+        $schedule->command('torn:sync-items')
+            ->daily()
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     protected function commands(): void

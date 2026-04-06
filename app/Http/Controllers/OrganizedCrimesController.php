@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FactionSettings;
 use App\Models\OrganizedCrime;
 use App\Models\FactionMember;
-use Illuminate\Support\Facades\View;
+use App\Models\Item;
 
 class OrganizedCrimesController extends Controller
 {
@@ -20,10 +20,14 @@ class OrganizedCrimesController extends Controller
             ->get();
         
         $playerIds = [];
+        $itemIds = [];
         foreach ($ocs as $oc) {
             foreach ($oc->slots as $slot) {
                 if ($slot->user_id) {
                     $playerIds[] = $slot->user_id;
+                }
+                if ($slot->item_required_id) {
+                    $itemIds[] = $slot->item_required_id;
                 }
             }
         }
@@ -33,9 +37,14 @@ class OrganizedCrimesController extends Controller
             ->get()
             ->keyBy('player_id');
         
+        $items = Item::whereIn('id', array_unique($itemIds))
+            ->get()
+            ->keyBy('id');
+        
         foreach ($ocs as $oc) {
             foreach ($oc->slots as $slot) {
                 $slot->member_name = $members->get($slot->user_id)?->name ?? null;
+                $slot->item_name = $items->get($slot->item_required_id)?->name ?? null;
             }
         }
         

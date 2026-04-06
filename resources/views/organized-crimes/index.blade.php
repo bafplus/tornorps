@@ -82,7 +82,7 @@
                         <td class="px-3 py-2 text-sm">
                             @if($slot->item_required_id)
                             <span class="px-2 py-0.5 rounded text-xs {{ $slot->item_available ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400' }}">
-                                Item #{{ $slot->item_required_id }}
+                                {{ $slot->item_name ?? 'Item #' . $slot->item_required_id }}
                                 {{ $slot->item_available ? '✓' : '✗' }}
                             </span>
                             @else
