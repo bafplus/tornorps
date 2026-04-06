@@ -20,17 +20,17 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
         $schedule->command('torn:sync-active')
-            ->everyMinute()
+            ->everyTenMinutes()
             ->withoutOverlapping()
             ->runInBackground();
 
 $schedule->command('torn:sync-attacks')
-        ->everyMinute()
+        ->everyTenMinutes()
         ->withoutOverlapping()
         ->runInBackground();
 
         $schedule->command('torn:sync-chains')
-            ->everyMinute()
+            ->everyTenMinutes()
             ->withoutOverlapping()
             ->runInBackground();
 
