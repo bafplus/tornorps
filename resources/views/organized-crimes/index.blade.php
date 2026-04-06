@@ -10,7 +10,12 @@
     </div>
 
     @forelse($ocs as $oc)
-    <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+    <div class="bg-gray-800 rounded-lg overflow-hidden border 
+        @if($oc->status === 'planning') border-yellow-600
+        @elseif($oc->status === 'recruiting') border-blue-600
+        @elseif($oc->status === 'success') border-green-600
+        @elseif($oc->status === 'failure') border-red-600
+        @else border-gray-700 @endif">
         <div class="p-4 border-b border-gray-700 flex items-center justify-between">
             <div>
                 <h2 class="text-xl font-semibold">{{ $oc->name }}</h2>
@@ -25,6 +30,8 @@
                         @if($oc->status === 'ready') bg-green-900/50 text-green-400
                         @elseif($oc->status === 'recruiting') bg-blue-900/50 text-blue-400
                         @elseif($oc->status === 'planning') bg-yellow-900/50 text-yellow-400
+                        @elseif($oc->status === 'success') bg-green-900/50 text-green-400
+                        @elseif($oc->status === 'failure') bg-red-900/50 text-red-400
                         @else bg-gray-700 text-gray-400 @endif">
                         {{ ucfirst($oc->status) }}
                     </span>
