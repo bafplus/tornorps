@@ -13,8 +13,8 @@
     <div class="bg-gray-800 rounded-lg overflow-hidden border 
         @if(in_array($oc->status, ['planning', 'Pending'])) border-yellow-600
         @elseif(in_array($oc->status, ['recruiting', 'Ready'])) border-blue-600
-        @elseif(in_array($oc->status, ['success', 'Successful', 'executed'])) border-green-600
-        @elseif(in_array($oc->status, ['failure', 'Failed'])) border-red-600
+        @elseif(in_array($oc->status, ['success', 'Successful', 'successful', 'executed'])) border-green-600
+        @elseif(in_array($oc->status, ['failure', 'Failed', 'failed'])) border-red-600
         @else border-gray-700 @endif">
         <div class="p-4 border-b border-gray-700 flex items-center justify-between">
             <div>
@@ -30,8 +30,8 @@
                         @if(in_array($oc->status, ['ready', 'Ready'])) bg-green-900/50 text-green-400
                         @elseif(in_array($oc->status, ['recruiting', 'Recruiting'])) bg-blue-900/50 text-blue-400
                         @elseif(in_array($oc->status, ['planning', 'Pending'])) bg-yellow-900/50 text-yellow-400
-                        @elseif(in_array($oc->status, ['success', 'Successful', 'executed'])) bg-green-900/50 text-green-400
-                        @elseif(in_array($oc->status, ['failure', 'Failed'])) bg-red-900/50 text-red-400
+                        @elseif(in_array($oc->status, ['success', 'Successful', 'successful', 'executed'])) bg-green-900/50 text-green-400
+                        @elseif(in_array($oc->status, ['failure', 'Failed', 'failed'])) bg-red-900/50 text-red-400
                         @else bg-gray-700 text-gray-400 @endif">
                         {{ ucfirst($oc->status) }}
                     </span>
