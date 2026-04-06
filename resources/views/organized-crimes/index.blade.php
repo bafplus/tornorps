@@ -18,7 +18,11 @@
         @else border-gray-700 @endif">
         <div class="p-4 border-b border-gray-700 flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-semibold">{{ $oc->name }}</h2>
+                <h2 class="text-xl font-semibold">
+                    <a href="https://www.torn.com/factions.php?step=your&type=1#/tab=crimes&crimeId={{ $oc->oc_id }}" target="_blank" class="hover:text-blue-400">
+                        {{ $oc->name }}
+                    </a>
+                </h2>
                 <div class="flex items-center gap-3 mt-1">
                     <span class="px-2 py-0.5 rounded text-xs font-medium
                         @if($oc->difficulty <= 2) bg-green-900/50 text-green-400
