@@ -25,7 +25,7 @@ class SyncWarAttacks extends Command
 
         $log = DataRefreshLog::logStart('war_attacks');
 
-        $activeWars = RankedWar::whereIn('status', ['in progress', 'pending'])->get();
+        $activeWars = RankedWar::where('status', 'in progress')->get();
 
         if ($activeWars->isEmpty() && !$this->option('force')) {
             $log->update(['status' => 'skipped', 'completed_at' => now()]);

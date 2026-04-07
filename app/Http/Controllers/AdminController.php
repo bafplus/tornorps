@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FactionSettings;
 use App\Models\User;
 use App\Models\DataRefreshLog;
+use App\Models\ScheduledJob;
 use App\Services\TornApiService;
 use App\Services\WarService;
 use App\Services\DiscordBotService;
@@ -349,5 +350,110 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Upgrade failed: ' . $e->getMessage());
         }
+    }
+
+    public function scheduledJobs()
+    {
+        $jobs = ScheduledJob::orderBy('command')->get();
+        return view('admin.scheduled-jobs', compact('jobs'));
+    }
+
+    public function updateScheduledJob(Request $request, $id)
+    {
+        $job = ScheduledJob::findOrFail($id);
+        
+        $cronHour = $request->input('cron_hour') ?: '*';
+        $cronMin = $request->input('cron_min') ?: '*';
+        $cronExpression = "{$cronMin} {$cronHour} * * *";
+        
+        $warHour = $request->input('war_hour') ?: '*';
+        $warMin = $request->input('war_min') ?: '*';
+        $warCron = "{$warMin} {$warHour} * * *";
+        
+        $job->update([
+            'enabled' => $request->boolean('enabled'),
+            'cron_expression' => $cronExpression,
+            'war_mode_only' => $request->boolean('war_mode_only'),
+            'war_enabled' => $request->boolean('war_enabled'),
+            'war_cron' => $warCron,
+        ]);
+
+        return back()->with('status', 'Job updated successfully.');
+    }
+
+    public function seedScheduledJobs()
+    {
+        $definitions = [
+            'torn:sync-faction' => [
+                'description' => 'Sync faction data (members, stats, info)',
+                'war_mode_only' => false,
+                'default_cron' => '*/5 * * * *',
+            ],
+            'torn:sync-wars' => [
+                'description' => 'Sync ranked wars list',
+                'war_mode_only' => true,
+                'default_cron' => '*/10 * * * *',
+                'war_cron' => '*/5 * * * *',
+            ],
+            'torn:sync-active' => [
+                'description' => 'Sync active war details and scores',
+                'war_mode_only' => true,
+                'default_cron' => '*/10 * * * *',
+                'war_cron' => '*/1 * * * *',
+            ],
+            'torn:sync-attacks' => [
+                'description' => 'Sync war attacks data',
+                'war_mode_only' => true,
+                'default_cron' => '*/10 * * * *',
+                'war_cron' => '*/1 * * * *',
+            ],
+            'torn:sync-chains' => [
+                'description' => 'Sync war chain data',
+                'war_mode_only' => true,
+                'default_cron' => '*/10 * * * *',
+                'war_cron' => '*/1 * * * *',
+            ],
+            'torn:check-faction-membership' => [
+                'description' => 'Check faction membership and sync new members',
+                'war_mode_only' => false,
+                'default_cron' => '0 * * * *',
+            ],
+            'torn:sync-stocks' => [
+                'description' => 'Sync market stocks data',
+                'war_mode_only' => false,
+                'default_cron' => '0 0 * * *',
+            ],
+            'torn:sync-items' => [
+                'description' => 'Sync item market data',
+                'war_mode_only' => false,
+                'default_cron' => '0 0 * * *',
+            ],
+        ];
+
+        $created = 0;
+        $updated = 0;
+
+        foreach ($definitions as $command => $config) {
+            $exists = ScheduledJob::where('command', $command)->exists();
+
+            $data = [
+                'description' => $config['description'],
+                'enabled' => true,
+                'cron_expression' => $config['default_cron'],
+                'war_mode_only' => $config['war_mode_only'],
+                'war_enabled' => true,
+                'war_cron' => $config['war_cron'] ?? null,
+            ];
+
+            if ($exists) {
+                ScheduledJob::where('command', $command)->update($data);
+                $updated++;
+            } else {
+                ScheduledJob::create(array_merge(['command' => $command], $data));
+                $created++;
+            }
+        }
+
+        return back()->with('status', "Seeded: {$created} created, {$updated} updated.");
     }
 }

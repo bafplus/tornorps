@@ -349,5 +349,15 @@
             View Logs
         </a>
     </div>
+
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-yellow-400">Scheduled Jobs</h2>
+            <a href="/admin/scheduled-jobs" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-white">
+                Manage Jobs
+            </a>
+        </div>
+        <p class="text-gray-400 text-sm">Configure scheduled sync jobs, cron expressions, and war mode settings.</p>
+    </div>
 </div>
 @endsection

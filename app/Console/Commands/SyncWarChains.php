@@ -20,7 +20,7 @@ class SyncWarChains extends Command
             return Command::FAILURE;
         }
 
-        $activeWars = RankedWar::whereIn('status', ['in progress', 'pending'])->get();
+        $activeWars = RankedWar::where('status', 'in progress')->get();
         if ($activeWars->isEmpty()) {
             return Command::SUCCESS;
         }

@@ -148,5 +148,9 @@ Route::get('/scripts', [ScriptsController::class, 'index']);
 
         Route::post('/admin/check-updates', [AdminController::class, 'checkForUpdates']);
         Route::post('/admin/upgrade', [AdminController::class, 'upgrade']);
+        
+        Route::get('/admin/scheduled-jobs', [AdminController::class, 'scheduledJobs']);
+        Route::put('/admin/scheduled-jobs/{job}', [AdminController::class, 'updateScheduledJob']);
+        Route::post('/admin/scheduled-jobs/seed', [AdminController::class, 'seedScheduledJobs']);
     });
 });
