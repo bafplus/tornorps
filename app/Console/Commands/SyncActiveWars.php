@@ -100,16 +100,11 @@ $target = $warInfo['target'] ?? 1900;
             $memberData = $tornApi->getFactionMembers((int)$oppFactionId);
             
             if ($memberData && isset($memberData['members'])) {
-                $playerIds = array_keys($memberData['members']);
-                $onlineResults = $tornApi->getPlayersOnlineStatus($playerIds);
-
                 foreach ($memberData['members'] as $playerId => $member) {
                     $existingMember = WarMember::where('war_id', $war->war_id)
                         ->where('faction_id', $oppFactionId)
                         ->where('player_id', $playerId)
                         ->first();
-
-                    $onlineData = $onlineResults[$playerId] ?? ['online_status' => 'offline', 'online_description' => null];
 
                     $personalWarScore = $member['personalstats']['rankedwarhits'] ?? 0;
                     
@@ -121,8 +116,8 @@ $target = $warInfo['target'] ?? 1900;
                         'status_color' => $member['status']['color'] ?? null,
                         'status_description' => $member['status']['description'] ?? null,
                         'war_score' => $oppData['score'] ?? 0,
-                        'online_status' => $onlineData['online_status'],
-                        'online_description' => $onlineData['online_description'],
+                        'online_status' => $member['last_action']['status'] ?? null,
+                        'online_description' => $member['last_action']['description'] ?? null,
                         'data' => $member,
                         'last_synced_at' => now(),
                         'personal_war_score' => $personalWarScore,

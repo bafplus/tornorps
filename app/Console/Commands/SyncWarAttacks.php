@@ -61,6 +61,18 @@ class SyncWarAttacks extends Command
         $warStartTimestamp = $war->start_date?->timestamp ?? 0;
         $now = time();
 
+        // Get last attack timestamp from DB to only fetch new attacks
+        $lastAttack = WarAttack::where('war_id', $war->war_id)
+            ->orderBy('timestamp_started', 'desc')
+            ->first();
+        
+        $fromTimestamp = $lastAttack ? $lastAttack->timestamp_started : ($now - 14400); // Default: last 4 hours if first run
+        
+        // Cap at war start time
+        if ($fromTimestamp < $warStartTimestamp) {
+            $fromTimestamp = $warStartTimestamp;
+        }
+
         $warFactionIds = WarMember::where('war_id', $war->war_id)
             ->distinct()
             ->pluck('faction_id')
@@ -71,7 +83,7 @@ class SyncWarAttacks extends Command
 
         $allAttacks = [];
         $chunkSize = 1 * 3600; // 1 hour - small to avoid hitting 100 limit
-        $from = $warStartTimestamp;
+        $from = $fromTimestamp;
 
         while ($from < $now) {
             $to = min($from + $chunkSize, $now);

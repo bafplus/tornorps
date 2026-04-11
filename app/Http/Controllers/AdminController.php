@@ -30,48 +30,69 @@ class AdminController extends Controller
 
     private function getApiSchedule(bool $warActive): array
     {
-        $nonEssentialDuringWar = ['faction_sync', 'faction_members', 'stocks'];
+        $nonEssentialDuringWar = ['faction_sync', 'faction_members', 'member_stats', 'stocks', 'items'];
         
         $schedule = [
             'faction_sync' => [
                 'name' => 'torn:sync-faction',
-                'schedule' => 'Every 10 min (:00)',
-                'description' => 'Runs sync-members and sync-wars together',
-                'api_calls' => '6-25 calls',
+                'schedule' => 'Every 5 min',
+                'description' => 'Syncs faction members from Torn API',
+                'api_calls' => '1 call',
                 'essential' => false,
             ],
-            'faction_members' => [
-                'name' => 'torn:sync-members',
-                'schedule' => 'Every 10 min (via sync-faction)',
-                'description' => 'Syncs faction members, FF scores, and stats',
-                'api_calls' => '1-5 calls',
+            'ff_stats' => [
+                'name' => 'torn:sync-ffstats',
+                'schedule' => 'Every 10 min',
+                'description' => 'Syncs FF stats via FF Scouter API',
+                'api_calls' => '1 batch call',
                 'essential' => false,
             ],
             'ranked_wars' => [
                 'name' => 'torn:sync-wars',
-                'schedule' => 'Every 10 min (via sync-faction)',
-                'description' => 'Syncs ranked wars, members, and war data',
-                'api_calls' => '5-20 calls',
+                'schedule' => 'Every 10 min',
+                'description' => 'Syncs ranked wars list',
+                'api_calls' => '1 call',
                 'essential' => false,
             ],
             'active_wars' => [
                 'name' => 'torn:sync-active',
-                'schedule' => 'Every 1 min (war mode)',
-                'description' => 'War updates with cached online status',
-                'api_calls' => '3-10 calls',
+                'schedule' => 'War: Every 1 min',
+                'description' => 'War updates with scores and member status',
+                'api_calls' => '1 call per opponent',
                 'essential' => true,
             ],
             'war_attacks' => [
                 'name' => 'torn:sync-attacks',
-                'schedule' => 'Every 1 min (war mode)',
-                'description' => 'Syncs war attack details with FF and results',
-                'api_calls' => '10-50 calls',
+                'schedule' => 'War: Every 1 min',
+                'description' => 'Syncs war attack details',
+                'api_calls' => 'New attacks only',
                 'essential' => true,
+            ],
+            'war_chains' => [
+                'name' => 'torn:sync-chains',
+                'schedule' => 'War: Every 1 min',
+                'description' => 'Syncs war chain data',
+                'api_calls' => '1 call',
+                'essential' => true,
+            ],
+            'check_membership' => [
+                'name' => 'torn:check-faction-membership',
+                'schedule' => 'Every 6 hours',
+                'description' => 'Checks if users are still in faction',
+                'api_calls' => '1 call',
+                'essential' => false,
             ],
             'stocks' => [
                 'name' => 'torn:sync-stocks',
-                'schedule' => 'Daily (00:15)',
-                'description' => 'Syncs stock prices and saves to history',
+                'schedule' => 'Daily (01:00)',
+                'description' => 'Syncs stock prices',
+                'api_calls' => '1 call',
+                'essential' => false,
+            ],
+            'items' => [
+                'name' => 'torn:sync-items',
+                'schedule' => 'Daily (02:00)',
+                'description' => 'Syncs item market data',
                 'api_calls' => '1 call',
                 'essential' => false,
             ],
@@ -429,11 +450,11 @@ class AdminController extends Controller
                 'api_info' => '1 bulk call',
                 'api_est' => '1',
             ],
-            'torn:sync-member-stats' => [
+            'torn:sync-ffstats' => [
                 'description' => 'Sync FF stats via FF Scouter API',
                 'war_mode_only' => false,
                 'default_cron' => '*/10 * * * *',
-                'api_info' => '1 call per member',
+                'api_info' => '1 batch call',
                 'api_est' => '15-20',
             ],
             'torn:sync-wars' => [

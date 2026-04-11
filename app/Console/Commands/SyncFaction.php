@@ -28,7 +28,7 @@ class SyncFaction extends Command
         $log = DataRefreshLog::logStart('faction_sync');
 
         $this->call('torn:sync-members', ['faction_id' => $factionId, '--force' => $this->option('force')]);
-        $this->call('torn:sync-member-stats', ['--force' => $this->option('force')]);
+        $this->call('torn:sync-ffstats', ['--force' => $this->option('force')]);
         $this->call('torn:sync-wars', ['faction_id' => $factionId]);
 
         // Update settings timestamp to show last sync time
