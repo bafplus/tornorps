@@ -13,7 +13,7 @@ use App\Http\Controllers\MeritPlannerController;
 use App\Http\Controllers\TravelController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\StocksController;
-use App\Http\Controllers\OverdoseController;
+
 use App\Http\Controllers\OrganizedCrimesController;
 use App\Http\Controllers\JumpsController;
 use App\Http\Controllers\ScriptsController;
@@ -75,7 +75,6 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/travel', [TravelController::class, 'index']);
     Route::get('/items', [ItemsController::class, 'index']);
-    Route::get('/overdoses', [OverdoseController::class, 'index']);
     Route::get('/organized-crimes', [OrganizedCrimesController::class, 'index']);
     Route::get('/stocks', [StocksController::class, 'index']);
     Route::post('/stocks/update', [StocksController::class, 'update']);

@@ -41,20 +41,15 @@ class SeedScheduledJobs extends Command
             'default_cron' => '*/10 * * * *',
             'war_cron' => '*/1 * * * *',
         ],
-        'torn:check-faction-membership' => [
-            'description' => 'Check faction membership and sync new members',
-            'war_mode_only' => false,
-            'default_cron' => '0 * * * *',
-        ],
-        'torn:sync-stocks' => [
-            'description' => 'Sync market stocks data',
-            'war_mode_only' => false,
-            'default_cron' => '0 0 * * *',
-        ],
         'torn:sync-items' => [
             'description' => 'Sync item market data',
             'war_mode_only' => false,
             'default_cron' => '0 0 * * *',
+        ],
+        'torn:sync-ffstats' => [
+            'description' => 'Sync FF stats via FF Scouter',
+            'war_mode_only' => false,
+            'default_cron' => '*/5 * * * *',
         ],
     ];
 
@@ -62,6 +57,12 @@ class SeedScheduledJobs extends Command
     {
         $created = 0;
         $updated = 0;
+        $deleted = 0;
+        $validCommands = array_keys($this->jobDefinitions);
+
+        $deleted = ScheduledJob::whereNotIn('command', $validCommands)->delete();
+
+        $this->info("Removed {$deleted} obsolete scheduled job(s).");
 
         foreach ($this->jobDefinitions as $command => $config) {
             $exists = ScheduledJob::where('command', $command)->exists();
