@@ -16,20 +16,6 @@
     </div>
     @endif
 
-    <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-        <div class="flex items-center justify-between">
-            <div>
-                <span class="text-gray-400">API Calls (last minute):</span>
-                <span class="text-2xl font-bold ml-2 {{ $apiCallsLastMinute > 80 ? 'text-red-400' : ($apiCallsLastMinute > 50 ? 'text-yellow-400' : 'text-green-400') }}">{{ $apiCallsLastMinute }}</span>
-                <span class="text-gray-500 text-sm">/ 100 max</span>
-            </div>
-            <form method="POST" action="{{ route('admin.reset-api-calls') }}">
-                @csrf
-                <button type="submit" class="text-sm text-gray-400 hover:text-white">Reset counter</button>
-            </form>
-        </div>
-    </div>
-
     @if(session('status'))
         <div class="bg-green-900/50 border border-green-700 text-green-400 px-4 py-3 rounded">
             {{ session('status') }}
@@ -358,6 +344,31 @@
                     <br>War syncs (active wars, attacks) run every 5 minutes during peace time.
                 @endif
             </p>
+        </div>
+
+        <div class="mt-4 p-4 bg-gray-900/50 rounded border border-gray-700">
+            <div class="flex items-center justify-between">
+                <p class="text-gray-400 text-sm">
+                    <span class="text-yellow-400 font-semibold">Note:</span> 
+                    Torn API limits to 100 requests per minute. This system uses caching and smart reuse to stay well under that limit.
+                    @if($warActive ?? false)
+                        <br><span class="text-green-400">During active wars, only essential war syncs run every minute.</span>
+                    @else
+                        <br>War syncs (active wars, attacks) run every 5 minutes during peace time.
+                    @endif
+                </p>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <span class="text-gray-400 text-sm">Current:</span>
+                        <span class="text-2xl font-bold {{ $apiCallsLastMinute > 80 ? 'text-red-400' : ($apiCallsLastMinute > 50 ? 'text-yellow-400' : 'text-green-400') }}">{{ $apiCallsLastMinute }}</span>
+                        <span class="text-gray-500 text-sm">/ 100</span>
+                    </div>
+                    <form method="POST" action="{{ route('admin.reset-api-calls') }}">
+                        @csrf
+                        <button type="submit" class="text-xs text-gray-400 hover:text-white border border-gray-600 px-2 py-1 rounded">Reset</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
