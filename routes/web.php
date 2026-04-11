@@ -150,6 +150,7 @@ Route::get('/scripts', [ScriptsController::class, 'index']);
         
         Route::get('/admin/scheduled-jobs', [AdminController::class, 'scheduledJobs']);
         Route::put('/admin/scheduled-jobs/{job}', [AdminController::class, 'updateScheduledJob']);
-        Route::post('/admin/scheduled-jobs/seed', [AdminController::class, 'seedScheduledJobs']);
+        Route::post('/admin/scheduled-jobs/seed', [AdminController::class, 'seedScheduledJobs'])->name('admin.seed-scheduled-jobs');
+        Route::post('/admin/reset-api-calls', [AdminController::class, 'resetApiCalls'])->name('admin.reset-api-calls');
     });
 });

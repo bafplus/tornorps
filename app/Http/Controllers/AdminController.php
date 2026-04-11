@@ -25,7 +25,10 @@ class AdminController extends Controller
         // Get last run times for each API endpoint
         $apiSchedule = $this->getApiSchedule($warActive);
         
-        return view('admin.index', compact('settings', 'users', 'apiSchedule', 'warActive'));
+        // Get API calls in last minute
+        $apiCallsLastMinute = TornApiService::getApiCallsLastMinute();
+        
+        return view('admin.index', compact('settings', 'users', 'apiSchedule', 'warActive', 'apiCallsLastMinute'));
     }
 
     private function getApiSchedule(bool $warActive): array
@@ -538,5 +541,11 @@ class AdminController extends Controller
         }
 
         return back()->with('status', "Seeded: {$created} created, {$updated} updated.");
+    }
+
+    public function resetApiCalls()
+    {
+        TornApiService::resetApiCallsCounter();
+        return back()->with('status', 'API calls counter reset.');
     }
 }

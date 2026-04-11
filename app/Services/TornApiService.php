@@ -342,10 +342,27 @@ return $data;
 
     private function logApiCall(string $endpoint, array $params): void
     {
+        $key = 'api_calls_last_minute';
+        $calls = Cache::get($key, []);
+        $calls[] = ['endpoint' => $endpoint, 'time' => time()];
+        $calls = array_filter($calls, fn($c) => $c['time'] > time() - 60);
+        Cache::put($key, $calls, 120);
+
         Log::info('Torn API Call', [
             'endpoint' => $endpoint,
             'params' => array_diff_key($params, ['key' => ''])
         ]);
+    }
+
+    public static function getApiCallsLastMinute(): int
+    {
+        $calls = Cache::get('api_calls_last_minute', []);
+        return count(array_filter($calls, fn($c) => $c['time'] > time() - 60));
+    }
+
+    public static function resetApiCallsCounter(): void
+    {
+        Cache::forget('api_calls_last_minute');
     }
 
     public function getUserMeritsV1(int $playerId, ?string $apiKey = null): ?array

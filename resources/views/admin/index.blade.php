@@ -16,6 +16,20 @@
     </div>
     @endif
 
+    <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+        <div class="flex items-center justify-between">
+            <div>
+                <span class="text-gray-400">API Calls (last minute):</span>
+                <span class="text-2xl font-bold ml-2 {{ $apiCallsLastMinute > 80 ? 'text-red-400' : ($apiCallsLastMinute > 50 ? 'text-yellow-400' : 'text-green-400') }}">{{ $apiCallsLastMinute }}</span>
+                <span class="text-gray-500 text-sm">/ 100 max</span>
+            </div>
+            <form method="POST" action="{{ route('admin.reset-api-calls') }}">
+                @csrf
+                <button type="submit" class="text-sm text-gray-400 hover:text-white">Reset counter</button>
+            </form>
+        </div>
+    </div>
+
     @if(session('status'))
         <div class="bg-green-900/50 border border-green-700 text-green-400 px-4 py-3 rounded">
             {{ session('status') }}
