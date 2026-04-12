@@ -50,7 +50,7 @@ class AdminController extends Controller
         
         foreach ($map as $cmd => $i) {
             $job = $dbJobsFull[$cmd] ?? null;
-            $cron = $job?->cron_expression ?? null;
+            $cron = trim($job?->cron_expression ?? '');
             if ($warActive && $job?->war_cron) {
                 $cron = $job->war_cron;
             }
@@ -75,12 +75,15 @@ class AdminController extends Controller
 
     private function formatCron(string $cron): string
     {
-        if ($cron === '*/1 * * * *') return 'Every 1 min';
-        if ($cron === '*/5 * * * *') return 'Every 5 min';
-        if ($cron === '*/10 * * * *') return 'Every 10 min';
-        if ($cron === '0 * * * *') return 'Hourly';
-        if ($cron === '0 0 * * *') return 'Daily';
-        return $cron;
+        $c = trim($cron);
+        if ($c === '*/1 * * * *') return 'Every 1 min';
+        if ($c === '*/5 * * * *') return 'Every 5 min';
+        if ($c === '*/10 * * * *') return 'Every 10 min';
+        if ($c === '0 * * * *') return 'Hourly';
+        if ($c === '0 0 * * *') return 'Daily';
+        if ($c === '0 1 * * *') return 'Daily at 01:00';
+        if ($c === '0 2 * * *') return 'Daily at 02:00';
+        return $c;
     }
 
     public function updateFactionSettings(Request $request)
