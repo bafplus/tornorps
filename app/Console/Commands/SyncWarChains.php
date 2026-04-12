@@ -26,6 +26,7 @@ class SyncWarChains extends Command
         $activeWars = RankedWar::where('status', 'in progress')->get();
         if ($activeWars->isEmpty()) {
             $log->update(['status' => 'skipped', 'completed_at' => now()]);
+            $this->info('No active wars - chains sync skipped.');
             return Command::SUCCESS;
         }
 
