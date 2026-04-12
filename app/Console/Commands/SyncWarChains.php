@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\FactionSettings;
 use App\Models\RankedWar;
 use App\Models\WarChain;
+use App\Models\DataRefreshLog;
 use App\Services\TornApiService;
 use Illuminate\Console\Command;
 
@@ -20,8 +21,11 @@ class SyncWarChains extends Command
             return Command::FAILURE;
         }
 
+        $log = DataRefreshLog::logStart('war_chains');
+
         $activeWars = RankedWar::where('status', 'in progress')->get();
         if ($activeWars->isEmpty()) {
+            $log->update(['status' => 'skipped', 'completed_at' => now()]);
             return Command::SUCCESS;
         }
 
@@ -32,6 +36,7 @@ class SyncWarChains extends Command
             $this->syncWarChain($war, $war->opponent_faction_id, $tornApi);
         }
 
+        $log->markComplete($activeWars->count());
         return Command::SUCCESS;
     }
 
