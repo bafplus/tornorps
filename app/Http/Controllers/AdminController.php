@@ -75,16 +75,15 @@ class AdminController extends Controller
 
     private function formatCron(string $cron): string
     {
-        \Illuminate\Support\Facades\Log::info('formatCron input', ['cron' => $cron, 'len' => strlen($cron), 'hex' => bin2hex($cron)]);
-        $c = trim($cron);
-        if ($c === '*/1 * * * *') return 'Every 1 min';
-        if ($c === '*/5 * * * *') return 'Every 5 min';
-        if ($c === '*/10 * * * *') return 'Every 10 min';
-        if ($c === '0 * * * *') return 'Hourly';
-        if ($c === '0 0 * * *') return 'Daily';
-        if ($c === '0 1 * * *') return 'Daily at 01:00';
-        if ($c === '0 2 * * *') return 'Daily at 02:00';
-        return '[' . $c . ']';
+        $c = str_replace(['*/', '  ', ' '], ['*/', ' ', ''], trim($cron));
+        if ($c === '*/1***') return 'Every 1 min';
+        if ($c === '*/5***') return 'Every 5 min';
+        if ($c === '*/10***') return 'Every 10 min';
+        if ($c === '0***') return 'Hourly';
+        if ($c === '00***') return 'Daily';
+        if ($c === '01***') return 'Daily at 01:00';
+        if ($c === '02***') return 'Daily at 02:00';
+        return $cron;
     }
 
     public function updateFactionSettings(Request $request)
