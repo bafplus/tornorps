@@ -51,77 +51,32 @@ class AdminController extends Controller
             $schedule[$i['k']] = ['name'=>$cmd,'schedule'=>$cron?$cron:'Not set','description'=>$i['d'],'api_calls'=>$i['c'],'essential'=>$i['e']];
         }
         
-        return $schedule;
-    }
-            'ranked_wars' => [
-                'name' => 'torn:sync-wars',
-                'schedule' => 'Every 10 min',
-                'description' => 'Syncs ranked wars list',
-                'api_calls' => '1 call',
-                'essential' => false,
-            ],
-            'active_wars' => [
-                'name' => 'torn:sync-active',
-                'schedule' => 'War: Every 1 min',
-                'description' => 'War updates with scores and member status',
-                'api_calls' => '1 call per opponent',
-                'essential' => true,
-            ],
-            'war_attacks' => [
-                'name' => 'torn:sync-attacks',
-                'schedule' => 'War: Every 1 min',
-                'description' => 'Syncs war attack details',
-                'api_calls' => 'New attacks only',
-                'essential' => true,
-            ],
-            'war_chains' => [
-                'name' => 'torn:sync-chains',
-                'schedule' => 'War: Every 1 min',
-                'description' => 'Syncs war chain data',
-                'api_calls' => '1 call',
-                'essential' => true,
-            ],
-            'check_membership' => [
-                'name' => 'torn:check-faction-membership',
-                'schedule' => 'Every 6 hours',
-                'description' => 'Checks if users are still in faction',
-                'api_calls' => '1 call',
-                'essential' => false,
-            ],
-            'stocks' => [
-                'name' => 'torn:sync-stocks',
-                'schedule' => 'Daily (01:00)',
-                'description' => 'Syncs stock prices',
-                'api_calls' => '1 call',
-                'essential' => false,
-            ],
-            'items' => [
-                'name' => 'torn:sync-items',
-                'schedule' => 'Daily (02:00)',
-                'description' => 'Syncs item market data',
-                'api_calls' => '1 call',
-                'essential' => false,
-            ],
+        private function getApiSchedule(bool $warActive): array
+    {
+        $dbJobs = ScheduledJob::pluck('cron_expression', 'command')->toArray();
+        
+        $map = [
+            'torn:sync-faction' => ['k'=>'faction_sync','d'=>'Syncs faction members','c'=>'1','e'=>0],
+            'torn:sync-ffstats' => ['k'=>'ff_stats','d'=>'Syncs FF stats','c'=>'1','e'=>0],
+            'torn:sync-wars' => ['k'=>'ranked_wars','d'=>'Syncs ranked wars','c'=>'1','e'=>0],
+            'torn:sync-active' => ['k'=>'active_wars','d'=>'War updates','c'=>'1','e'=>1],
+            'torn:sync-attacks' => ['k'=>'war_attacks','d'=>'War attacks','c'=>'1','e'=>1],
+            'torn:sync-chains' => ['k'=>'war_chains','d'=>'War chains','c'=>'1','e'=>1],
+            'torn:sync-stocks' => ['k'=>'stocks','d'=>'Syncs stocks','c'=>'1','e'=>0],
+            'torn:sync-items' => ['k'=>'items','d'=>'Syncs items','c'=>'1','e'=>0],
         ];
-
-        // Get last run times
+        
+        foreach ($map as $cmd => $i) {
+            $cron = $dbJobs[$cmd] ?? null;
+            $schedule[$i['k']] = ['name'=>$cmd,'schedule'=>$cron?:'Not set','description'=>$i['d'],'api_calls'=>$i['c'],'essential'=>(bool)$i['e']];
+        }
+        
         foreach ($schedule as $key => &$item) {
-            $lastRun = DataRefreshLog::where('data_type', $key)
-                ->where('status', 'completed')
-                ->latest('completed_at')
-                ->first();
-            
+            $lastRun = DataRefreshLog::where('data_type', $key)->where('status', 'completed')->latest('completed_at')->first();
             $item['last_run'] = $lastRun?->completed_at?->diffForHumans() ?? 'Never';
             $item['last_run_at'] = $lastRun?->completed_at;
             $item['disabled'] = $warActive && !$item['essential'];
         }
-
-        // Sort by next run (last run + 5 minutes)
-        uasort($schedule, function ($a, $b) {
-            $aTime = $a['last_run_at'] ? $a['last_run_at']->addMinutes(5)->timestamp : 0;
-            $bTime = $b['last_run_at'] ? $b['last_run_at']->addMinutes(5)->timestamp : 0;
-            return $aTime - $bTime;
-        });
 
         return $schedule;
     }
