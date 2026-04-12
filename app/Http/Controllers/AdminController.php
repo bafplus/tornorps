@@ -35,50 +35,24 @@ class AdminController extends Controller
     {
         $dbJobs = ScheduledJob::pluck('cron_expression', 'command')->toArray();
         
-        $schedule = [];
-        
-        $jobMap = [
-            'torn:sync-faction' => ['key' => 'faction_sync', 'desc' => 'Syncs faction members', 'calls' => '1', 'essential' => false],
-            'torn:sync-ffstats' => ['key' => 'ff_stats', 'desc' => 'Syncs FF stats', 'calls' => '1', 'essential' => false],
-            'torn:sync-wars' => ['key' => 'ranked_wars', 'desc' => 'Syncs ranked wars', 'calls' => '1', 'essential' => false],
-            'torn:sync-active' => ['key' => 'active_wars', 'desc' => 'War updates', 'calls' => '1', 'essential' => true],
-            'torn:sync-attacks' => ['key' => 'war_attacks', 'desc' => 'War attacks', 'calls' => '1', 'essential' => true],
-            'torn:sync-chains' => ['key' => 'war_chains', 'desc' => 'War chains', 'calls' => '1', 'essential' => true],
-            'torn:sync-stocks' => ['key' => 'stocks', 'desc' => 'Syncs stocks', 'calls' => '1', 'essential' => false],
-            'torn:sync-items' => ['key' => 'items', 'desc' => 'Syncs items', 'calls' => '1', 'essential' => false],
+        $map = [
+            'torn:sync-faction' => ['k'=>'faction_sync','d'=>'Syncs faction members','c'=>'1','e'=>0],
+            'torn:sync-ffstats' => ['k'=>'ff_stats','d'=>'Syncs FF stats','c'=>'1','e'=>0],
+            'torn:sync-wars' => ['k'=>'ranked_wars','d'=>'Syncs ranked wars','c'=>'1','e'=>0],
+            'torn:sync-active' => ['k'=>'active_wars','d'=>'War updates','c'=>'1','e'=>1],
+            'torn:sync-attacks' => ['k'=>'war_attacks','d'=>'War attacks','c'=>'1','e'=>1],
+            'torn:sync-chains' => ['k'=>'war_chains','d'=>'War chains','c'=>'1','e'=>1],
+            'torn:sync-stocks' => ['k'=>'stocks','d'=>'Syncs stocks','c'=>'1','e'=>0],
+            'torn:sync-items' => ['k'=>'items','d'=>'Syncs items','c'=>'1','e'=>0],
         ];
         
-        foreach ($jobMap as $cmd => $info) {
+        foreach ($map as $cmd => $i) {
             $cron = $dbJobs[$cmd] ?? null;
-            $schedule[$info['key']] = [
-                'name' => $cmd,
-                'schedule' => $cron ? $this->formatCron($cron) : 'Not scheduled',
-                'description' => $info['desc'],
-                'api_calls' => $info['calls'],
-                'essential' => $info['essential'],
-            ];
+            $schedule[$i['k']] = ['name'=>$cmd,'schedule'=>$cron?$cron:'Not set','description'=>$i['d'],'api_calls'=>$i['c'],'essential'=>$i['e']];
         }
         
         return $schedule;
     }
-    
-    private function formatCron(string $cron): string
-    {
-        if ($cron === '*/5 * * * *') return 'Every 5 min';
-        if ($cron === '*/10 * * * *') return 'Every 10 min';
-        if ($cron === '*/1 * * * *') return 'Every 1 min';
-        if ($cron === '0 * * * *') return 'Every hour';
-        if ($cron === '0 0 * * *') return 'Daily';
-        return $cron;
-    }
-            ],
-            'ff_stats' => [
-                'name' => 'torn:sync-ffstats',
-                'schedule' => 'Every 10 min',
-                'description' => 'Syncs FF stats via FF Scouter API',
-                'api_calls' => '1 batch call',
-                'essential' => false,
-            ],
             'ranked_wars' => [
                 'name' => 'torn:sync-wars',
                 'schedule' => 'Every 10 min',
