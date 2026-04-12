@@ -135,11 +135,13 @@ php artisan cache:clear
 # Normal: faction sync every 10 min, stocks every 10 min
 sleep 5
 
-# Copy war-sync wrapper script
+# Copy war-sync wrapper script (always fresh copy)
+rm -f /usr/local/bin/torn-sync-wrapper.sh
 cp /var/www/html/docker/war-sync.sh /usr/local/bin/torn-sync-wrapper.sh
 chmod +x /usr/local/bin/torn-sync-wrapper.sh
 
 # Main sync wrapper (runs every minute)
+rm -f /etc/cron.d/tornops-sync
 echo "* * * * * root /usr/local/bin/torn-sync-wrapper.sh >> /dev/null 2>&1" > /etc/cron.d/tornops-sync
 
 # Backup: ensure war syncs run if wrapper fails (every minute)
