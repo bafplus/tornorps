@@ -75,7 +75,7 @@ class AdminController extends Controller
 
     private function formatCron(string $cron): string
     {
-        $c = str_replace(['*/', '  ', ' '], ['*/', ' ', ''], trim($cron));
+        $c = preg_replace('/\s+/', '', trim($cron));
         if ($c === '*/1***') return 'Every 1 min';
         if ($c === '*/5***') return 'Every 5 min';
         if ($c === '*/10***') return 'Every 10 min';
