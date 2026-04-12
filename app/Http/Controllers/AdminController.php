@@ -118,7 +118,7 @@ class AdminController extends Controller
             return $aTime - $bTime;
         });
 
-        return $schedule;
+return $schedule;
     }
 
     public function updateFactionSettings(Request $request)
