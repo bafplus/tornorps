@@ -56,7 +56,7 @@ class AdminController extends Controller
             }
             $schedule[$i['k']] = [
                 'name' => $cmd,
-                'schedule' => $cron ?: 'Not set',
+                'schedule' => $cron ? $this->formatCron($cron) : 'Not set',
                 'description' => $i['d'],
                 'api_calls' => $i['c'],
                 'essential' => (bool)$i['e']
@@ -71,6 +71,16 @@ class AdminController extends Controller
         }
 
         return $schedule;
+    }
+
+    private function formatCron(string $cron): string
+    {
+        if ($cron === '*/1 * * * *') return 'Every 1 min';
+        if ($cron === '*/5 * * * *') return 'Every 5 min';
+        if ($cron === '*/10 * * * *') return 'Every 10 min';
+        if ($cron === '0 * * * *') return 'Hourly';
+        if ($cron === '0 0 * * *') return 'Daily';
+        return $cron;
     }
 
     public function updateFactionSettings(Request $request)
