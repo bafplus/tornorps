@@ -103,16 +103,6 @@ class AdminController extends Controller
         return $cron ?: 'Not set';
     }
 
-    private function getLegacyApiSchedule(bool $warActive): array
-        if ($c === '*/5***') return 'Every 5 min';
-        if ($c === '*/10***') return 'Every 10 min';
-        if ($c === '0***') return 'Hourly';
-        if ($c === '00***') return 'Daily';
-        if ($c === '01***') return 'Daily at 01:00';
-        if ($c === '02***') return 'Daily at 02:00';
-        return $cron;
-    }
-
     public function updateFactionSettings(Request $request)
     {
         $request->validate([
