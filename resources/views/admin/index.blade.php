@@ -306,7 +306,7 @@
                         <td class="p-3">
                             <form method="POST" action="/admin/job/{{ str_replace('torn:', '', $item['name']) }}" class="flex gap-1">
                                 @csrf
-                                <select name="schedule" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white text-xs">
+                                <select name="schedule" onchange="this.form.submit()" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white text-xs">
                                     @foreach($cronOptions as $val => $label)
                                     <option value="{{ $val }}" {{ $item['schedule_raw'] === $val ? 'selected' : '' }}>{{ $label }}</option>
                                     @endforeach
@@ -317,12 +317,11 @@
                             @if($warModeEnabled)
                             <form method="POST" action="/admin/job/{{ str_replace('torn:', '', $item['name']) }}" class="flex gap-1">
                                 @csrf
-                                <select name="war_schedule" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white text-xs">
+                                <select name="war_schedule" onchange="this.form.submit()" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white text-xs">
                                     @foreach($cronOptions as $val => $label)
                                     <option value="{{ $val }}" {{ $item['war_schedule_raw'] === $val ? 'selected' : '' }}>{{ $label }}</option>
                                     @endforeach
                                 </select>
-                            </form>
                             @else
                             <span class="text-gray-500 text-xs">—</span>
                             @endif
