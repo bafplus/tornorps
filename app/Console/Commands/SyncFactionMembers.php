@@ -7,7 +7,6 @@ use App\Models\FactionMember;
 use App\Models\DataRefreshLog;
 use App\Services\TornApiService;
 use App\Services\FFScouterService;
-use App\Services\WarService;
 use Illuminate\Console\Command;
 
 class SyncFactionMembers extends Command
@@ -17,11 +16,6 @@ class SyncFactionMembers extends Command
 
     public function handle(TornApiService $tornApi, FFScouterService $ffscouter): int
     {
-        if (!WarService::canFetchNonEssentialData() && !$this->option('force')) {
-            $this->warn('Member sync skipped: Active war detected. Non-essential API calls are disabled.');
-            return Command::SUCCESS;
-        }
-
         $factionId = $this->argument('faction_id') ?? FactionSettings::value('faction_id');
 
         if (!$factionId) {

@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Services\TornApiService;
-use App\Services\WarService;
 use App\Models\FactionSettings;
 use App\Models\StockHistory;
 use App\Models\DataRefreshLog;
@@ -19,12 +18,6 @@ class SyncStocks extends Command
     {
         $log = DataRefreshLog::logStart('stocks');
         
-        if (!WarService::canFetchNonEssentialData() && !$this->option('force')) {
-            $this->warn('Stock sync skipped: Active war detected. Non-essential API calls are disabled.');
-            $log->skip('Active war, non-essential');
-            return 0;
-        }
-
         $settings = FactionSettings::first();
         $apiKey = $settings?->torn_api_key;
         

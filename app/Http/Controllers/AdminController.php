@@ -88,6 +88,13 @@ class AdminController extends Controller
         $schedule = $request->input('schedule');
         $warSchedule = $request->input('war_schedule');
         
+        \Illuminate\Support\Facades\Log::info('updateJobSchedule', [
+            'job' => $job,
+            'schedule' => $schedule,
+            'schedule_type' => gettype($schedule),
+            'warSchedule' => $warSchedule,
+        ]);
+        
         // Allow empty string to save (means "Never"/disable)
         if ($schedule !== null) {
             $jobModel->cron_expression = $schedule;

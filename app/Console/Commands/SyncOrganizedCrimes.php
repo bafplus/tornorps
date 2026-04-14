@@ -8,7 +8,6 @@ use App\Models\OrganizedCrimeSlot;
 use App\Models\FactionMember;
 use App\Models\DataRefreshLog;
 use App\Services\TornApiService;
-use App\Services\WarService;
 use Illuminate\Console\Command;
 
 class SyncOrganizedCrimes extends Command
@@ -18,11 +17,6 @@ class SyncOrganizedCrimes extends Command
 
     public function handle(TornApiService $tornApi): int
     {
-        if (!WarService::canFetchNonEssentialData() && !$this->option('force')) {
-            $this->warn('OC sync skipped: Active war detected. Non-essential API calls are disabled.');
-            return Command::SUCCESS;
-        }
-
         $factionId = $this->argument('faction_id') ?? FactionSettings::value('faction_id');
 
         if (!$factionId) {
