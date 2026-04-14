@@ -42,7 +42,7 @@ class AdminController extends Controller
         foreach ($jobs as $job) {
             $key = match($job->command) {
                 'torn:sync-faction' => 'faction_sync',
-                'torn:sync-ffstats' => 'ff_stats',
+                'torn:sync-ffstats' => 'member_stats',
                 'torn:sync-wars' => 'ranked_wars',
                 'torn:sync-active' => 'active_wars',
                 'torn:sync-attacks' => 'war_attacks',
