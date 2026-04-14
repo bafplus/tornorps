@@ -25,12 +25,17 @@ foreach (\$jobs as \$j) {
     
     // Parse interval from cron
     \$interval = 60; // default 1 minute
-    if (preg_match('/^\*\/(\d+)\s+\*/', \$cron, \$m)) {
+    if (!\$cron || \$cron === '') {
+        // Skip if no cron set (Never/disabled)
+        echo 'SKIP';
+    } else if (preg_match('/^\*\/(\d+)\s+\*/', \$cron, \$m)) {
         \$interval = (int)\$m[1] * 60;
     } else if (\$cron === '0 * * * *') {
         \$interval = 3600;
     } else if (str_starts_with(\$cron, '0 0')) {
         \$interval = 86400;
+    } else {
+        echo 'SKIP';
     }
     
     // Get last run time
@@ -45,6 +50,7 @@ foreach (\$jobs as \$j) {
 # Parse jobs and run if interval has passed
 echo "$JOBS_DATA" | while IFS='|' read -r cmd interval lastRun; do
     [ -z "$cmd" ] && continue
+    [ "$interval" = "SKIP" ] && continue
     
     CURRENT_TIME=$(date +%s)
     ELAPSED=$((CURRENT_TIME - lastRun))

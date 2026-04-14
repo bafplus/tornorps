@@ -88,10 +88,11 @@ class AdminController extends Controller
         $schedule = $request->input('schedule');
         $warSchedule = $request->input('war_schedule');
         
-        if ($schedule !== null && $schedule !== '') {
+        // Allow empty string to save (means "Never"/disable)
+        if ($schedule !== null) {
             $jobModel->cron_expression = $schedule;
         }
-        if ($warSchedule !== null && $warSchedule !== '') {
+        if ($warSchedule !== null) {
             $jobModel->war_cron = $warSchedule;
         }
         
@@ -99,12 +100,14 @@ class AdminController extends Controller
         return back()->with('status', 'Schedule updated');
     }
 
-    private function formatCron(string $cron): string
+private function formatCron(string $cron): string
     {
+        if ($cron === '' || $cron === null) return 'Never';
+        
         $c = preg_replace('/\s+/', '', trim($cron));
         if ($c === '*/1*****') return 'Every 1 min';
         if ($c === '*/5*****') return 'Every 5 min';
-        if ($c === '*/10***') return 'Every 10 min';
+        if ($c === '*/10***') return 'Every 5 min';
         if ($c === '*/30***') return 'Every 30 min';
         if ($c === '0****') return 'Hourly';
         if ($c === '00***') return 'Daily';
