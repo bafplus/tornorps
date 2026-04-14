@@ -342,7 +342,7 @@
                                 'war_chains' => 'chains',
                                 'ocs' => 'ocs',
                                 'stocks' => 'stocks',
-                                'items' => 'stocks',
+                                'items' => 'items',
                             ];
                             $route = $routeMap[$key] ?? 'wars';
                             @endphp

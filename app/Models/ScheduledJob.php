@@ -16,11 +16,13 @@ class ScheduledJob extends Model
         'war_cron',
         'api_info',
         'api_est',
+        'last_run_at',
     ];
 
     protected $casts = [
         'enabled' => 'boolean',
         'war_mode_only' => 'boolean',
+        'last_run_at' => 'datetime',
     ];
 
     public static function isWarMode(): bool
