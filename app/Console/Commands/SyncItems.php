@@ -53,7 +53,7 @@ class SyncItems extends Command
         }
 
         $this->info("Synced {$synced} items.");
-        $log->complete();
+        $log->markComplete();
         return Command::SUCCESS;
     }
 }

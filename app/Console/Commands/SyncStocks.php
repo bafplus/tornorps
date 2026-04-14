@@ -64,7 +64,7 @@ class SyncStocks extends Command
         }
 
         $this->info("Synced {$count} stocks and saved to history.");
-        $log->complete();
+        $log->markComplete();
         return 0;
     }
 }
