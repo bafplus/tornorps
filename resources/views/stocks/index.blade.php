@@ -239,14 +239,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             <th class="p-3 cursor-pointer hover:text-white" data-sort="id" data-dir="asc">ID <span class="sort-icon">↑</span></th>
                             <th class="p-3 cursor-pointer hover:text-white" data-sort="name" data-dir="asc">Stock <span class="sort-icon">↑</span></th>
                             <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="price" data-dir="desc">Price <span class="sort-icon">↓</span></th>
-                            <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="change_24h" data-dir="desc">24h / 7d <span class="sort-icon">↓</span></th>
-                            <th class="p-3">7d Chart</th>
+                            <th class="p-3 text-right cursor-pointer hover:text-white" data-sort="change_24h" data-dir="desc">24h / 48h <span class="sort-icon">↓</span></th>
+                            <th class="p-3">24h Chart</th>
                             <th class="p-3">Bonus</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-700">
                         @foreach($stocks as $stock)
-                        <tr class="hover:bg-gray-700/30" data-id="{{ $stock['id'] }}" data-name="{{ strtolower($stock['name']) }}" data-price="{{ $stock['price'] }}" data-change_24h="{{ $stock['change_24h'] ?? 0 }}" data-change_7d="{{ $stock['change_7d'] ?? 0 }}" data-shares="{{ $stock['shares'] ?? 0 }}">
+                        <tr class="hover:bg-gray-700/30" data-id="{{ $stock['id'] }}" data-name="{{ strtolower($stock['name']) }}" data-price="{{ $stock['price'] }}" data-change_24h="{{ $stock['change_24h'] ?? 0 }}" data-change_48h="{{ $stock['change_48h'] ?? 0 }}" data-shares="{{ $stock['shares'] ?? 0 }}">
                             <td class="p-3 font-mono text-gray-400">{{ $stock['id'] }}</td>
                             <td class="p-3">
                                 <div class="flex items-center gap-2">
@@ -280,10 +280,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                         @endif
                                     </div>
                                     <div class="flex items-center gap-1">
-                                        <span class="text-gray-500 w-6">7d</span>
-                                        @if($stock['price_7d_ago'] !== null)
-                                            <span class="font-mono">${{ number_format($stock['price_7d_ago'], 2) }}</span>
-                                            @if($stock['change_7d'] > 0)<span class="text-green-400">▲</span>@elseif($stock['change_7d'] < 0)<span class="text-red-400">▼</span>@endif
+                                        <span class="text-gray-500 w-6">48h</span>
+                                        @if($stock['price_48h_ago'] !== null)
+                                            <span class="font-mono">${{ number_format($stock['price_48h_ago'], 2) }}</span>
+                                            @if($stock['change_48h'] > 0)<span class="text-green-400">▲</span>@elseif($stock['change_48h'] < 0)<span class="text-red-400">▼</span>@endif
                                         @else
                                             <span class="text-gray-600">-</span>
                                         @endif
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         @if($history && $history->count() > 0)
         <div class="mt-6 bg-gray-800 rounded-lg border border-gray-700 p-6">
-            <h2 class="text-xl font-semibold mb-4 text-gray-300">Price History (7 days)</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-300">Price History (24 hours)</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>

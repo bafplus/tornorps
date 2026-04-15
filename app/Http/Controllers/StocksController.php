@@ -95,8 +95,8 @@ class StocksController extends Controller
             $dayAgo = \App\Models\StockHistory::where('stock_id', $stockId)
                 ->whereDate('recorded_at', now()->subDay())
                 ->value('price');
-            $weekAgo = \App\Models\StockHistory::where('stock_id', $stockId)
-                ->whereDate('recorded_at', now()->subDays(7))
+            $day2Ago = \App\Models\StockHistory::where('stock_id', $stockId)
+                ->whereDate('recorded_at', now()->subHours(24))
                 ->value('price');
             
             return [
@@ -107,8 +107,8 @@ class StocksController extends Controller
                 'shares' => $market['shares'] ?? 0,
                 'price_24h_ago' => $dayAgo,
                 'change_24h' => $dayAgo > 0 ? (($price - $dayAgo) / $dayAgo * 100) : null,
-                'price_7d_ago' => $weekAgo,
-                'change_7d' => $weekAgo > 0 ? (($price - $weekAgo) / $weekAgo * 100) : null,
+                'price_48h_ago' => $day2Ago,
+                'change_48h' => $day2Ago > 0 ? (($price - $day2Ago) / $day2Ago * 100) : null,
                 'bonus_passive' => $bonus['passive'] ?? false,
                 'bonus_requirement' => $bonus['requirement'] ?? 0,
                 'bonus_payout' => $bonus['description'] ?? '',
@@ -153,9 +153,9 @@ class StocksController extends Controller
             ];
         })->sortByDesc('roi_percent')->values();
 
-        // Get history for chart
+        // Get history for chart (24 hours)
         $history = \App\Models\StockHistory::selectRaw('stock_id, acronym, name, recorded_at, price')
-            ->where('recorded_at', '>=', now()->subDays(7)->toDateString())
+            ->where('created_at', '>=', now()->subHours(24))
             ->orderBy('recorded_at')
             ->get()
             ->groupBy('stock_id');
