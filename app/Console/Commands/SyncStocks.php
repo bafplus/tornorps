@@ -38,12 +38,15 @@ class SyncStocks extends Command
             return 1;
         }
 
-        $today = now()->toDateString();
+        $now = now();
         $count = 0;
+        
+        // Cleanup old records (keep max 24 hours)
+        StockHistory::where('created_at', '<', $now->subHours(24))->delete();
         
         foreach ($rawStocks as $stock) {
             StockHistory::updateOrCreate(
-                ['stock_id' => $stock['id'] ?? 0, 'recorded_at' => $today],
+                ['stock_id' => $stock['id'] ?? 0],
                 [
                     'name' => $stock['name'] ?? '',
                     'acronym' => $stock['acronym'] ?? '',
@@ -51,6 +54,7 @@ class SyncStocks extends Command
                     'investors' => $stock['market']['investors'] ?? 0,
                     'shares' => $stock['market']['shares'] ?? 0,
                     'market_cap' => $stock['market']['cap'] ?? 0,
+                    'recorded_at' => $now,
                 ]
             );
             $count++;

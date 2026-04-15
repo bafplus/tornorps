@@ -31,15 +31,18 @@ class StocksController extends Controller
             return $tornApi->getStocks($apiKey);
         });
 
-        // Save to history if not already saved today
+        // Save to history hourly
         if ($rawStocks) {
-            $today = now()->toDateString();
-            $existsToday = \App\Models\StockHistory::where('recorded_at', $today)->exists();
+            $now = now();
+            $hourKey = $now->format('Y-m-d H');
             
-            if (!$existsToday) {
-                // Cleanup old records (keep max 24 hours)
-                \App\Models\StockHistory::where('created_at', '<', now()->subHours(24))->delete();
-                
+            // Cleanup old records (keep max 24 hours)
+            \App\Models\StockHistory::where('created_at', '<', $now->subHours(24))->delete();
+            
+            // Check if we already synced this hour
+            $existsThisHour = \App\Models\StockHistory::where('created_at', '>=', $now->startOfHour())->exists();
+            
+            if (!$existsThisHour) {
                 foreach ($rawStocks as $stock) {
                     \App\Models\StockHistory::create([
                         'stock_id' => $stock['id'] ?? 0,
@@ -49,7 +52,7 @@ class StocksController extends Controller
                         'investors' => $stock['market']['investors'] ?? 0,
                         'shares' => $stock['market']['shares'] ?? 0,
                         'market_cap' => $stock['market']['cap'] ?? 0,
-                        'recorded_at' => $today,
+                        'recorded_at' => $now,
                     ]);
                 }
             }
@@ -273,13 +276,13 @@ class StocksController extends Controller
             return back()->with('error', 'Failed to fetch stock data.');
         }
 
-        // Cleanup old records (keep max 7 days)
-        \App\Models\StockHistory::where('recorded_at', '<', now()->subDays(7)->toDateString())->delete();
+        // Cleanup old records (keep max 24 hours)
+        \App\Models\StockHistory::where('created_at', '<', now()->subHours(24))->delete();
         
-        $today = now()->toDateString();
+        $now = now();
         foreach ($rawStocks as $stock) {
             \App\Models\StockHistory::updateOrCreate(
-                ['stock_id' => $stock['id'] ?? 0, 'recorded_at' => $today],
+                ['stock_id' => $stock['id'] ?? 0],
                 [
                     'name' => $stock['name'] ?? '',
                     'acronym' => $stock['acronym'] ?? '',

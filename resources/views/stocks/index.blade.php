@@ -351,8 +351,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <thead>
                         <tr class="text-left text-gray-400">
                             <th class="p-2">Stock</th>
-                            @foreach($history->first()->sortBy('recorded_at') as $day)
-                                <th class="p-2 text-right">{{ $day->recorded_at->format('H:i') }}</th>
+                            @foreach($history->first()->sortBy('created_at') as $day)
+                                <th class="p-2 text-right">{{ $day->created_at->format('H:i') }}</th>
                             @endforeach
                             <th class="p-2 text-right">Change</th>
                         </tr>
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tbody class="divide-y divide-gray-700">
                         @foreach($history as $stockId => $records)
                             @php
-                                $sorted = $records->sortBy('recorded_at');
+                                $sorted = $records->sortBy('created_at');
                                 $first = $sorted->first();
                                 $last = $sorted->last();
                                 $change = $first->price > 0 ? (($last->price - $first->price) / $first->price * 100) : 0;
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </td>
                                 @foreach($sorted as $day)
                                     <td class="p-2 text-right font-mono ${{
-                                        $day->price > ($sorted->where('recorded_at', '<', $day->recorded_at)->last()->price ?? $day->price)
+                                        $day->price > ($sorted->where('recorded_at', '<', $day->created_at)->last()->price ?? $day->price)
                                             ? 'text-green-400' : 'text-gray-400'
                                     }}">
                                         ${{ number_format($day->price, 2) }}
