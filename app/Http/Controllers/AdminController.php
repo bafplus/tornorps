@@ -57,7 +57,10 @@ class AdminController extends Controller
                 $runsPerMinute = 1 / 1440;
             }
             
-            $apiCalls = (int)($job->api_est ?? 1);
+            // Extract number from api_est (e.g., "1 call" -> 1, "5 calls" -> 5)
+            $apiCalls = (int) preg_replace('/[^0-9]/', '', $job->api_est ?? '1');
+            $apiCalls = $apiCalls ?: 1;
+            
             $totalExpected += $runsPerMinute * $apiCalls;
         }
         

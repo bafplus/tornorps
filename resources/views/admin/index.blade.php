@@ -296,7 +296,7 @@
                         <th class="p-3">Normal</th>
                         <th class="p-3">War</th>
                         <th class="p-3">Last Run</th>
-                        <th class="p-3">API</th>
+                        <th class="p-3">Calls</th>
                         <th class="p-3">Action</th>
                     </tr>
                 </thead>
