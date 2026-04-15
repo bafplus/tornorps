@@ -374,12 +374,12 @@
                     <div class="text-right">
                         <span class="text-gray-400 text-sm">Actual:</span>
                         <span class="text-2xl font-bold {{ $apiCallsLastMinute > 80 ? 'text-red-400' : ($apiCallsLastMinute > 50 ? 'text-yellow-400' : 'text-green-400') }}">{{ $apiCallsLastMinute }}</span>
-                        <span class="text-gray-500 text-sm">/ min</span>
+                        <span class="text-gray-500 text-sm">/min</span>
                     </div>
                     <div class="text-right">
                         <span class="text-gray-400 text-sm">Expected:</span>
-                        <span class="text-2xl font-bold {{ $expectedCallsPerHour > 100 ? 'text-red-400' : ($expectedCallsPerHour > 50 ? 'text-yellow-400' : 'text-green-400') }}">{{ $expectedCallsPerHour }}</span>
-                        <span class="text-gray-500 text-sm">/ hour</span>
+                        <span class="text-2xl font-bold {{ $expectedCallsPerMinute > 80 ? 'text-red-400' : ($expectedCallsPerMinute > 50 ? 'text-yellow-400' : 'text-green-400') }}">{{ $expectedCallsPerMinute }}</span>
+                        <span class="text-gray-500 text-sm">/min</span>
                     </div>
                     <form method="POST" action="{{ route('admin.reset-api-calls') }}">
                         @csrf

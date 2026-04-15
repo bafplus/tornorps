@@ -28,10 +28,10 @@ class AdminController extends Controller
         // Get ACTUAL API calls in last minute
         $apiCallsLastMinute = TornApiService::getApiCallsLastMinute();
         
-        // Calculate EXPECTED API calls per hour based on schedules
-        $expectedCallsPerHour = $this->calculateExpectedApiCalls($warActive);
+        // Calculate EXPECTED API calls per minute based on schedules
+        $expectedCallsPerMinute = $this->calculateExpectedApiCalls($warActive);
         
-        return view('admin.index', compact('settings', 'users', 'apiSchedule', 'warActive', 'apiCallsLastMinute', 'expectedCallsPerHour'));
+        return view('admin.index', compact('settings', 'users', 'apiSchedule', 'warActive', 'apiCallsLastMinute', 'expectedCallsPerMinute'));
     }
     
     private function calculateExpectedApiCalls(bool $isWarActive): int
@@ -47,21 +47,21 @@ class AdminController extends Controller
             $cron = $isWarMode && $job->war_cron ? $job->war_cron : $job->cron_expression;
             if (!$cron || $cron === '') continue;
             
-            // Calculate runs per hour based on cron
-            $runsPerHour = 60;
+            // Calculate runs per minute based on cron
+            $runsPerMinute = 1;
             if (preg_match('/^\*\/(\d+)\s+/', $cron, $m)) {
-                $runsPerHour = 60 / (int)$m[1];
+                $runsPerMinute = 1 / (int)$m[1];
             } elseif ($cron === '0 * * * *') {
-                $runsPerHour = 1;
+                $runsPerMinute = 1 / 60;
             } elseif (str_starts_with($cron, '0 0')) {
-                $runsPerHour = 1 / 24;
+                $runsPerMinute = 1 / 1440;
             }
             
             $apiCalls = (int)($job->api_est ?? 1);
-            $totalExpected += $runsPerHour * $apiCalls;
+            $totalExpected += $runsPerMinute * $apiCalls;
         }
         
-        return (int)$totalExpected;
+        return (int)$totalExpected; // Per minute
     }
 
     private function getApiSchedule(): array
