@@ -358,8 +358,10 @@ return $data;
             }
         }
         
-        // Log to database for history tracking
+        // Log to database for history tracking, cleanup old records (keep max 24h)
         try {
+            \App\Models\ApiCallLog::where('created_at', '<', now()->subHours(24))->delete();
+            
             \App\Models\ApiCallLog::create([
                 'endpoint' => $endpoint,
                 'job_command' => $jobCommand,
