@@ -347,16 +347,36 @@ return $data;
 
     private function logApiCall(string $endpoint, array $params): void
     {
+        // Get current job context if available
+        $jobCommand = null;
+        if (app()->bound('Illuminate\Console\Command')) {
+            try {
+                $command = app(Illuminate\Console\Command::class);
+                $jobCommand = $command->getName();
+            } catch (\Exception $e) {
+                // Not in command context
+            }
+        }
+        
+        // Log to database for history tracking
+        try {
+            \App\Models\ApiCallLog::create([
+                'endpoint' => $endpoint,
+                'job_command' => $jobCommand,
+                'calls_count' => 1,
+            ]);
+        } catch (\Exception $e) {
+            // Table might not exist yet
+        }
+        
+        // Also use file-based cache for last minute counter
         $key = 'api_calls_last_minute';
-        $calls = Cache::get($key, []);
-        $calls[] = ['endpoint' => $endpoint, 'time' => time()];
+        $calls = Cache::remember($key, 70, function () {
+            return [];
+        });
+        $calls[] = ['endpoint' => $endpoint, 'job' => $jobCommand, 'time' => time()];
         $calls = array_filter($calls, fn($c) => $c['time'] > time() - 60);
         Cache::put($key, $calls, 120);
-
-        Log::info('Torn API Call', [
-            'endpoint' => $endpoint,
-            'params' => array_diff_key($params, ['key' => ''])
-        ]);
     }
 
     public static function getApiCallsLastMinute(): int
