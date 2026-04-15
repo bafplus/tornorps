@@ -37,6 +37,9 @@ class StocksController extends Controller
             $existsToday = \App\Models\StockHistory::where('recorded_at', $today)->exists();
             
             if (!$existsToday) {
+                // Cleanup old records (keep max 24 hours)
+                \App\Models\StockHistory::where('recorded_at', '<', now()->subHours(24)->toDateString())->delete();
+                
                 foreach ($rawStocks as $stock) {
                     \App\Models\StockHistory::create([
                         'stock_id' => $stock['id'] ?? 0,
@@ -270,6 +273,9 @@ class StocksController extends Controller
             return back()->with('error', 'Failed to fetch stock data.');
         }
 
+        // Cleanup old records (keep max 7 days)
+        \App\Models\StockHistory::where('recorded_at', '<', now()->subDays(7)->toDateString())->delete();
+        
         $today = now()->toDateString();
         foreach ($rawStocks as $stock) {
             \App\Models\StockHistory::updateOrCreate(
