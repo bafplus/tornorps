@@ -38,7 +38,7 @@ class StocksController extends Controller
             
             if (!$existsToday) {
                 // Cleanup old records (keep max 24 hours)
-                \App\Models\StockHistory::where('recorded_at', '<', now()->subHours(24)->toDateString())->delete();
+                \App\Models\StockHistory::where('created_at', '<', now()->subHours(24))->delete();
                 
                 foreach ($rawStocks as $stock) {
                     \App\Models\StockHistory::create([

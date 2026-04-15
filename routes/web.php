@@ -98,43 +98,75 @@ Route::get('/scripts', [ScriptsController::class, 'index']);
         Route::delete('/admin/users/{user}', [AdminController::class, 'deleteUser']);
         
         Route::post('/admin/sync/factions', function () {
-            \Illuminate\Support\Facades\Artisan::call('torn:sync-faction');
-            return back()->with('status', 'Faction sync completed.');
+            try {
+                \Illuminate\Support\Facades\Artisan::call('torn:sync-faction');
+                return back()->with('status', 'Faction sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Sync failed: ' . $e->getMessage());
+            }
         });
         
-        Route::post('/admin/sync/members', function () {
+Route::post('/admin/sync/members', function () {
+            try {
             \Illuminate\Support\Facades\Artisan::call('torn:sync-members');
             return back()->with('status', 'Member sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error: ' . $e->getMessage());
+            }
         });
         
         Route::post('/admin/sync/wars', function () {
+            try {
             \Illuminate\Support\Facades\Artisan::call('torn:sync-wars');
             return back()->with('status', 'War sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error: ' . $e->getMessage());
+            }
         });
-
+ 
         Route::post('/admin/sync/active', function () {
+            try {
             \Illuminate\Support\Facades\Artisan::call('torn:sync-active', ['--force' => true]);
             return back()->with('status', 'Active wars sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error: ' . $e->getMessage());
+            }
         });
-
+ 
         Route::post('/admin/sync/attacks', function () {
+            try {
             \Illuminate\Support\Facades\Artisan::call('torn:sync-attacks', ['--force' => true]);
             return back()->with('status', 'War attacks sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error: ' . $e->getMessage());
+            }
         });
-
+ 
         Route::post('/admin/sync/chains', function () {
+            try {
             \Illuminate\Support\Facades\Artisan::call('torn:sync-chains');
             return back()->with('status', 'Chains sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error: ' . $e->getMessage());
+            }
         });
-
+ 
 Route::post('/admin/sync/stocks', function () {
+            try {
             \Illuminate\Support\Facades\Artisan::call('torn:sync-stocks');
             return back()->with('status', 'Stocks sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error: ' . $e->getMessage());
+            }
         });
         
         Route::post('/admin/sync/ocs', function () {
+            try {
             \Illuminate\Support\Facades\Artisan::call('torn:sync-ocs');
             return back()->with('status', 'OCs sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error: ' . $e->getMessage());
+            }
         });
         
         Route::get('/admin/logs', function () {
