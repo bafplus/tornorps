@@ -132,7 +132,10 @@ composer install --no-interaction --no-dev --ignore-platform-reqs --no-scripts |
 echo "Running post-install..."
 php artisan key:generate --force 2>/dev/null || true
 php artisan migrate --force
-php artisan package:discover --ansi
+php artisan cache:clear
+php artisan jobs:seed
+
+# Skip package:discover - not needed and can fail
 
 # Set Apache to run as www-data
 export APACHE_RUN_USER=www-data
