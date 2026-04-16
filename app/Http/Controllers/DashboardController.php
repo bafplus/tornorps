@@ -105,7 +105,10 @@ $ourMembers = $war->members()
         $userFfScore = null;
         $userId = Auth::id();
         if ($userId) {
-            $userFfScore = FactionMember::where('user_id', $userId)->value('ff_score');
+            $tornPlayerId = \App\Models\User::find($userId)?->torn_player_id;
+            if ($tornPlayerId) {
+                $userFfScore = FactionMember::where('player_id', $tornPlayerId)->value('ff_score');
+            }
         }
         
         $opponentMembers = $war->members()
