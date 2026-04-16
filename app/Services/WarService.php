@@ -76,21 +76,34 @@ class WarService
         return $baseRespect * $ffScore * $warBonus;
     }
 
-    public static function getTopTargets(array $members, int $count = 3): array
+    public static function getTopTargets(array $members, int $count = 3, ?float $userFfScore = null): array
     {
-        $scored = array_map(function ($member) {
+        if (!$userFfScore) {
+            $userFfScore = 1.0;
+        }
+
+        $maxFfScore = $userFfScore * 1.5;
+
+        $scored = array_map(function ($member) use ($userFfScore, $maxFfScore) {
             $ffScore = $member['ff_score'] ?? 1.0;
-            $member['respect_score'] = self::calculateRespectScore(
-                $member['level'] ?? 1,
-                $ffScore
-            );
+            $level = $member['level'] ?? 1;
+            
+            $member['respect_score'] = self::calculateRespectScore($level, $ffScore);
+            $member['attackable'] = $ffScore <= $maxFfScore;
+            
             return $member;
         }, $members);
 
-        usort($scored, function ($a, $b) {
+        $attackableTargets = array_values(array_filter($scored, fn($m) => $m['attackable'] ?? false));
+
+        if (empty($attackableTargets)) {
+            return array_slice($scored, 0, $count);
+        }
+
+        usort($attackableTargets, function ($a, $b) {
             return ($b['respect_score'] ?? 0) <=> ($a['respect_score'] ?? 0);
         });
 
-        return array_slice($scored, 0, $count);
+        return array_slice($attackableTargets, 0, $count);
     }
 }

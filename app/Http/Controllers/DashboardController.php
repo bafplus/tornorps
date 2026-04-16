@@ -11,6 +11,7 @@ use App\Models\OrganizedCrimeSlot;
 use App\Services\WarService;
 use App\Services\OCService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -101,6 +102,12 @@ $ourMembers = $war->members()
             ->orderBy('name')
             ->get();
         
+        $userFfScore = null;
+        $userId = Auth::id();
+        if ($userId) {
+            $userFfScore = FactionMember::where('user_id', $userId)->value('ff_score');
+        }
+        
         $opponentMembers = $war->members()
             ->where('faction_id', $war->opponent_faction_id)
             ->orderByRaw("CASE WHEN status_color = 'green' THEN 0 WHEN status_color = 'red' THEN 1 WHEN status_color = 'blue' THEN 2 ELSE 3 END")
@@ -117,7 +124,8 @@ $ourMembers = $war->members()
         
         $topTargets = \App\Services\WarService::getTopTargets(
             $opponentMembers->toArray(),
-            3
+            3,
+            $userFfScore
         );
         $topTargetIds = array_column($topTargets, 'player_id');
         
