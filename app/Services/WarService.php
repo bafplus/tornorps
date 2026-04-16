@@ -78,13 +78,10 @@ class WarService
 
     public static function getTopTargets(array $members, int $count = 3, ?float $userFfScore = null): array
     {
-        if (!$userFfScore) {
-            $userFfScore = 1.0;
-        }
-
+        $userFfScore = $userFfScore ?? 1.0;
         $maxFfScore = $userFfScore * 1.5;
 
-        $scored = array_map(function ($member) use ($userFfScore, $maxFfScore) {
+        $scored = array_map(function ($member) use ($maxFfScore) {
             $ffScore = $member['ff_score'] ?? 1.0;
             $level = $member['level'] ?? 1;
             
