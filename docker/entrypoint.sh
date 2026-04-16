@@ -40,18 +40,18 @@ mkdir -p storage/framework/cache/data storage/framework/sessions storage/framewo
 # Fix permissions for Apache - ensure all files are readable and executable
 find . -type f -exec chmod 644 {} \;
 find . -type d -exec chmod 755 {} \;
-chmod -R 775 storage storage/framework storage/logs bootstrap/cache
-chown -R 33:33 .
+chmod -R 777 storage storage/framework storage/logs bootstrap/cache
+chown -R www-data:www-data .
 
-chmod -R 775 storage/framework
+chmod -R 777 storage/framework
 chown -R www-data:www-data storage/framework
 
 mkdir -p storage/framework/cache/data
-chmod -R 775 storage/framework/cache/data
-chown -R www-data:www-data storage/framework/cache/data
-
-# Ensure cache data directory is writable
 chmod -R 777 storage/framework/cache/data
+
+# Ensure external /data directory exists for fresh installs
+mkdir -p /data
+chmod 777 /data
 
 # Fix /var/www permissions LAST (before supervisord starts)
 chown -R www-data:www-data /var/www
