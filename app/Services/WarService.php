@@ -84,14 +84,29 @@ class WarService
         $scored = array_map(function ($member) use ($maxFfScore) {
             $ffScore = $member['ff_score'] ?? 1.0;
             $level = $member['level'] ?? 1;
+            $statusColor = $member['status_color'] ?? '';
+            $data = $member['data'] ?? [];
+            $statusData = $data['status'] ?? [];
+            $until = $statusData['until'] ?? 0;
+            $remaining = $until > 0 ? max(0, $until - time()) : 0;
             
             $member['respect_score'] = self::calculateRespectScore($level, $ffScore);
             $member['attackable'] = $ffScore <= $maxFfScore;
             
+            $isAvailable = true;
+            if (in_array($statusColor, ['blue', 'red'])) {
+                $isAvailable = $remaining <= 300;
+            }
+            $member['is_available'] = $isAvailable;
+            
             return $member;
         }, $members);
 
-        $attackableTargets = array_values(array_filter($scored, fn($m) => $m['attackable'] ?? false));
+        $attackableTargets = array_values(array_filter($scored, fn($m) => ($m['attackable'] ?? false) && ($m['is_available'] ?? true)));
+
+        if (empty($attackableTargets)) {
+            $attackableTargets = array_values(array_filter($scored, fn($m) => $m['attackable'] ?? false));
+        }
 
         if (empty($attackableTargets)) {
             return array_slice($scored, 0, $count);
