@@ -102,36 +102,10 @@ $ourMembers = $war->members()
             ->orderBy('name')
             ->get();
         
-        $userFfScore = 1.0; // Default neutral FF
-        $userId = Auth::id();
-        if ($userId) {
-            $tornPlayerId = \App\Models\User::find($userId)?->torn_player_id;
-            if ($tornPlayerId) {
-                $userFfScore = FactionMember::where('player_id', $tornPlayerId)->value('ff_score') ?? 1.0;
-            } else {
-                // Try to get FF from faction members - current logged-in member user_id might match
-                $userFfScore = FactionMember::where('user_id', $userId)->value('ff_score') ?? 1.0;
-            }
-        }
-        
-        $opponentMembers = $war->members()
-            ->where('faction_id', $war->opponent_faction_id)
-            ->orderByRaw("CASE WHEN status_color = 'green' THEN 0 WHEN status_color = 'red' THEN 1 WHEN status_color = 'blue' THEN 2 ELSE 3 END")
-            ->orderByRaw("CASE WHEN (status_color = 'red' OR status_color = 'blue') AND data IS NOT NULL THEN json_extract(data, '$.status.until') ELSE 999999999999 END")
-            ->orderBy('name')
-            ->get()
-            ->map(function ($member) {
-                $member->respect_score = \App\Services\WarService::calculateRespectScore(
-                    $member->level ?? 1,
-                    $member->ff_score ?? 1.0
-                );
-                return $member;
-            });
-        
+        // Get top targets by respect - don't filter by user FF
         $topTargets = \App\Services\WarService::getTopTargets(
             $opponentMembers->toArray(),
-            3,
-            $userFfScore
+            3
         );
         $topTargetIds = array_column($topTargets, 'player_id');
         
