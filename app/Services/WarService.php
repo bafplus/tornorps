@@ -46,4 +46,51 @@ class WarService
     {
         return \App\Models\FactionSettings::value('faction_id');
     }
+
+    public static function calculateBaseRespect(int $level): float
+    {
+        if ($level <= 0) {
+            return 0.25;
+        }
+
+        $baseRespect = 0.25 + (log($level) * 0.15);
+
+        $lookup = [
+            1 => 0.25, 10 => 0.83, 20 => 1.00, 45 => 1.20, 100 => 1.40
+        ];
+
+        foreach ($lookup as $lvl => $respect) {
+            if ($level <= $lvl) {
+                return $respect;
+            }
+        }
+
+        return min($respect, 1.40);
+    }
+
+    public static function calculateRespectScore(int $level, float $ffScore): float
+    {
+        $baseRespect = self::calculateBaseRespect($level);
+        $warBonus = 2.0;
+
+        return $baseRespect * $ffScore * $warBonus;
+    }
+
+    public static function getTopTargets(array $members, int $count = 3): array
+    {
+        $scored = array_map(function ($member) {
+            $ffScore = $member['ff_score'] ?? 1.0;
+            $member['respect_score'] = self::calculateRespectScore(
+                $member['level'] ?? 1,
+                $ffScore
+            );
+            return $member;
+        }, $members);
+
+        usort($scored, function ($a, $b) {
+            return ($b['respect_score'] ?? 0) <=> ($a['respect_score'] ?? 0);
+        });
+
+        return array_slice($scored, 0, $count);
+    }
 }

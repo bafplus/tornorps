@@ -106,7 +106,20 @@ $ourMembers = $war->members()
             ->orderByRaw("CASE WHEN status_color = 'green' THEN 0 WHEN status_color = 'red' THEN 1 WHEN status_color = 'blue' THEN 2 ELSE 3 END")
             ->orderByRaw("CASE WHEN (status_color = 'red' OR status_color = 'blue') AND data IS NOT NULL THEN json_extract(data, '$.status.until') ELSE 999999999999 END")
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($member) {
+                $member->respect_score = \App\Services\WarService::calculateRespectScore(
+                    $member->level ?? 1,
+                    $member->ff_score ?? 1.0
+                );
+                return $member;
+            });
+        
+        $topTargets = \App\Services\WarService::getTopTargets(
+            $opponentMembers->toArray(),
+            3
+        );
+        $topTargetIds = array_column($topTargets, 'player_id');
         
         $ourFactionId = $settings->faction_id;
     $oppFactionId = $war->opponent_faction_id;
@@ -194,7 +207,7 @@ $ourMembers = $war->members()
 
     $travelMethod = FactionSettings::value('travel_method', 1);
 
-    return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain', 'oppActiveChain', 'travelMethod'));
+    return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain', 'oppActiveChain', 'travelMethod', 'topTargetIds'));
     }
 
     public function warStats(int $warId)
