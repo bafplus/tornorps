@@ -225,8 +225,9 @@
                                 <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                             </td>
                             <td class="p-3">{{ $member->level }}</td>
+                            <td class="p-3 text-right font-mono text-green-400">{{ $member->ff_score ?? '-' }}</td>
                             <td class="p-3 text-right">
-                                <span class="font-mono text-green-400">{{ $member->ff_score ?? '-' }}</span>
+                                <span class="font-mono text-gray-400 text-sm">{{ $member->estimated_stats ?? '-' }}</span>
                                 @if($member->ff_updated_at)
                                     <span class="block text-[10px] text-gray-600">{{ $member->ff_updated_at->diffForHumans() }}</span>
                                 @endif
@@ -338,9 +339,6 @@
                             <td class="p-3">{{ $member->level }}</td>
                             <td class="p-3 text-right">
                                 <span class="font-mono text-red-400">{{ $member->ff_score ?? '-' }}</span>
-                                @if($member->ff_updated_at)
-                                    <span class="block text-[10px] text-gray-600">{{ $member->ff_updated_at->diffForHumans() }}</span>
-                                @endif
                                 @if($member->ff_score)
                                     @php $difficulty = match(true) {
                                         $member->ff_score <= 1 => 'Extremely easy',
@@ -350,6 +348,12 @@
                                         default => 'Impossible',
                                     }; @endphp
                                     <span class="block text-[10px] @if($difficulty === 'Extremely easy' || $difficulty === 'Easy') text-green-400 @elseif($difficulty === 'Moderate') text-yellow-400 @elseif($difficulty === 'Difficult') text-orange-400 @else text-red-400 @endif">{{ $difficulty }}</span>
+                                @endif
+                            </td>
+                            <td class="p-3 text-right">
+                                <span class="font-mono text-gray-400 text-sm">{{ $member->estimated_stats ?? '-' }}</span>
+                                @if($member->ff_updated_at)
+                                    <span class="block text-[10px] text-gray-600">{{ $member->ff_updated_at->diffForHumans() }}</span>
                                 @endif
                             </td>
                             <td class="p-3 text-right font-mono text-gray-400 text-sm">{{ $member->estimated_stats ?? '-' }}</td>
