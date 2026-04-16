@@ -102,10 +102,23 @@ $ourMembers = $war->members()
             ->orderBy('name')
             ->get();
         
-        // Get top targets by respect - don't filter by user FF
+        // Get user FF score from their player_id in faction members
+        $userFfScore = 1.0;
+        $userId = Auth::id();
+        if ($userId) {
+            $tornPlayerId = \App\Models\User::find($userId)?->torn_player_id;
+            if ($tornPlayerId) {
+                // Find this player in faction members to get their FF score
+                $memberFf = \App\Models\FactionMember::where('player_id', $tornPlayerId)->value('ff_score');
+                $userFfScore = $memberFf ?? 1.0;
+            }
+        }
+        
+        // Get top targets filtered by this user's FF score
         $topTargets = \App\Services\WarService::getTopTargets(
             $opponentMembers->toArray(),
-            3
+            3,
+            $userFfScore
         );
         $topTargetIds = array_column($topTargets, 'player_id');
         
