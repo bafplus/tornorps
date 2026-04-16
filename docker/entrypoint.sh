@@ -71,7 +71,7 @@ if [ -d "$DATA_DIR" ]; then
         # Force correct database path for /data volume
         sed -i 's|DB_DATABASE=.*|DB_DATABASE=/data/database.sqlite|' .env
         
-        grep -q "^SESSION_DRIVER=" .env || echo "SESSION_DRIVER=file" >> .env
+        grep -q "^SESSION_DRIVER=" .env || echo "SESSION_DRIVER=array" >> .env
         grep -q "^CACHE_STORE=" .env || echo "CACHE_STORE=array" >> .env
     else
         echo "Using environment variables with /data volume..."
@@ -86,7 +86,7 @@ LOG_CHANNEL=stack
 LOG_LEVEL=warning
 DB_CONNECTION=sqlite
 DB_DATABASE=/data/database.sqlite
-SESSION_DRIVER=file
+SESSION_DRIVER=array
 CACHE_STORE=array
 TORN_API_KEY=${TORN_API_KEY:-dummy}
 FACTION_ID=${FACTION_ID:-}
@@ -107,7 +107,7 @@ LOG_CHANNEL=stack
 LOG_LEVEL=warning
 DB_CONNECTION=sqlite
 DB_DATABASE=/var/www/html/database.sqlite
-SESSION_DRIVER=file
+SESSION_DRIVER=array
 CACHE_STORE=array
 TORN_API_KEY=${TORN_API_KEY:-dummy}
 EOF
