@@ -17,24 +17,28 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {
-        $settings = \App\Models\FactionSettings::first();
-        $warModeEnabled = $settings?->war_mode_enabled ?? false;
-        $isWarActive = \App\Models\RankedWar::where('status', 'in progress')->exists();
-        $isWarMode = $warModeEnabled || $isWarActive;
-        
-        $jobs = \App\Models\ScheduledJob::where('enabled', true)->get();
-        
-        foreach ($jobs as $job) {
-            $cron = $isWarMode && $job->war_cron ? $job->war_cron : $job->cron_expression;
+        try {
+            $settings = \App\Models\FactionSettings::first();
+            $warModeEnabled = $settings?->war_mode_enabled ?? false;
+            $isWarActive = \App\Models\RankedWar::where('status', 'in progress')->exists();
+            $isWarMode = $warModeEnabled || $isWarActive;
             
-            if (!$cron) {
-                continue;
+            $jobs = \App\Models\ScheduledJob::where('enabled', true)->get();
+            
+            foreach ($jobs as $job) {
+                $cron = $isWarMode && $job->war_cron ? $job->war_cron : $job->cron_expression;
+                
+                if (!$cron) {
+                    continue;
+                }
+                
+                $schedule->command($job->command)
+                    ->cron($cron)
+                    ->withoutOverlapping()
+                    ->runInBackground();
             }
-            
-            $schedule->command($job->command)
-                ->cron($cron)
-                ->withoutOverlapping()
-                ->runInBackground();
+        } catch (\Exception $e) {
+            // Tables don't exist yet during fresh install
         }
     })
     ->withExceptions(function (Exceptions $exceptions) {
