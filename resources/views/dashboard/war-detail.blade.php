@@ -292,7 +292,6 @@
                             <th class="p-3" data-sort="level" data-dir="desc">Level <span class="sort-icon">↓</span></th>
                             <th class="p-3 text-right" data-sort="ff" data-dir="desc">FF <span class="sort-icon">↓</span></th>
                             <th class="p-3 text-right" data-sort="stats" data-dir="desc">Stats <span class="sort-icon">↓</span></th>
-                            <th class="p-3 text-right" data-sort="respect" data-dir="desc">Respect <span class="sort-icon">↓</span></th>
                             <th class="p-3" data-sort="status" data-dir="asc">Status <span class="sort-icon">↑</span></th>
                         </tr>
                     </thead>
@@ -320,19 +319,10 @@
                                 default => '2'
                             };
                         @endphp
-                        <tr class="hover:bg-gray-700/30 {{ $leavingSoon ? 'bg-red-900/20' : '' }}" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-respect="{{ $member->respect_score ?? 0 }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}">
+                        <tr class="hover:bg-gray-700/30 {{ $leavingSoon ? 'bg-red-900/20' : '' }}" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}">
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full mr-2 @if($member->online_status === 'Online') bg-green-500 @elseif($member->online_status === 'Idle') bg-yellow-500 @else bg-gray-500 @endif"></span>
                                 <a href="https://www.torn.com/loader.php?sid=attack&user2ID={{ $member->player_id }}" target="_blank" class="font-medium hover:text-blue-400">{{ $member->name }}</a>
-                                @if(in_array($member->player_id, $topTargetIds ?? []))
-                                    @php $rank = array_search($member->player_id, $topTargetIds) + 1; @endphp
-                                    <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold
-                                        @if($rank === 1) bg-yellow-500 text-black
-                                        @elseif($rank === 2) bg-gray-400 text-black
-                                        @else bg-amber-700 text-white @endif">
-                                        #{{ $rank }}
-                                    </span>
-                                @endif
                                 <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                             </td>
                             <td class="p-3">{{ $member->level }}</td>
@@ -355,7 +345,6 @@
                                     <span class="block text-[10px] text-gray-600">{{ $member->ff_updated_at->diffForHumans() }}</span>
                                 @endif
                             </td>
-                            <td class="p-3 text-right font-mono text-yellow-400">{{ number_format($member->respect_score, 2) }}</td>
                             <td class="p-3">
                                 @if($member->status_color === 'red')
                                     @php 
