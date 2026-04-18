@@ -768,17 +768,17 @@ const countryMap = {
 
     // Travel times in minutes (fixed for all)
     const TRAVEL_TIME = {
-        'Mexico': 18,
-        'Cayman Islands': 25,
-        'Canada': 29,
+        'Mexico': 18, 'MX': 18,
+        'Cayman Islands': 25, 'Cayman': 25,
+        'Canada': 29, 'CA': 29,
         'Hawaii': 91,
-        'United Kingdom': 111,
-        'Argentina': 117,
-        'Switzerland': 123,
-        'Japan': 158,
-        'China': 169,
+        'United Kingdom': 111, 'UK': 111,
+        'Argentina': 117, 'AR': 117,
+        'Switzerland': 123, 'CH': 123,
+        'Japan': 158, 'JP': 158,
+        'China': 169, 'CN': 169,
         'UAE': 190,
-        'South Africa': 208,
+        'South Africa': 208, 'SA': 208,
     };
 
     let country = null;
