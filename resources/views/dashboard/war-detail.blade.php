@@ -589,12 +589,12 @@ function updateTravelTimers() {
             var m = Math.floor((remaining % 3600) / 60);
             var s = remaining % 60;
             if (h > 0) {
-                etaEl.textContent = '(' + h + ':' + m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0') + ')';
+                etaEl.textContent = 'ETA ' + h + ':' + m.toString().padStart(2, '0') + ':' + s.toString().padStart(2, '0');
             } else {
-                etaEl.textContent = '(' + m + ':' + s.toString().padStart(2, '0') + ')';
+                etaEl.textContent = 'ETA ' + m + ':' + s.toString().padStart(2, '0');
             }
         } else {
-            etaEl.textContent = '(Arrived)';
+            etaEl.textContent = 'Arrived';
         }
     }
 }
