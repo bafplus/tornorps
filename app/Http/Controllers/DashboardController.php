@@ -242,11 +242,11 @@ $ourMembers = $war->members()
             $stats = $attackStats[$playerId];
             if ($stats->successful > $topHitterHits) {
                 $topHitterHits = $stats->successful;
-                $topHitterName = \App\Models\FactionMember::find($playerId)?->name ?? 'ID:' . $playerId;
+                $topHitterName = \App\Models\FactionMember::where('player_id', $playerId)->first()?->name ?? 'ID:' . $playerId;
             }
             if ($stats->max_single > $topRespectVal) {
                 $topRespectVal = $stats->max_single;
-                $topRespectName = \App\Models\FactionMember::find($playerId)?->name ?? 'ID:' . $playerId;
+                $topRespectName = \App\Models\FactionMember::where('player_id', $playerId)->first()?->name ?? 'ID:' . $playerId;
             }
         }
     }
