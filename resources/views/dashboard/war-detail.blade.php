@@ -323,6 +323,15 @@
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full mr-2 @if($member->online_status === 'Online') bg-green-500 @elseif($member->online_status === 'Idle') bg-yellow-500 @else bg-gray-500 @endif"></span>
                                 <a href="https://www.torn.com/loader.php?sid=attack&user2ID={{ $member->player_id }}" target="_blank" class="font-medium hover:text-blue-400">{{ $member->name }}</a>
+                                @if(in_array($member->player_id, $topTargetIds ?? []))
+                                    @php $rank = array_search($member->player_id, $topTargetIds) + 1; @endphp
+                                    <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold
+                                        @if($rank === 1) bg-yellow-500 text-black
+                                        @elseif($rank === 2) bg-gray-400 text-black
+                                        @else bg-amber-700 text-white @endif">
+                                        #{{ $rank }}
+                                    </span>
+                                @endif
                                 <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                             </td>
                             <td class="p-3">{{ $member->level }}</td>

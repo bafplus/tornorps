@@ -113,7 +113,7 @@ class WarService
         }
 
         usort($attackableTargets, function ($a, $b) {
-            return ($b['respect_score'] ?? 0) <=> ($a['respect_score'] ?? 0);
+            return ($b['ff_score'] ?? 0) <=> ($a['ff_score'] ?? 0);
         });
 
         return array_slice($attackableTargets, 0, $count);
