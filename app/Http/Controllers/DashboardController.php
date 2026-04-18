@@ -149,10 +149,15 @@ $ourMembers = $war->members()
             SUM(CASE WHEN result = "Attacked" OR result = "Hospitalized" THEN 1 ELSE 0 END) as successful,
             SUM(CASE WHEN result = "Lost" OR result = "Stalemate" THEN 1 ELSE 0 END) as failed,
             SUM(CASE WHEN result = "Interrupted" THEN 1 ELSE 0 END) as interrupted,
-            SUM(respect_gain) as total_score')
+            SUM(respect_gain) as total_score,
+            MAX(respect_gain) as max_single')
         ->groupBy('attacker_id')
         ->get()
         ->keyBy('attacker_id');
+
+    $totalHits = $attackStats->sum('successful');
+    $topHitter = $attackStats->sortByDesc('successful')->first();
+    $topRespect = $attackStats->sortByDesc('max_single')->first();
 
     $attacks = WarAttack::where('war_id', $warId)->orderByDesc('timestamp')->paginate(10);
 
@@ -222,7 +227,15 @@ $ourMembers = $war->members()
 
     $travelMethod = FactionSettings::value('travel_method', 1);
 
-    return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain', 'oppActiveChain', 'travelMethod', 'topTargetIds'));
+    $playerNames = [];
+    foreach ($ourMembers as $member) {
+        $playerNames[$member->player_id] = $member->player_name;
+    }
+
+    $topHitterName = $topHitter ? ($playerNames[$topHitter->attacker_id] ?? 'Unknown') : 'N/A';
+    $topRespectName = $topRespect ? ($playerNames[$topRespect->attacker_id] ?? 'Unknown') : 'N/A';
+
+    return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain', 'oppActiveChain', 'travelMethod', 'topTargetIds', 'totalHits', 'topHitterName', 'topHitter', 'topRespectName', 'topRespect'));
     }
 
     public function warStats(int $warId)

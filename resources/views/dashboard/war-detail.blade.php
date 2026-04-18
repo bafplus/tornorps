@@ -182,8 +182,29 @@
         <div class="bg-gray-800 rounded-lg border border-gray-700">
             <div class="p-4 border-b border-gray-700">
                 <h2 class="text-xl font-semibold text-green-400" id="header-our">{{ $settings->faction_name ?? 'Our Faction' }} (<span id="pts-our">{{ $war->score_ours ?? 0 }}</span> pts)</h2>
-                <p class="text-gray-500 text-xs mt-1">War score based on hits on opponent members from attack logs</p>
+<p class="text-gray-500 text-xs mt-1">War score based on hits on opponent members from attack logs</p>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                <div class="bg-gray-800 rounded-lg p-3">
+                    <div class="text-gray-400 text-xs">Total Hits</div>
+                    <div class="text-xl font-bold text-green-400">{{ $totalHits ?? 0 }}</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-3">
+                    <div class="text-gray-400 text-xs">Top Hitter</div>
+                    <div class="text-lg font-bold text-blue-400">{{ $topHitterName ?? 'N/A' }}</div>
+                    <div class="text-xs text-gray-500">{{ $topHitter->successful ?? 0 }} hits</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-3">
+                    <div class="text-gray-400 text-xs">Best Respect</div>
+                    <div class="text-lg font-bold text-purple-400">{{ $topRespectName ?? 'N/A' }}</div>
+                    <div class="text-xs text-gray-500">+{{ $topRespect->max_single ?? 0 }}</div>
+                </div>
+                <div class="bg-gray-800 rounded-lg p-3">
+                    <div class="text-gray-400 text-xs">Attackers</div>
+                    <div class="text-xl font-bold text-yellow-400">{{ $attackStats->count() }}</div>
+                </div>
             </div>
+        </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="sticky top-0 bg-gray-700 cursor-pointer select-none" id="thead-our">
