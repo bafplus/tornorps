@@ -109,6 +109,7 @@ class SyncRankedWars extends Command
                         $ffUpdatedAt = isset($ffData['last_updated']) ? now()->createFromTimestamp($ffData['last_updated']) : null;
                         
                         $statusColor = $member['status']['color'] ?? null;
+                        $statusDesc = $member['status']['description'] ?? '';
                         
                         // Check previous member record
                         $oldMember = WarMember::where('war_id', $warId)
