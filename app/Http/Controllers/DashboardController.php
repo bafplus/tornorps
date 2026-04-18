@@ -235,18 +235,18 @@ $ourMembers = $war->members()
     $topHitterName = 'N/A';
     $topHitterHits = 0;
     foreach ($attackStats as $attackerId => $stats) {
-        if ($stats->successful > $topHitterHits && isset($players[$attackerId])) {
+        if ($stats->successful > $topHitterHits) {
             $topHitterHits = $stats->successful;
-            $topHitterName = $players[$attackerId]->player_name;
+            $topHitterName = $players[$attackerId]->player_name ?? 'NOT FOUND: ' . $attackerId;
         }
     }
 
     $topRespectName = 'N/A';
     $topRespectVal = 0;
     foreach ($attackStats as $attackerId => $stats) {
-        if ($stats->max_single > $topRespectVal && isset($players[$attackerId])) {
+        if ($stats->max_single > $topRespectVal) {
             $topRespectVal = $stats->max_single;
-            $topRespectName = $players[$attackerId]->player_name;
+            $topRespectName = $players[$attackerId]->player_name ?? 'NOT FOUND: ' . $attackerId;
         }
     }
 
