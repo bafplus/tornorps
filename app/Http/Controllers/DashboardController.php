@@ -228,11 +228,11 @@ $ourMembers = $war->members()
     $travelMethod = FactionSettings::value('travel_method', 1);
 
     $topHitterStats = $attackStats->sortByDesc('successful')->first();
-    $topHitterName = $topHitterStats ? ($ourMembers->firstWhere('player_id', $topHitterStats->attacker_id)->player_name ?? 'Unknown') : 'N/A';
+    $topHitterName = $topHitterStats ? ($ourMembers->firstWhere('player_id', (int)$topHitterStats->attacker_id)->player_name ?? 'Unknown') : 'N/A';
     $topHitterHits = $topHitterStats ? $topHitterStats->successful : 0;
 
     $topRespectStats = $attackStats->sortByDesc('max_single')->first();
-    $topRespectName = $topRespectStats ? ($ourMembers->firstWhere('player_id', $topRespectStats->attacker_id)->player_name ?? 'Unknown') : 'N/A';
+    $topRespectName = $topRespectStats ? ($ourMembers->firstWhere('player_id', (int)$topRespectStats->attacker_id)->player_name ?? 'Unknown') : 'N/A';
 
     return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain', 'oppActiveChain', 'travelMethod', 'topTargetIds', 'totalHits', 'topHitterName', 'topHitterHits', 'topRespectName', 'topRespectStats'));
     }
