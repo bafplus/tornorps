@@ -781,34 +781,40 @@ const countryMap = {
         'South Africa': 208, 'SA': 208,
     };
 
-    let country = null;
+let country = null;
+    let displayName = null;
     for (const [full, short] of Object.entries(countryMap)) {
         if (original.includes(full)) {
             country = short;
+            displayName = full;
             break;
         }
     }
 
     if (!country) {
         const match = original.match(/(?:In |Returning to Torn from |Traveling to )(.*)/);
-        if (match) country = match[1];
+        if (match) {
+            country = match[1];
+            displayName = match[1];
+        }
     }
 
     const travelTime = TRAVEL_TIME[country] || 60;
+    const finalDisplayName = displayName || country || original;
 
-if (original.startsWith('Returning to Torn from') && country) {
-return { direction: 'left', country, isTraveling: true, travelTime };
-}
+    if (original.startsWith('Returning to Torn from') && country) {
+        return { direction: 'left', country: finalDisplayName, isTraveling: true, travelTime };
+    }
 
-if (original.startsWith('Traveling to ') && country) {
-return { direction: 'right', country, isTraveling: true, travelTime };
-}
+    if (original.startsWith('Traveling to ') && country) {
+        return { direction: 'right', country: finalDisplayName, isTraveling: true, travelTime };
+    }
 
-if (original.startsWith('In ') && country) {
-return { direction: 'abroad', country, isTraveling: false };
-}
+    if (original.startsWith('In ') && country) {
+        return { direction: 'abroad', country: finalDisplayName, isTraveling: false };
+    }
 
-return { direction: 'right', country: original, isTraveling: false };
+    return { direction: 'right', country: original, isTraveling: false };
 }
 
 function initTravelBubbles() {
