@@ -512,6 +512,123 @@
 <script>
 (function() {
 'use strict';
+
+function playSOS() {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var dot = 0.1, dash = 0.3, gap = 0.1, letterGap = 0.2, wordGap = 0.4;
+    var now = ctx.currentTime;
+    var freq = 880;
+    
+    function beep(duration) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.setValueAtTime(0.3, now + duration);
+        gain.gain.linearRampToValueAtTime(0, now + duration + 0.01);
+        osc.start(now);
+        osc.stop(now + duration + 0.01);
+    }
+    
+    // S: dot dot dot
+    beep(dot); now += dot + gap;
+    beep(dot); now += dot + gap;
+    beep(dot); now += dot + letterGap;
+    // O: dash dash dash
+    beep(dash); now += dash + gap;
+    beep(dash); now += dash + gap;
+    beep(dash); now += dash + wordGap;
+    // S: dot dot dot
+    beep(dot); now += dot + gap;
+    beep(dot); now += dot + gap;
+    beep(dot);
+}
+
+function getBellKey(type, playerId) {
+    return 'bell_' + warId + '_' + playerId + '_' + type;
+}
+
+function initBells() {
+    document.querySelectorAll('.bell-btn').forEach(function(btn) {
+        var type = btn.dataset.type;
+        var playerId = btn.dataset.player;
+        var key = getBellKey(type, playerId);
+        var enabled = localStorage.getItem(key) !== null;
+        if (enabled) btn.classList.add('text-yellow-400', 'opacity-100');
+        
+        btn.addEventListener('click', function() {
+            if (!('Notification' in window) || Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+            
+            var key = getBellKey(type, playerId);
+            var wasEnabled = localStorage.getItem(key) !== null;
+            
+            if (wasEnabled) {
+                localStorage.removeItem(key);
+                btn.classList.remove('text-yellow-400', 'opacity-100');
+            } else {
+                var timerEl = btn.closest('.hospital-timer, .travel-bubble');
+                var until = type === 'hospital' 
+                    ? parseInt(timerEl.dataset.until)
+                    : parseInt(timerEl.dataset.statusChanged) + parseInt(timerEl.dataset.travelTime) * 60;
+                
+                if (until > Math.floor(Date.now() / 1000)) {
+                    localStorage.setItem(key, until);
+                    btn.classList.add('text-yellow-400', 'opacity-100');
+                }
+            }
+        });
+    });
+}
+
+function checkBells() {
+    var now = Math.floor(Date.now() / 1000);
+    var alert5 = now + 300;
+    
+    document.querySelectorAll('.bell-btn.text-yellow-400').forEach(function(btn) {
+        var type = btn.dataset.type;
+        var playerId = btn.dataset.player;
+        var timerEl = btn.closest('.hospital-timer, .travel-bubble');
+        var until = type === 'hospital'
+            ? parseInt(timerEl.dataset.until)
+            : parseInt(timerEl.dataset.statusChanged) + parseInt(timerEl.dataset.travelTime) * 60;
+        
+        var key = getBellKey(type, playerId);
+        var alertsDone = JSON.parse(localStorage.getItem(key + '_done') || '[]');
+        
+        if (!alertsDone.includes('5min') && until <= alert5 && until > now) {
+            alertsDone.push('5min');
+            localStorage.setItem(key + '_done', JSON.stringify(alertsDone));
+            
+            var playerName = timerEl.closest('tr').querySelector('td:first-child a').textContent;
+            new Notification('TornOps Alert', {
+                body: (type === 'hospital' ? 'Hospital release' : 'Travel return') + ' in 5 min for ' + playerName,
+                icon: '/favicon.ico'
+            });
+            playSOS();
+        }
+        
+        if (!alertsDone.includes('now') && until <= now) {
+            alertsDone.push('now');
+            localStorage.setItem(key + '_done', JSON.stringify(alertsDone));
+            
+            var playerName = timerEl.closest('tr').querySelector('td:first-child a').textContent;
+            new Notification('TornOps Alert', {
+                body: (type === 'hospital' ? 'Hospital released!' : 'Travel returned!') + ' ' + playerName,
+                icon: '/favicon.ico'
+            });
+            playSOS();
+            
+            localStorage.removeItem(key);
+            btn.classList.remove('text-yellow-400', 'opacity-100');
+        }
+    });
+}
+
 var status = '{{ $war->status }}';
 var startTimestamp = {{ $war->start_date ? $war->start_date->timestamp : 0 }};
 var endTimestamp = {{ $war->end_date ? $war->end_date->timestamp : 0 }};
@@ -935,6 +1052,9 @@ setInterval(updateTimer, 1000);
 
 updateHospitalTimers();
 setInterval(updateHospitalTimers, 1000);
+
+initBells();
+setInterval(checkBells, 10000);
 
 initTravelBubbles();
         updateTravelTimers();
