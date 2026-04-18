@@ -447,7 +447,7 @@
                 <div class="bg-gray-800 rounded-lg p-3">
                     <div class="text-gray-400 text-xs">Top Hitter</div>
                     <div class="text-lg font-bold text-blue-400">{{ $topHitterName ?? 'N/A' }}</div>
-                    <div class="text-xs text-gray-500">{{ $topHitter->successful ?? 0 }} hits</div>
+                    <div class="text-xs text-gray-500">{{ $topHitterHits ?? 0 }} hits</div>
                 </div>
                 <div class="bg-gray-800 rounded-lg p-3">
                     <div class="text-gray-400 text-xs">Best Respect</div>
