@@ -452,7 +452,7 @@
                 <div class="bg-gray-800 rounded-lg p-3">
                     <div class="text-gray-400 text-xs">Best Respect</div>
                     <div class="text-lg font-bold text-purple-400">{{ $topRespectName ?? 'N/A' }}</div>
-                    <div class="text-xs text-gray-500">+{{ $topRespect->max_single ?? 0 }}</div>
+                    <div class="text-xs text-gray-500">+{{ number_format($topRespectStats->max_single ?? 0, 2) }}</div>
                 </div>
                 <div class="bg-gray-800 rounded-lg p-3">
                     <div class="text-gray-400 text-xs">Attackers</div>
