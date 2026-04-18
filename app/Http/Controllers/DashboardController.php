@@ -153,7 +153,7 @@ $ourMembers = $war->members()
             MAX(respect_gain) as max_single')
         ->groupBy('attacker_id')
         ->get()
-        ->keyBy(fn($item) => (int)$item->attacker_id);
+        ->keyBy('attacker_id');
 
     $totalHits = $attackStats->sum('successful');
     $topHitter = $attackStats->sortByDesc('successful')->first();
@@ -227,26 +227,22 @@ $ourMembers = $war->members()
 
     $travelMethod = FactionSettings::value('travel_method', 1);
 
-    $players = [];
-    foreach ($ourMembers as $member) {
-        $players[(int)$member->player_id] = $member->player_name;
-    }
-
     $topHitterName = 'N/A';
     $topHitterHits = 0;
-    foreach ($attackStats as $id => $stats) {
-        if ($stats->successful > $topHitterHits && isset($players[$id])) {
-            $topHitterHits = $stats->successful;
-            $topHitterName = $players[$id];
-        }
-    }
-
     $topRespectName = 'N/A';
     $topRespectVal = 0;
-    foreach ($attackStats as $id => $stats) {
-        if ($stats->max_single > $topRespectVal && isset($players[$id])) {
-            $topRespectVal = $stats->max_single;
-            $topRespectName = $players[$id];
+
+    foreach ($ourMembers as $member) {
+        $stats = $attackStats[$member->player_id] ?? null;
+        if ($stats) {
+            if ($stats->successful > $topHitterHits) {
+                $topHitterHits = $stats->successful;
+                $topHitterName = $member->player_name;
+            }
+            if ($stats->max_single > $topRespectVal) {
+                $topRespectVal = $stats->max_single;
+                $topRespectName = $member->player_name;
+            }
         }
     }
 
