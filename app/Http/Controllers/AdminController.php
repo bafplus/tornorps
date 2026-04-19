@@ -535,6 +535,13 @@ private function formatCron(string $cron): string
                 'api_info' => '1 bulk call',
                 'api_est' => '1',
             ],
+            'torn:sync-profiles' => [
+                'description' => 'Sync player profile data from Torn API',
+                'war_mode_only' => false,
+                'default_cron' => '0 * * * *',
+                'api_info' => '1 call per player (faction + opponents)',
+                'api_est' => '50-100',
+            ],
             'torn:sync-stocks' => [
                 'description' => 'Sync market stocks data',
                 'war_mode_only' => false,
