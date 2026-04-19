@@ -169,6 +169,15 @@ Route::post('/admin/sync/stocks', function () {
             }
         });
         
+        Route::post('/admin/sync/profiles', function () {
+            try {
+            \Illuminate\Support\Facades\Artisan::call('torn:sync-profiles');
+            return back()->with('status', 'Player profiles sync completed.');
+            } catch (\Exception $e) {
+                return back()->with('error', 'Error: ' . $e->getMessage());
+            }
+        });
+        
         Route::get('/admin/logs', function () {
             $logFile = storage_path('logs/laravel.log');
             $lines = [];

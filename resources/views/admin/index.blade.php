@@ -343,6 +343,7 @@
                                 'ocs' => 'ocs',
                                 'stocks' => 'stocks',
                                 'items' => 'items',
+                                'player_profiles' => 'profiles',
                             ];
                             $route = $routeMap[$key] ?? 'wars';
                             @endphp
