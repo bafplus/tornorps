@@ -155,6 +155,15 @@ $ourMembers = $war->members()
         ->get()
         ->keyBy('attacker_id');
 
+    $oppAttackStats = WarAttack::where('war_id', $warId)
+        ->whereIn('attacker_id', $oppMemberIds)
+        ->whereIn('defender_id', $ourMemberIds)
+        ->selectRaw('attacker_id,
+            SUM(CASE WHEN result = "Attacked" OR result = "Hospitalized" THEN 1 ELSE 0 END) as hits')
+        ->groupBy('attacker_id')
+        ->get()
+        ->keyBy('attacker_id');
+
     $totalHits = $attackStats->sum('successful');
     $topHitter = $attackStats->sortByDesc('successful')->first();
     $topRespect = $attackStats->sortByDesc('max_single')->first();
@@ -251,7 +260,7 @@ $ourMembers = $war->members()
         }
     }
 
-    return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain', 'oppActiveChain', 'travelMethod', 'topTargetIds', 'totalHits', 'topHitterName', 'topHitterHits', 'topRespectName', 'topRespectVal'));
+    return view('dashboard.war-detail', compact('settings', 'war', 'ourMembers', 'opponentMembers', 'attackStats', 'oppAttackStats', 'attacks', 'retaliationTargets', 'chainStats', 'activeChain', 'oppActiveChain', 'travelMethod', 'topTargetIds', 'totalHits', 'topHitterName', 'topHitterHits', 'topRespectName', 'topRespectVal'));
     }
 
     public function warStats(int $warId)

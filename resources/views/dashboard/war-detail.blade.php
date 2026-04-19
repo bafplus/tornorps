@@ -301,8 +301,8 @@
                     <tbody class="divide-y divide-gray-700" id="tbody-opp">
                         @foreach($opponentMembers as $member)
                         @php
-                            $stats = $attackStats[$member->player_id] ?? null;
-                            $hits = $stats->successful ?? 0;
+                            $stats = $oppAttackStats[$member->player_id] ?? null;
+                            $hits = $stats->hits ?? 0;
                             $successful = $stats->successful ?? 0;
                             $failed = $stats->failed ?? 0;
                             $interrupted = $stats->interrupted ?? 0;
