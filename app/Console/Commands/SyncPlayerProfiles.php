@@ -168,14 +168,10 @@ class SyncPlayerProfiles extends Command
             usleep(500000);
             $profile = $data;
 
-            if (!$profile) {
+            if (!$profile || !isset($profile['player_id'])) {
                 $this->error("No profile data for player {$playerId}");
                 $this->errors++;
                 return;
-            }
-            
-            if ($playerId === 3055372) {
-                $this->warn("Debug: " . json_encode($profile));
             }
 
             // Determine if this is from a war opponent
@@ -183,19 +179,19 @@ class SyncPlayerProfiles extends Command
 
             // Build record
             $record = [
-                'player_id' => $profile['id'],
+                'player_id' => $profile['player_id'] ?? $playerId,
                 'name' => $profile['name'] ?? null,
                 'level' => $profile['level'] ?? 1,
                 'rank' => $profile['rank'] ?? null,
-                'title' => $profile['title'] ?? null,
+                'title' => $profile['honor'] ?? null,
                 'age' => $profile['age'] ?? null,
-                'signed_up' => $profile['signed_up'] ?? null,
-                'faction_id' => $profile['faction_id'] ?? null,
-                'honor_id' => $profile['honor_id'] ?? null,
-                'property_id' => $profile['property']['id'] ?? null,
-                'property_name' => $profile['property']['name'] ?? null,
-                'donator_status' => $profile['donator_status'] ?? null,
-                'image' => $profile['image'] ?? null,
+                'signed_up' => $profile['signup'] ?? null,
+                'faction_id' => $profile['faction']['faction_id'] ?? null,
+                'honor_id' => null,
+                'property_id' => $profile['property_id'] ?? null,
+                'property_name' => $profile['property'] ?? null,
+                'donator_status' => $profile['donator'] ?? false,
+                'image' => $profile['profile_image'] ?? null,
                 'gender' => $profile['gender'] ?? null,
                 'role' => $profile['role'] ?? null,
                 'revivable' => $profile['revivable'] ?? false,
@@ -204,9 +200,9 @@ class SyncPlayerProfiles extends Command
                 'status_state' => $profile['status']['state'] ?? null,
                 'status_color' => $profile['status']['color'] ?? null,
                 'status_until' => $profile['status']['until'] ?? null,
-                'spouse_id' => $profile['spouse']['id'] ?? null,
-                'spouse_name' => $profile['spouse']['name'] ?? null,
-                'spouse_status' => $profile['spouse']['status'] ?? null,
+                'spouse_id' => $profile['married']['spouse_id'] ?? null,
+                'spouse_name' => $profile['married']['spouse_name'] ?? null,
+                'spouse_status' => null,
                 'awards' => $profile['awards'] ?? 0,
                 'friends' => $profile['friends'] ?? 0,
                 'enemies' => $profile['enemies'] ?? 0,
