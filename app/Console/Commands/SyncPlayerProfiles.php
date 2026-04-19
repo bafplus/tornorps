@@ -129,9 +129,9 @@ class SyncPlayerProfiles extends Command
 
     protected function getApiKeys(): array
     {
-        return User::whereNotNull('api_key')
-            ->where('api_key', '!=', '')
-            ->pluck('api_key')
+        return User::whereNotNull('torn_api_key')
+            ->where('torn_api_key', '!=', '')
+            ->pluck('torn_api_key')
             ->toArray();
     }
 
