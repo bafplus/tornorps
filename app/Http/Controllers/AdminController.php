@@ -86,6 +86,7 @@ class AdminController extends Controller
                 'torn:sync-ocs' => 'organized_crimes',
                 'torn:sync-stocks' => 'stocks',
                 'torn:sync-items' => 'items',
+                'torn:sync-profiles' => 'player_profiles',
                 default => null,
             };
             if (!$key) continue;
