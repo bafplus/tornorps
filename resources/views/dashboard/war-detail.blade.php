@@ -984,10 +984,28 @@ function getBellKey(type, playerId) {
 }
 
 function initBells() {
+    var oppTable = document.getElementById('tbody-opp');
+    if (!oppTable) return;
+    var oppRows = oppTable.querySelectorAll('tr');
+    var oppPlayerIds = new Set();
+    oppRows.forEach(function(row) {
+        var link = row.querySelector('td:first-child a');
+        if (link) {
+            var match = link.textContent.match(/#(\d+)/);
+            if (match) oppPlayerIds.add(match[1]);
+        }
+    });
+    
     document.querySelectorAll('.bell-btn').forEach(function(btn) {
+        var playerId = btn.dataset.player;
+        if (!oppPlayerIds.has(playerId)) {
+            btn.style.display = 'none';
+            return;
+        }
         btn.textContent = '🔕';
     });
     document.querySelectorAll('.bell-btn').forEach(function(btn) {
+        if (btn.style.display === 'none') return;
         var type = btn.closest('.hospital-timer') ? 'hospital' : 'travel';
         var playerEl = btn.closest('.hospital-timer, .travel-bubble').closest('tr');
         var playerId = playerEl ? playerEl.querySelector('td:first-child').textContent.replace('#', '').trim().split(' ')[0] : 'unknown';
@@ -1034,7 +1052,8 @@ function checkBells() {
     var now = Math.floor(Date.now() / 1000);
     var alert5 = now + 300;
     
-    document.querySelectorAll('.bell-btn.text-yellow-400').forEach(function(btn) {
+    document.querySelectorAll('.bell-btn').forEach(function(btn) {
+        if (btn.style.display === 'none' || btn.textContent !== '🔔') return;
         var type = btn.dataset.type;
         var playerId = btn.dataset.player;
         var timerEl = btn.closest('.hospital-timer, .travel-bubble');
@@ -1048,7 +1067,9 @@ function checkBells() {
         if (!alertsDone.includes('5min') && until <= alert5 && until > now) {
             alertsDone.push('5min');
             localStorage.setItem(key + '_done', JSON.stringify(alertsDone));
-            var playerName = timerEl.closest('tr').querySelector('td:first-child a, td:first-child span').textContent;
+            var playerRow = timerEl.closest('tr');
+            var playerLink = playerRow.querySelector('td:first-child a');
+            var playerName = playerLink ? playerLink.textContent : btn.dataset.player;
             new Notification('TornOps Alert', {
                 body: type === 'hospital' ? playerName + ' will leave hospital in 5 min' : playerName + ' will return in 5 min',
                 icon: '/favicon.ico'
@@ -1059,7 +1080,9 @@ function checkBells() {
         if (!alertsDone.includes('now') && until <= now) {
             alertsDone.push('now');
             localStorage.setItem(key + '_done', JSON.stringify(alertsDone));
-            var playerName = timerEl.closest('tr').querySelector('td:first-child a, td:first-child span').textContent;
+            var playerRow = timerEl.closest('tr');
+            var playerLink = playerRow.querySelector('td:first-child a');
+            var playerName = playerLink ? playerLink.textContent : btn.dataset.player;
             new Notification('TornOps Alert', {
                 body: type === 'hospital' ? playerName + ' is out of hospital!' : playerName + ' has returned!',
                 icon: '/favicon.ico'
