@@ -994,10 +994,13 @@ function initBells() {
         btn.textContent = '🔕';
     });
     document.querySelectorAll('.bell-btn').forEach(function(btn) {
-        var type = btn.closest('.hospital-timer') ? 'hospital' : 'travel';
-        var timerEl = btn.closest('tr').querySelector('.hospital-timer, .travel-bubble');
-        var playerEl = btn.closest('tr');
-        var playerId = playerEl ? playerEl.querySelector('td:first-child').textContent.replace('#', '').trim().split(' ')[0] : 'unknown';
+        var row = btn.closest('tr');
+        var timerEl = row.querySelector('.hospital-timer, .travel-bubble');
+        if (!timerEl) { btn.style.display = 'none'; return; }
+        var type = timerEl.classList.contains('hospital-timer') ? 'hospital' : 'travel';
+        var playerEl = row.querySelector('td:first-child');
+        var playerLink = playerEl.querySelector('a');
+        var playerId = playerLink ? playerLink.textContent.replace('#', '').trim() : 'unknown';
         if (btn.dataset.player) playerId = btn.dataset.player;
         btn.dataset.type = type;
         btn.dataset.player = playerId;
@@ -1023,7 +1026,9 @@ function initBells() {
                 localStorage.removeItem(key + '_done');
                 btn.textContent = '🔕';
             } else {
-                var timerEl = btn.closest('.hospital-timer, .travel-bubble');
+                var row = btn.closest('tr');
+                var timerEl = row.querySelector('.hospital-timer, .travel-bubble');
+                if (!timerEl) return;
                 var until = type === 'hospital' 
                     ? parseInt(timerEl.dataset.until)
                     : parseInt(timerEl.dataset.statusChanged) + parseInt(timerEl.dataset.travelTime) * 60;
