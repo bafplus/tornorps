@@ -295,6 +295,7 @@
                             <th class="p-3 text-right" data-sort="ff" data-dir="desc">FF <span class="sort-icon">↓</span></th>
                             <th class="p-3 text-right" data-sort="stats" data-dir="desc">Stats <span class="sort-icon">↓</span></th>
                             <th class="p-3" data-sort="status" data-dir="asc">Status <span class="sort-icon">↑</span></th>
+                            <th class="p-3 text-right" data-sort="hits" data-dir="desc">Est Hits</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-700" id="tbody-opp">
@@ -321,7 +322,7 @@
                                 default => '2'
                             };
                         @endphp
-                        <tr class="hover:bg-gray-700/30 {{ $leavingSoon ? 'bg-red-900/20' : '' }}" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}">
+                        <tr class="hover:bg-gray-700/30 {{ $leavingSoon ? 'bg-red-900/20' : '' }}" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $member->estimated_stats ?? '' }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}" data-hits="{{ $hits }}">
                             <td class="p-3">
                                 <span class="inline-block w-2 h-2 rounded-full mr-2 @if($member->online_status === 'Online') bg-green-500 @elseif($member->online_status === 'Idle') bg-yellow-500 @else bg-gray-500 @endif"></span>
                                 <a href="https://www.torn.com/loader.php?sid=attack&user2ID={{ $member->player_id }}" target="_blank" class="font-medium hover:text-blue-400">{{ $member->name }}</a>
@@ -391,6 +392,7 @@
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-700/50 text-gray-400 text-xs font-medium">{{ $member->status_description ?? 'Offline' }}</span>
                                 @endif
                             </td>
+                            <td class="p-3 text-right font-mono text-blue-400">{{ $hits }}</td>
                             <td class="p-3 text-center">
                                 <button class="bell-btn text-lg" data-player="{{ $member->player_id }}">🔕</button>
                             </td>
