@@ -294,8 +294,8 @@
                             <th class="p-3" data-sort="level" data-dir="desc">Level <span class="sort-icon">↓</span></th>
                             <th class="p-3 text-right" data-sort="ff" data-dir="desc">FF <span class="sort-icon">↓</span></th>
                             <th class="p-3 text-right" data-sort="stats" data-dir="desc">Stats <span class="sort-icon">↓</span></th>
-                            <th class="p-3" data-sort="status" data-dir="asc">Status <span class="sort-icon">↑</span></th>
                             <th class="p-3 text-right" data-sort="hits" data-dir="desc">Est Hits</th>
+                            <th class="p-3" data-sort="status" data-dir="asc">Status <span class="sort-icon">↑</span></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-700" id="tbody-opp">
@@ -391,8 +391,37 @@
                                 @else
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-700/50 text-gray-400 text-xs font-medium">{{ $member->status_description ?? 'Offline' }}</span>
                                 @endif
-                            </td>
                             <td class="p-3 text-right font-mono text-blue-400">{{ $hits }}</td>
+                            <td class="p-3">
+                                @if($member->status_color === 'red')
+                                    @php 
+                                    $statusData = ($member->data['status'] ?? []);
+                                    $until = $statusData['until'] ?? 0;
+                                    $remaining = $until > 0 ? max(0, $until - time()) : 0;
+                                    $h = floor($remaining / 3600);
+                                    $m = floor(($remaining % 3600) / 60);
+                                    $s = $remaining % 60;
+                                    $timeStr = $remaining > 0 ? ($h > 0 ? "{$h}h {$m}m" : ($m > 0 ? "{$m}m {$s}s" : "{$s}s")) : '';
+                                    $statusDesc = $statusData['description'] ?? $member->status_description ?? 'Hospital';
+                                    if (stripos($statusDesc, 'In hospital for') === 0) $statusDesc = 'In Hospital';
+                                    @endphp
+                                    @if($until > 0 && $remaining > 0)
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium hospital-timer" data-until="{{ $until }}"><span class="hospital-time">{{ $statusDesc }} ({{ $timeStr }})</span></span>
+                                    @elseif($until > 0 && $remaining <= 0)
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-medium">Released</span>
+                                    @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium">{{ $statusDesc }}</span>
+                                    @endif
+                                @elseif($member->status_color === 'blue')
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-time="60">
+                                        <span class="travel-text">{{ $member->status_description ?? 'Traveling' }}</span><span class="travel-eta ml-1 font-mono"></span>
+                                    </span>
+                                @elseif($member->status_color === 'green')
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-medium">{{ $member->status_description ?? 'Okay' }}</span>
+                                @else
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-700/50 text-gray-400 text-xs font-medium">{{ $member->status_description ?? 'Offline' }}</span>
+                                @endif
+                            </td>
                             <td class="p-3 text-center">
                                 <button class="bell-btn text-lg" data-player="{{ $member->player_id }}">🔕</button>
                             </td>
