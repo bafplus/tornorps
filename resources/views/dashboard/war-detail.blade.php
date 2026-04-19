@@ -263,7 +263,7 @@
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium">{{ $statusDesc }}</span>
                                     @endif
                                 @elseif($member->status_color === 'blue')
-                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-time="60">
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-method="{{ !empty($member->property_name) && $member->property_name === 'Private Island' ? 'airstrip' : 'standard' }}">
                                         <span class="torn-icon" style="display:none;width:12px;height:12px;border:1px solid currentColor;border-radius:50%;text-align:center;line-height:10px;font-size:8px;">T</span>
                                         <svg class="w-3 h-3 plane-icon" style="display:none;" fill="currentColor" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
                                         <span class="travel-text">{{ $member->status_description ?? 'Traveling' }}</span><span class="travel-eta ml-1 font-mono"></span>
@@ -383,7 +383,7 @@
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium">{{ $statusDesc }}</span>
                                     @endif
                                 @elseif($member->status_color === 'blue')
-                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-time="60">
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-method="{{ !empty($member->property_name) && $member->property_name === 'Private Island' ? 'airstrip' : 'standard' }}">
                                         <span class="torn-icon" style="display:none;width:12px;height:12px;border:1px solid currentColor;border-radius:50%;text-align:center;line-height:10px;font-size:8px;">T</span>
                                         <svg class="w-3 h-3 plane-icon" style="display:none;" fill="currentColor" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
                                         <span class="travel-text">{{ $member->status_description ?? 'Traveling' }}</span><span class="travel-eta ml-1 font-mono"></span>
@@ -769,7 +769,7 @@ sortTable(document.getElementById('tbody-opp'), field, newDir);
 updateUrlSort(currentSort.field, currentSort.dir);
 }
 
-function simplifyTravelStatus(original) {
+function simplifyTravelStatus(original, travelMethod = 'standard') {
 const countryMap = {
         'United Kingdom': 'UK',
         'United Arab Emirates': 'UAE',
@@ -798,20 +798,35 @@ const countryMap = {
 'Australia': 'AU'
 };
 
-    // Travel times in minutes (fixed for all)
-    const TRAVEL_TIME = {
-        'Mexico': 18, 'MX': 18,
-        'Cayman Islands': 25, 'Cayman': 25,
-        'Canada': 29, 'CA': 29,
-        'Hawaii': 91,
-        'United Kingdom': 111, 'UK': 111,
-        'Argentina': 117, 'AR': 117,
-        'Switzerland': 123, 'CH': 123,
-        'Japan': 158, 'JP': 158,
-        'China': 169, 'CN': 169,
-        'UAE': 190,
-        'South Africa': 208, 'SA': 208,
-    };
+// Travel times in minutes - Airstrip (Private Island)
+        const TRAVEL_TIME_AIRSTRIP = {
+            'Mexico': 18, 'MX': 18,
+            'Cayman Islands': 25, 'Cayman': 25,
+            'Canada': 29, 'CA': 29,
+            'Hawaii': 94,
+            'United Kingdom': 111, 'UK': 111,
+            'Argentina': 117, 'AR': 117,
+            'Switzerland': 123, 'CH': 123,
+            'Japan': 158, 'JP': 158,
+            'China': 169, 'CN': 169,
+            'UAE': 190,
+            'South Africa': 208, 'SA': 208,
+        };
+        
+        // Travel times in minutes - Standard (other properties)
+        const TRAVEL_TIME_STANDARD = {
+            'Mexico': 26, 'MX': 26,
+            'Cayman Islands': 35, 'Cayman': 35,
+            'Canada': 41, 'CA': 41,
+            'Hawaii': 134,
+            'United Kingdom': 159, 'UK': 159,
+            'Argentina': 167, 'AR': 167,
+            'Switzerland': 175, 'CH': 175,
+            'Japan': 225, 'JP': 225,
+            'China': 242, 'CN': 242,
+            'UAE': 271,
+            'South Africa': 297, 'SA': 297,
+        };
 
 let country = null;
     let displayName = null;
@@ -831,7 +846,8 @@ let country = null;
         }
     }
 
-    const travelTime = TRAVEL_TIME[country] || 60;
+    const travelTimeTable = travelMethod === 'airstrip' ? TRAVEL_TIME_AIRSTRIP : TRAVEL_TIME_STANDARD;
+        const travelTime = travelTimeTable[country] || 60;
     const finalDisplayName = displayName || country || original;
 
     if (original.startsWith('Returning to Torn from') && country) {
@@ -850,10 +866,11 @@ let country = null;
 }
 
 function initTravelBubbles() {
-document.querySelectorAll('.travel-bubble').forEach(bubble => {
-var text = bubble.querySelector('.travel-text').textContent.trim();
-var result = simplifyTravelStatus(text);
-bubble.dataset.travelTime = result.travelTime;
+            document.querySelectorAll('.travel-bubble').forEach(bubble => {
+                var text = bubble.querySelector('.travel-text').textContent.trim();
+                var travelMethod = bubble.dataset.travelMethod || 'standard';
+                var result = simplifyTravelStatus(text, travelMethod);
+                bubble.dataset.travelTime = result.travelTime;
 
 var planeIcon = bubble.querySelector('.plane-icon');
 var tornIcon = bubble.querySelector('.torn-icon');

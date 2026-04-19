@@ -91,8 +91,8 @@
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-900/50 text-red-400 text-xs font-medium">{{ $statusDesc }}</span>
                                 @endif
                             @elseif($member->status_color === 'blue')
-                                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-time="60">
-<span class="travel-text">{{ $member->status_description ?? 'Traveling' }}</span><span class="travel-eta ml-1 font-mono"></span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-method="{{ !empty($member->property_name) && $member->property_name === 'Private Island' ? 'airstrip' : 'standard' }}">
+                                        <span class="travel-text">{{ $member->status_description ?? 'Traveling' }}</span><span class="travel-eta ml-1 font-mono"></span>
                                         @if(!empty($member->property_name))
                                         <span class="ml-1 text-[10px] opacity-75">- {{ $member->property_name === 'Private Island' ? 'Airstrip' : 'Standard' }}</span>
                                         @endif
@@ -124,7 +124,37 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    // Travel times in minutes - Airstrip (Private Island)
+    const TRAVEL_TIME_AIRSTRIP = {
+        'Mexico': 18, 'MX': 18,
+        'Cayman Islands': 25, 'Cayman': 25,
+        'Canada': 29, 'CA': 29,
+        'Hawaii': 94,
+        'United Kingdom': 111, 'UK': 111,
+        'Argentina': 117, 'AR': 117,
+        'Switzerland': 123, 'CH': 123,
+        'Japan': 158, 'JP': 158,
+        'China': 169, 'CN': 169,
+        'UAE': 190,
+        'South Africa': 208, 'SA': 208,
+    };
+    
+    // Travel times in minutes - Standard (other properties)
+    const TRAVEL_TIME_STANDARD = {
+        'Mexico': 26, 'MX': 26,
+        'Cayman Islands': 35, 'Cayman': 35,
+        'Canada': 41, 'CA': 41,
+        'Hawaii': 134,
+        'United Kingdom': 159, 'UK': 159,
+        'Argentina': 167, 'AR': 167,
+        'Switzerland': 175, 'CH': 175,
+        'Japan': 225, 'JP': 225,
+        'China': 242, 'CN': 242,
+        'UAE': 271,
+        'South Africa': 297, 'SA': 297,
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
     const thead = document.getElementById('thead');
     const tbody = document.getElementById('tbody');
     
@@ -170,20 +200,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function updateTravelTimers() {
-    var now = Math.floor(Date.now() / 1000);
-    document.querySelectorAll('.travel-bubble').forEach(function(bubble) {
-        var etaEl = bubble.querySelector('.travel-eta');
-        if (!etaEl) return;
-        
-        var statusChanged = parseInt(bubble.getAttribute('data-status-changed'));
-        var travelTime = parseInt(bubble.getAttribute('data-travel-time')) || 60;
-        
-        if (isNaN(statusChanged)) {
-            etaEl.textContent = '';
-            return;
-        }
-        
-        var travelTimeSec = travelTime * 60;
+        var now = Math.floor(Date.now() / 1000);
+        document.querySelectorAll('.travel-bubble').forEach(function(bubble) {
+            var etaEl = bubble.querySelector('.travel-eta');
+            if (!etaEl) return;
+            
+            var statusChanged = parseInt(bubble.getAttribute('data-status-changed'));
+            var travelMethod = bubble.getAttribute('data-travel-method') || 'standard';
+            var text = bubble.querySelector('.travel-text').textContent.trim();
+            
+            // Extract destination from travel text
+            var destination = null;
+            var match = text.match(/(?:Traveling to |Returning to Torn from |In )(.*)/);
+            if (match) {
+                destination = match[1];
+            }
+            
+            // Get travel time in minutes based on method and destination
+            var travelTimeTable = travelMethod === 'airstrip' ? TRAVEL_TIME_AIRSTRIP : TRAVEL_TIME_STANDARD;
+            var travelTime = travelTimeTable[destination] || 60;
+            
+            if (isNaN(statusChanged)) {
+                etaEl.textContent = '';
+                return;
+            }
+            
+            var travelTimeSec = travelTime * 60;
         var earliestLanding = Math.floor(travelTimeSec / 1.03);
         var elapsed = now - statusChanged;
         var remaining = earliestLanding - elapsed;
