@@ -4,9 +4,9 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use App\Models\User;
 use App\Models\RankedWar;
+use App\Services\TornApiService;
 
 class SyncPlayerProfiles extends Command
 {
@@ -147,25 +147,20 @@ class SyncPlayerProfiles extends Command
     protected function processPlayer(int $playerId, string $apiKey, bool $force): void
     {
         try {
-            $response = Http::withHeaders([
-                'Authorization' => $apiKey,
-                'Accept' => 'application/json',
-            ])->get("https://api.torn.com/v2/user/{$playerId}/profile", [
+            $api = new TornApiService();
+            $api->setApiKey($apiKey);
+            
+            $data = $api->get("user/{$playerId}", [
+                'section' => 'profile',
                 'statustags' => 'true',
             ]);
 
-            if ($response->status() === 429) {
-                $this->rateLimited = true;
-                return;
-            }
-
-            if ($response->failed()) {
-                $this->error("Failed for player {$playerId}: " . $response->status());
+            if (!$data) {
+                $this->error("API error for player {$playerId}");
                 $this->errors++;
                 return;
             }
 
-            $data = $response->json();
             $profile = $data['profile'] ?? null;
 
             if (!$profile) {
