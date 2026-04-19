@@ -274,9 +274,6 @@
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-700/50 text-gray-400 text-xs font-medium">{{ $member->status_description ?? 'Offline' }}</span>
                                 @endif
                             </td>
-                            <td class="p-3 text-center">
-                                <button class="bell-btn text-lg" data-player="{{ $member->player_id }}">🔕</button>
-                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -393,6 +390,9 @@
                                 @else
                                     <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-gray-700/50 text-gray-400 text-xs font-medium">{{ $member->status_description ?? 'Offline' }}</span>
                                 @endif
+                            </td>
+                            <td class="p-3 text-center">
+                                <button class="bell-btn text-lg" data-player="{{ $member->player_id }}">🔕</button>
                             </td>
                         </tr>
                         @endforeach
