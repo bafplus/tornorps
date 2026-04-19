@@ -984,6 +984,8 @@ function getBellKey(type, playerId) {
 }
 
 function initBells() {
+    document.querySelectorAll(".bell-btn").forEach(function(b) { b.classList.remove("text-yellow-400"); b.classList.add("text-gray-400"); });
+
     document.querySelectorAll('.bell-btn').forEach(function(btn) {
         var type = btn.closest('.hospital-timer') ? 'hospital' : 'travel';
         var playerEl = btn.closest('.hospital-timer, .travel-bubble').closest('tr');
@@ -1043,7 +1045,7 @@ function checkBells() {
             localStorage.setItem(key + '_done', JSON.stringify(alertsDone));
             var playerName = timerEl.closest('tr').querySelector('td:first-child a, td:first-child span').textContent;
             new Notification('TornOps Alert', {
-                body: (type === 'hospital' ? 'Hospital release' : 'Travel return') + ' in 5 min for ' + playerName,
+                body: type === 'hospital' ? playerName + ' will leave hospital in 5 min' : playerName + ' will return in 5 min',
                 icon: '/favicon.ico'
             });
             playSOS();
@@ -1054,7 +1056,7 @@ function checkBells() {
             localStorage.setItem(key + '_done', JSON.stringify(alertsDone));
             var playerName = timerEl.closest('tr').querySelector('td:first-child a, td:first-child span').textContent;
             new Notification('TornOps Alert', {
-                body: (type === 'hospital' ? 'Hospital released!' : 'Travel returned!') + ' ' + playerName,
+                body: type === 'hospital' ? playerName + ' is out of hospital!' : playerName + ' has returned!',
                 icon: '/favicon.ico'
             });
             playSOS();
