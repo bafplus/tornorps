@@ -92,8 +92,11 @@
                                 @endif
                             @elseif($member->status_color === 'blue')
                                 <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-900/50 text-blue-400 text-xs font-medium travel-bubble" data-status-changed="{{ $member->travel_started_at?->timestamp ?? $member->status_changed_at?->timestamp }}" data-travel-time="60">
-                                    <span class="travel-text">{{ $member->status_description ?? 'Traveling' }}</span><span class="travel-eta ml-1 font-mono"></span>
-                                </span>
+<span class="travel-text">{{ $member->status_description ?? 'Traveling' }}</span><span class="travel-eta ml-1 font-mono"></span>
+                                        @if(!empty($member->property_name))
+                                        <span class="ml-1 text-[10px] opacity-75">- {{ $member->property_name === 'Private Island' ? 'Airstrip' : 'Standard' }}</span>
+                                        @endif
+                                    </span>
                             @elseif($member->status_color === 'green')
                                 <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-900/50 text-green-400 text-xs font-medium">{{ $member->status_description ?? 'Okay' }}</span>
                             @else
