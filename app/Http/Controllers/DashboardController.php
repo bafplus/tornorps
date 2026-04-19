@@ -54,7 +54,7 @@ class DashboardController extends Controller
         return view('dashboard.index', compact('settings', 'totalMembers', 'activeWars', 'recentWars', 'ocAlerts', 'inactiveMembers'));
     }
 
-    public function members()
+public function members()
     {
         $settings = FactionSettings::first();
         $members = FactionMember::where('faction_id', $settings->faction_id ?? 0)
@@ -62,10 +62,27 @@ class DashboardController extends Controller
             ->orderByRaw("CASE WHEN (status_color = 'red' OR status_color = 'blue') AND data IS NOT NULL THEN json_extract(data, '$.status.until') ELSE 999999999999 END")
             ->orderBy('name')
             ->paginate(25);
+        
+        // Add property_name from player_profiles
+        $playerIds = $members->pluck('player_id')->toArray();
+        $propertyMap = [];
+        if (!empty($playerIds)) {
+            $profiles = DB::table('player_profiles')
+                ->whereIn('player_id', $playerIds)
+                ->select('player_id', 'property_name')
+                ->get();
+            foreach ($profiles as $p) {
+                $propertyMap[$p->player_id] = $p->property_name;
+            }
+        }
+        foreach ($members as $m) {
+            $m->property_name = $propertyMap[$m->player_id] ?? null;
+        }
+        
         $warActive = WarService::hasActiveWar();
-
+        
         $travelMethod = FactionSettings::value('travel_method', 1);
-
+        
         return view('dashboard.members', compact('settings', 'members', 'warActive', 'travelMethod'));
     }
 
@@ -102,6 +119,22 @@ $ourMembers = $war->members()
             ->orderBy('name')
             ->get();
         
+        // Add property_name from player_profiles
+        $ourPlayerIds = $ourMembers->pluck('player_id')->toArray();
+        $propertyMap = [];
+        if (!empty($ourPlayerIds)) {
+            $profiles = DB::table('player_profiles')
+                ->whereIn('player_id', $ourPlayerIds)
+                ->select('player_id', 'property_name')
+                ->get();
+            foreach ($profiles as $p) {
+                $propertyMap[$p->player_id] = $p->property_name;
+            }
+        }
+        foreach ($ourMembers as $m) {
+            $m->property_name = $propertyMap[$m->player_id] ?? null;
+        }
+        
         $opponentMembers = $war->members()
             ->where('faction_id', $war->opponent_faction_id)
             ->orderByRaw("CASE WHEN status_color = 'green' THEN 0 WHEN status_color = 'red' THEN 1 WHEN status_color = 'blue' THEN 2 ELSE 3 END")
@@ -115,6 +148,22 @@ $ourMembers = $war->members()
                 );
                 return $member;
             });
+        
+        // Add property_name to opponent members
+        $oppPlayerIds = $opponentMembers->pluck('player_id')->toArray();
+        $oppPropertyMap = [];
+        if (!empty($oppPlayerIds)) {
+            $oppProfiles = DB::table('player_profiles')
+                ->whereIn('player_id', $oppPlayerIds)
+                ->select('player_id', 'property_name')
+                ->get();
+            foreach ($oppProfiles as $p) {
+                $oppPropertyMap[$p->player_id] = $p->property_name;
+            }
+        }
+        foreach ($opponentMembers as $m) {
+            $m->property_name = $oppPropertyMap[$m->player_id] ?? null;
+        }
         
         // Get user FF score from their player_id in faction members
         $userFfScore = 1.0;
