@@ -67,6 +67,16 @@
                             @if($member->revivable ?? false)
                             <span class="ml-1" title="Can be revived">🚨</span>
                             @endif
+                            @php $icons = $member->icons ? json_decode($member->icons, true) : []; @endphp
+                            @if(!empty($icons))
+                            <span class="ml-1 inline-flex gap-0.5" title="{{ collect($icons)->pluck('title')->filter()->implode(', ') }}">
+                            @foreach($icons as $icon)
+                            @if(isset($icon['id']))
+                            <span class="text-[10px]">🏅</span>
+                            @endif
+                            @endforeach
+                            </span>
+                            @endif
                         </td>
                         <td class="p-3">{{ $member->level }}</td>
                         <td class="p-3 text-right font-mono text-green-400">{{ $member->ff_score ?? '-' }}</td>

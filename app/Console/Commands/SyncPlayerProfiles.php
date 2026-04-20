@@ -178,6 +178,18 @@ class SyncPlayerProfiles extends Command
             // Determine if this is from a war opponent
             $isFromWar = $this->isWarOpponent($playerId);
 
+            // Fetch icons
+            $icons = null;
+            try {
+                $api = new TornApiService();
+                $iconsData = $api->getIcons($playerId, $apiKey);
+                if ($iconsData) {
+                    $icons = json_encode($iconsData);
+                }
+            } catch (\Exception $e) {
+                // Icons are optional, continue without
+            }
+
             // Build record
             $record = [
                 'player_id' => $profile['player_id'] ?? $playerId,
@@ -214,6 +226,7 @@ class SyncPlayerProfiles extends Command
                 'last_action_status' => $profile['last_action']['status'] ?? null,
                 'last_action_timestamp' => $profile['last_action']['timestamp'] ?? null,
                 'from_war' => $isFromWar ? 1 : 0,
+                'icons' => $icons,
                 'data' => json_encode($profile),
                 'last_synced_at' => now(),
                 'updated_at' => now(),

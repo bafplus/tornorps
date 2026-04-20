@@ -570,14 +570,19 @@ return $data;
         return $data;
     }
 
-    public function getUserGym(string $apiKey): ?array
+    public function getIcons(int $playerId, ?string $apiKey = null): ?array
     {
+        $key = $apiKey ?? $this->apiKey;
+        if (!$key) {
+            return null;
+        }
+
         $response = Http::timeout(10)
-            ->get("{$this->baseUrl}/v2/user", ['key' => $apiKey, 'selections' => 'gym']);
+            ->get("{$this->baseUrl}/v2/user/{$playerId}/icons", ['key' => $key]);
 
         if ($response->failed()) {
-            Log::error('Torn V2 API Error (user gym)', [
-                'endpoint' => 'v2/user',
+            Log::error('Torn API Error (icons)', [
+                'endpoint' => "v2/user/{$playerId}/icons",
                 'status' => $response->status(),
                 'body' => $response->body()
             ]);
@@ -587,13 +592,13 @@ return $data;
         $data = $response->json();
 
         if (isset($data['error'])) {
-            Log::error('Torn V2 API Error (user gym)', [
-                'endpoint' => 'v2/user',
+            Log::error('Torn API Error (icons)', [
+                'endpoint' => "v2/user/{$playerId}/icons",
                 'error' => $data['error']
             ]);
             return null;
         }
 
-        return $data;
+        return $data['icons'] ?? null;
     }
 }

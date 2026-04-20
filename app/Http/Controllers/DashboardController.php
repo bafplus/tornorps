@@ -63,23 +63,26 @@ public function members()
             ->orderBy('name')
             ->paginate(25);
         
-        // Add property_name and revivable from player_profiles
+        // Add property_name, revivable, and icons from player_profiles
         $playerIds = $members->pluck('player_id')->toArray();
         $propertyMap = [];
         $revivableMap = [];
+        $iconsMap = [];
         if (!empty($playerIds)) {
             $profiles = DB::table('player_profiles')
                 ->whereIn('player_id', $playerIds)
-                ->select('player_id', 'property_name', 'revivable')
+                ->select('player_id', 'property_name', 'revivable', 'icons')
                 ->get();
             foreach ($profiles as $p) {
                 $propertyMap[$p->player_id] = $p->property_name;
                 $revivableMap[$p->player_id] = $p->revivable;
+                $iconsMap[$p->player_id] = $p->icons;
             }
         }
         foreach ($members as $m) {
             $m->property_name = $propertyMap[$m->player_id] ?? null;
             $m->revivable = isset($revivableMap[$m->player_id]) && $revivableMap[$m->player_id];
+            $m->icons = $iconsMap[$m->player_id] ?? null;
         }
         
         $warActive = WarService::hasActiveWar();
