@@ -62,14 +62,7 @@
                     <tr class="hover:bg-gray-700/30" data-name="{{ strtolower($member->name) }}" data-level="{{ $member->level }}" data-ff="{{ $member->ff_score ?? 0 }}" data-stats="{{ $statsNum }}" data-position="{{ strtolower($member->position ?? '') }}" data-days="{{ $member->days_in_faction ?? 0 }}" data-status="{{ $member->status_description ?? '' }}" data-status-type="{{ $statusType }}">
                         <td class="p-3">
                             <span class="inline-block w-2 h-2 rounded-full mr-2 @if($member->online_status === 'Online') bg-green-500 @elseif($member->online_status === 'Idle') bg-yellow-500 @else bg-gray-500 @endif"></span>
-                            <a href="https://www.torn.com/profiles.php?XID={{ $member->player_id }}" target="_blank" class="text-blue-400 hover:text-blue-300">{{ $member->name ?? 'Unknown' }}</a>
-                            @if($member->revivable ?? false)
-                            <span class="relative group cursor-help">
-                                <svg class="w-3 h-3 ml-1 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-4v-4H7v-4h4V7h4v4h4v4z" transform="rotate(45 12 12)"/></svg>
-                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs bg-red-600 text-white rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-50">Can be revived</span>
-                            </span>
-                            @endif
-                            <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
+                            <a href="https://www.torn.com/profiles.php?XID={{ $member->player_id }}" target="_blank" class="text-blue-400 hover:text-blue-300">{{ $member->name ?? 'Unknown' }}</a>@if($member->revivable ?? false) <span class="relative group cursor-help inline"><svg class="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-4v-4H7v-4h4V7h4v4h4v4z" transform="rotate(45 12 12)"/></svg><span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs bg-red-600 text-white rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-50">Can be revived</span></span>@endif<span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                         </td>
                         <td class="p-3">{{ $member->level }}</td>
                         <td class="p-3 text-right font-mono text-green-400">{{ $member->ff_score ?? '-' }}</td>
