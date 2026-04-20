@@ -174,15 +174,8 @@ class SyncRankedWars extends Command
 
         $this->info("Synced {$warCount} ranked wars with {$memberCount} member records.");
         
-        // Cleanup members from old won/lost wars
-        $oldWars = \App\Models\RankedWar::whereIn('status', ['won', 'lost'])->get();
-        if ($oldWars->isNotEmpty()) {
-            $oldWarIds = $oldWars->pluck('war_id')->toArray();
-            $deleted = \App\Models\WarMember::whereIn('war_id', $oldWarIds)->delete();
-            if ($deleted > 0) {
-                $this->info("Cleaned up {$deleted} members from old wars.");
-            }
-        }
+        // Keep war members permanently for historical reference
+        // (members should reflect the war's state, not current faction)
         
         $log->markComplete($memberCount);
         return Command::SUCCESS;
