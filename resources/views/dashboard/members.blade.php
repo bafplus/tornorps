@@ -65,9 +65,7 @@
                             <a href="https://www.torn.com/profiles.php?XID={{ $member->player_id }}" target="_blank" class="text-blue-400 hover:text-blue-300">{{ $member->name ?? 'Unknown' }}</a>
                             <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                             @if($member->revivable ?? false)
-                            <span class="relative group cursor-help inline-block align-middle ml-1">
-                                <svg class="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 24 24" title="Can be revived"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-4v-4H7v-4h4V7h4v4h4v4z" transform="rotate(45 12 12)"/></svg>
-                            </span>
+                            <span class="text-red-500 ml-1" title="Can be revived">❤️</span>
                             @endif
                         </td>
                         <td class="p-3">{{ $member->level }}</td>
