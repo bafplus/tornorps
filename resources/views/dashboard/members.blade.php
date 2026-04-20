@@ -65,7 +65,7 @@
                             <a href="https://www.torn.com/profiles.php?XID={{ $member->player_id }}" target="_blank" class="text-blue-400 hover:text-blue-300">{{ $member->name ?? 'Unknown' }}</a>
                             <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                             @if($member->revivable ?? false)
-                            <span class="ml-1" style="color: #ef4444;" title="Can be revived">➕</span>
+                            <span class="ml-1 text-red-500" title="Can be revived">➕</span>
                             @endif
                         </td>
                         <td class="p-3">{{ $member->level }}</td>
