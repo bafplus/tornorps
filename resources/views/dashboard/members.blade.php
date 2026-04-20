@@ -67,37 +67,12 @@
                             @if($member->revivable ?? false)
                             <span class="ml-1" title="Can be revived">🚨</span>
                             @endif
-@php
-                                $icons = $member->icons ? json_decode($member->icons, true) : [];
-                                $iconPositionMap = [
-                                    6 => 0,    // Male - first clip
-                                    7 => 16,   // Female 
-                                    8 => 32,   // Married
-                                    9 => 48,   // Faction
-                                    10 => 64,  // Job
-                                    14 => 80,  // House
-                                    20 => 96,  // Property
-                                    21 => 112, // Vehicle
-                                    22 => 128, // Account
-                                    23 => 144, // Stocks
-                                    24 => 160, // Award
-                                    25 => 176, // Medal
-                                    34 => 192, // XMas
-                                    35 => 208, // Easter
-                                    36 => 224, // Halloween
-                                    37 => 240, // Birthday
-                                    38 => 256, // Donor
-                                    39 => 272, // Global
-                                    45 => 288, // Phone
-                                    46 => 304, // Computer
-                                    47 => 320, // Vault
-                                ];
-                            @endphp
+                            @php $icons = $member->icons ? json_decode($member->icons, true) : []; @endphp
                             @if(!empty($icons))
                             <span class="ml-1 inline-flex gap-0.5" title="{{ collect($icons)->pluck('title')->filter()->implode(', ') }}">
                             @foreach($icons as $icon)
-                            @if(isset($icon['id']) && isset($iconPositionMap[$icon['id']]))
-                            <span class="inline-block w-3.5 h-4 align-middle" style="background-image: url('https://www.torn.com/images/v2/svg_icons/sprites/user_status_icons_sprite.svg'); background-position: -{{ $iconPositionMap[$icon['id']] }}px 0; background-size: 1636px 16px; background-repeat: no-repeat;"></span>
+                            @if(isset($icon['id']))
+                            <span class="text-[10px]">🏅</span>
                             @endif
                             @endforeach
                             </span>
