@@ -75,7 +75,18 @@
                             <span class="inline-flex gap-0.5 justify-end">
                             @foreach($icons as $icon)
                             @if(isset($icon['id']))
-                            <img src="/sprite-1-{{ $icon['id'] }}.png" class="inline-block w-5 h-5 align-middle" title="[{{ $icon['id'] }}] {{ $icon['description'] ?? $icon['title'] ?? '' }}" alt="{{ $icon['title'] ?? '' }}" />
+                            @php
+                                $tooltip = '[' . $icon['id'] . '] ';
+                                if (isset($icon['until']) && $icon['until'] > time()) {
+                                    $remaining = $icon['until'] - time();
+                                    $hours = floor($remaining / 3600);
+                                    $minutes = floor(($remaining % 3600) / 60);
+                                    $seconds = $remaining % 60;
+                                    $tooltip .= sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds) . ' / ';
+                                }
+                                $tooltip .= $icon['description'] ?? $icon['title'] ?? '';
+                            @endphp
+                            <img src="/sprite-1-{{ $icon['id'] }}.png" class="inline-block w-5 h-5 align-middle" title="{{ $tooltip }}" alt="{{ $icon['title'] ?? '' }}" />
                             @endif
                             @endforeach
                             </span>
