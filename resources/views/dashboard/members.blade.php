@@ -25,7 +25,6 @@
                 <thead>
                     <tr class="text-left text-gray-400 bg-gray-700/50 text-sm cursor-pointer select-none" id="thead">
                         <th class="p-3" data-sort="name" data-dir="asc">Name <span class="sort-icon">↑</span></th>
-                        <th class="p-3 text-right">Icons</th>
                         <th class="p-3" data-sort="level" data-dir="desc">Level <span class="sort-icon">↓</span></th>
                         <th class="p-3 text-right" data-sort="ff" data-dir="desc">FF <span class="sort-icon">↓</span></th>
                         <th class="p-3 text-right" data-sort="stats" data-dir="desc">Stats <span class="sort-icon">↓</span></th>
@@ -67,29 +66,6 @@
                             <span class="text-gray-500 text-xs ml-1">#{{ $member->player_id }}</span>
                             @if($member->revivable ?? false)
                             <span class="ml-1" title="Can be revived">🚨</span>
-                            @endif
-                        </td>
-                        <td class="p-3 text-right">
-                            @php $icons = $member->icons ? json_decode($member->icons, true) : []; @endphp
-                            @if(!empty($icons))
-                            <span class="inline-flex gap-0.5 justify-end">
-                            @foreach($icons as $icon)
-                            @if(isset($icon['id']))
-                            @php
-                                $tooltip = '[' . $icon['id'] . '] ';
-                                if (isset($icon['until']) && $icon['until'] > time()) {
-                                    $remaining = $icon['until'] - time();
-                                    $hours = floor($remaining / 3600);
-                                    $minutes = floor(($remaining % 3600) / 60);
-                                    $seconds = $remaining % 60;
-                                    $tooltip .= sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds) . ' / ';
-                                }
-                                $tooltip .= $icon['description'] ?? $icon['title'] ?? '';
-                            @endphp
-                            <img src="/sprite-1-{{ $icon['id'] }}.png" class="inline-block w-5 h-5 align-middle" title="{{ $tooltip }}" alt="{{ $icon['title'] ?? '' }}" />
-                            @endif
-                            @endforeach
-                            </span>
                             @endif
                         </td>
                         <td class="p-3">{{ $member->level }}</td>
