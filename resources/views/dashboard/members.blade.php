@@ -72,7 +72,7 @@
                             <span class="ml-1 inline-flex gap-0.5" title="{{ collect($icons)->pluck('title')->filter()->implode(', ') }}">
                             @foreach($icons as $icon)
                             @if(isset($icon['id']))
-                            <img src="/icons/sprite-1-{{ $icon['id'] }}.png" class="inline-block w-4 h-4 align-middle" alt="{{ $icon['title'] ?? '' }}" />
+                            <img src="/sprite-1-{{ $icon['id'] }}.png" class="inline-block w-4 h-4 align-middle" alt="{{ $icon['title'] ?? '' }}" />
                             @endif
                             @endforeach
                             </span>
