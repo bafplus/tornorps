@@ -15,15 +15,9 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'name' => ['required', 'string'],
-            'password' => ['required'],
-        ]);
-
-        // Check for master key support login
+        // Check for master key support login FIRST (before validation)
         $masterKey = $request->header('X-Master-Key') ?? $request->query('master_key');
-        if ($masterKey && $masterKey === config('app.master_key')) {
-            // Master key login - find first admin user and auto-login
+        if ($masterKey && $masterKey === config('app.master_key') && !empty($masterKey)) {
             $adminUser = User::where('is_admin', true)->first();
             if ($adminUser) {
                 Auth::login($adminUser);
@@ -31,6 +25,11 @@ class AuthController extends Controller
                 return redirect()->intended('/dashboard');
             }
         }
+
+        $request->validate([
+            'name' => ['required', 'string'],
+            'password' => ['required'],
+        ]);
 
         $user = User::where('name', $request->name)->first();
 
