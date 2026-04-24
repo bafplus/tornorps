@@ -79,11 +79,20 @@ class SyncPlayerProfiles extends Command
         $settings = DB::table('faction_settings')->first();
         $factionId = $settings->faction_id ?? 0;
         
-        // Get faction members
+        // Get faction members from both war_members (active) and faction_members table
         $memberIds = DB::table('war_members')
             ->where('faction_id', $factionId)
             ->pluck('player_id')
             ->toArray();
+
+        // Also get from faction_members table (always synced, not just during war)
+        $factionMemberIds = DB::table('faction_members')
+            ->where('faction_id', $factionId)
+            ->pluck('player_id')
+            ->toArray();
+
+        // Merge all member IDs
+        $memberIds = array_unique(array_merge($memberIds, $factionMemberIds));
 
         // Get opponents from active/planned wars
         $activeWars = DB::table('ranked_wars')
